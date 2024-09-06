@@ -1,6 +1,7 @@
 {
   "hosting": {
     "public": "public",
+    "site": "rajlabs-tools",
     "ignore": [
       "firebase.json",
       "**/.*",
