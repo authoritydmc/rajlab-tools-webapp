@@ -2,16 +2,27 @@
 import RootLayout from './RootLayout';
 import MainLayout from './MainLayout';
 import { ThemeProvider } from './providers/ThemeContext';
-// Main App component
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import MainToolPage from './components/MainToolPage';
+import TextSanitize from './components/text-Sanitize/text-Sanitize';
+
 function App() {
+
+  const route=createBrowserRouter([
+    {
+      path:"/",
+      element:<MainToolPage/>
+    },
+    {
+      path:"tools/sanitize-text",
+      element:<TextSanitize/>
+    }
+  ])
   return (
     <ThemeProvider>
       <RootLayout>
         <MainLayout>
-          <div className="content">
-            <h2>Welcome to the React App</h2>
-            <p>Your content goes here.</p>
-          </div>
+         <RouterProvider router={route}/>
         </MainLayout>
       </RootLayout>
     </ThemeProvider>

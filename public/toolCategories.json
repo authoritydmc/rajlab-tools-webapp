@@ -1,0 +1,15 @@
+[
+    {
+      "title": "Text Utilities",
+      "tools": [
+        { "name": "Sanitize Text", "link": "/tools/sanitize-text", "iconName": "sanitize", "isEnabled": true }
+      ]
+    },
+    {
+      "title": "TODO",
+      "tools": [
+        { "name": "TODO TOOL 1", "link": "/", "iconName": "resizer", "isEnabled": false }
+      ]
+    }
+  ]
+  
