@@ -1,4 +1,4 @@
-import { useTheme } from "./providers/ThemeContext";
+import { useTheme } from "./themeContext";
 import { Link } from 'react-router-dom';
 import { Outlet } from "react-router-dom";
 // Main layout component for applying theme and other styling

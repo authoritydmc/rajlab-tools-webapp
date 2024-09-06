@@ -2,7 +2,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import MainToolPage from './components/MainToolPage';
 import TextSanitize from './components/text-Sanitize/text-Sanitize';
 import MainLayout from './MainLayout';
-import { ThemeProvider } from './providers/ThemeContext';
+import { ThemeProvider } from './themeContext';
 
 const router = createBrowserRouter([
   {

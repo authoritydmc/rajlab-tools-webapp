@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaArrowsAltH, FaCompressArrowsAlt, FaImage, FaCogs } from 'react-icons/fa'; // Import icons
-import { useTheme } from '../providers/ThemeContext'; // Adjust path if necessary
+import { useTheme } from '../themeContext'; // Adjust path if necessary
 
 export default function MainToolListPage() {
   const [toolCategories, setToolCategories] = useState([]);

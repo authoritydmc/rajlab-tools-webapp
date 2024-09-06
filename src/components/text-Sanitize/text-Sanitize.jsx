@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FaClipboard, FaTrash } from 'react-icons/fa';
 import { PiSelectionAllFill } from 'react-icons/pi';
 import { toast, Toaster } from 'react-hot-toast';
-import { useTheme } from '../../providers/ThemeContext';
+import { useTheme } from '../../themeContext';
 
 export default function SanitizeText() {
   const { isDarkMode } = useTheme(); // Access theme context
