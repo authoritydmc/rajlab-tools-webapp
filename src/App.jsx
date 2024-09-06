@@ -1,16 +1,23 @@
-import { useState } from 'react'
 
-import './App.css'
-
+import RootLayout from './RootLayout';
+import MainLayout from './MainLayout';
+import { ThemeProvider } from './providers/ThemeContext';
+// Main App component
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <h1 className="text-4xl font-bold underline ">
-    Hello world!
-  </h1>
-
-  )
+    <ThemeProvider>
+      <RootLayout>
+        <MainLayout>
+          <div className="content">
+            <h2>Welcome to the React App</h2>
+            <p>Your content goes here.</p>
+          </div>
+        </MainLayout>
+      </RootLayout>
+    </ThemeProvider>
+  );
 }
 
-export default App
+
+
+export default App;
