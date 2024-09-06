@@ -3,12 +3,16 @@ import { FaClipboard, FaTrash } from 'react-icons/fa';
 import { PiSelectionAllFill } from 'react-icons/pi';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
-
+import { useEffect } from 'react';
 export default function SanitizeText() {
   const { isDarkMode } = useTheme(); // Access theme context
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
 
+   // Set the page title when the component mounts
+   useEffect(() => {
+    document.title = "Text Sanitizer - Rajlab Utilities"; // Set the desired page title
+  }, []);
   // Function to sanitize text by removing non-word characters
   const sanitizeText = (text) => {
     return text.replace(/[^\w\s]/g, ''); // Keep letters, digits, and whitespace
