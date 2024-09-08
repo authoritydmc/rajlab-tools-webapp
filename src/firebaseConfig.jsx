@@ -8,8 +8,9 @@ import firebaseConfigData from './firebaseConfig.json'; // Import JSON config
 
 const firebaseApp = initializeApp(firebaseConfigData);
 
-const analytics = await isSupported() ? getAnalytics(firebaseApp) : null
+const analytics =getAnalytics(firebaseApp) 
 // console.log(firebaseApp)
+console.log("analytics->",analytics)
 
 const logFirebaseEvent = (eventName, eventParams = {}) => {
   // Check if analytics is initialized
