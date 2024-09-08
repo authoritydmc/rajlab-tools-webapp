@@ -15,16 +15,20 @@ jobs:
       # Step 1: Check out the code from the repository
       - uses: actions/checkout@v4
 
-      # Step 2: Create `firebaseConfig.jsx` from the secret
+      # Step 2: Create `firebaseConfig.json` from the secret
       - name: Create firebaseConfig.json
         env:
           FIREBASE_CONFIG: ${{ secrets.FIREBASE_API_CONFIG }}
         run: echo "$FIREBASE_CONFIG" > ./src/firebaseConfig.json
 
-      # Step 3: Install dependencies and build the project
+      # Step 3: Output the contents of `firebaseConfig.json`
+      - name: Output firebaseConfig.json
+        run: cat ./src/firebaseConfig.json
+
+      # Step 4: Install dependencies and build the project
       - run: npm ci && npm run build
 
-      # Step 4: Deploy to Firebase Hosting
+      # Step 5: Deploy to Firebase Hosting
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
