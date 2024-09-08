@@ -1,5 +1,5 @@
-import React, { useState,useEffect } from 'react';
-import { FaClipboard, FaTrash, FaUpload } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaClipboard, FaTrash } from 'react-icons/fa';
 import { PiSelectionAllFill } from 'react-icons/pi';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
@@ -11,9 +11,7 @@ export default function ImageToBase64Tool() {
   const [loading, setLoading] = useState(false); // Loading state
   const [fileSize, setFileSize] = useState(0); // File size state
 
-  
   useEffect(() => {
-
     document.title = 'Image to Base64 Encoder | Rajlabs';
 
     // Cleanup function to reset the title when the component is unmounted
@@ -21,9 +19,9 @@ export default function ImageToBase64Tool() {
       document.title = 'Utilities || Rajlabs'; // Reset to the default title when leaving the page
     };
   }, []);
+
   // Function to handle image file change and conversion
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
+  const handleImageChange = (file) => {
     if (file) {
       setLoading(true); // Set loading to true
       setFileSize(file.size); // Set file size
@@ -36,6 +34,26 @@ export default function ImageToBase64Tool() {
       reader.readAsDataURL(file); // Convert image to Base64 string
       setImageFile(file);
     }
+  };
+
+  // Handle file input change
+  const handleFileInputChange = (event) => {
+    const file = event.target.files[0];
+    handleImageChange(file);
+  };
+
+  // Handle drag and drop events
+  const handleDrop = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const file = event.dataTransfer.files[0];
+    handleImageChange(file);
+  };
+
+  // Handle drag over events
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
   };
 
   // Function to handle "Select All" button click
@@ -71,19 +89,26 @@ export default function ImageToBase64Tool() {
         } border`}
       >
         {/* Image Upload Section */}
-        <div className="mb-4">
+        <div
+          className={`relative mb-4 p-4 border-dashed rounded-md ${
+            isDarkMode ? 'border-gray-600' : 'border-gray-300'
+          } border-2`}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+        >
           <label htmlFor="imageUpload" className="block mb-2 font-semibold">
-            Upload Image
+            Upload Image (Drag and drop or click to select)
           </label>
           <input
             type="file"
             id="imageUpload"
             accept="image/*"
-            onChange={handleImageChange}
-            className={`w-full p-2 border rounded-md ${
-              isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'
-            }`}
+            onChange={handleFileInputChange}
+            className={`absolute inset-0 opacity-0 cursor-pointer`}
           />
+          <p className="text-center text-sm">
+            Drag and drop an image here or click to select a file.
+          </p>
         </div>
 
         {/* Loading Feedback */}
@@ -141,6 +166,63 @@ export default function ImageToBase64Tool() {
             </div>
           </div>
         </div>
+
+        {/* HTML Usage Section */}
+        {base64String && (
+          <div className={`mt-6 p-4 rounded-md ${
+            isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-900'
+          }`}>
+            <div className="flex justify-between items-center mb-2">
+              <p className="font-semibold">Use in HTML:</p>
+              <button
+                onClick={handleCopyToClipboard}
+                className={`p-2 rounded-md transition-colors duration-300 ${
+                  isDarkMode ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-green-500 text-white hover:bg-green-600'
+                }`}
+                title="Copy to Clipboard"
+              >
+                <FaClipboard size={16} />
+              </button>
+            </div>
+            <pre className={`bg-gray-100 p-2 rounded-md text-sm ${
+              isDarkMode ? 'text-gray-300 bg-gray-800' : 'text-gray-800 bg-gray-100'
+            } overflow-hidden overflow-ellipsis`}>
+              <code className="whitespace-nowrap">
+                {`<img src="${base64String}" alt="Uploaded Image" />`}
+              </code>
+            </pre>
+          </div>
+        )}
+
+        {/* CSS Usage Section */}
+        {base64String && (
+          <div className={`mt-6 p-4 rounded-md ${
+            isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-900'
+          }`}>
+            <div className="flex justify-between items-center mb-2">
+              <p className="font-semibold">Use in CSS:</p>
+              <button
+                onClick={handleCopyToClipboard}
+                className={`p-2 rounded-md transition-colors duration-300 ${
+                  isDarkMode ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-green-500 text-white hover:bg-green-600'
+                }`}
+                title="Copy to Clipboard"
+              >
+                <FaClipboard size={16} />
+              </button>
+            </div>
+            <pre className={`bg-gray-100 p-2 rounded-md text-sm ${
+              isDarkMode ? 'text-gray-300 bg-gray-800' : 'text-gray-800 bg-gray-100'
+            } overflow-hidden overflow-ellipsis`}>
+              <code className="whitespace-nowrap">
+                {`.your-class {
+  background-image: url('${base64String}');
+  /* Adjust background properties as needed */
+}`}
+              </code>
+            </pre>
+          </div>
+        )}
 
         {/* Information Section */}
         <div className={`mt-6 p-4 rounded-md ${
