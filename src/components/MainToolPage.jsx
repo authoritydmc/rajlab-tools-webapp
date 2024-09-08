@@ -13,7 +13,7 @@ export default function MainToolListPage() {
 
   useEffect(() => {
     // Retrieve view mode from localStorage
-    const savedViewMode = localStorage.getItem('viewMode') || 'category';
+    const savedViewMode = localStorage.getItem('viewMode') || 'list';
     setViewMode(savedViewMode);
 
     // Fetch the JSON data from the `data` folder
@@ -38,12 +38,13 @@ export default function MainToolListPage() {
       page_path: "/",
     });
   }, []);
+ 
+  const setViewModeWithSave=(mode)=>{
+    localStorage.setItem('viewMode',mode)
 
-  // Save view mode to localStorage when it changes
-  useEffect(() => {
-    localStorage.setItem('viewMode', viewMode);
-  }, [viewMode]);
-
+    setViewMode(mode)
+  }
+ 
   // Function to dynamically get icon component from react-icons/fa based on iconName from JSON
   const getIcon = (iconName) => {
     const IconComponent = FaIcons[iconName];
@@ -89,14 +90,14 @@ export default function MainToolListPage() {
         </div>
         <div className="flex ml-4 space-x-2">
           <button
-            onClick={() => setViewMode('category')}
+            onClick={() => setViewModeWithSave('category')}
             className={`p-2 rounded-md ${viewMode === 'category' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-900'} ${isDarkMode ? 'hover:bg-blue-700' : 'hover:bg-gray-300'}`}
             title="Category View"
           >
             <FaIcons.FaThList size={24} />
           </button>
           <button
-            onClick={() => setViewMode('list')}
+            onClick={() => setViewModeWithSave('list')}
             className={`p-2 rounded-md ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-900'} ${isDarkMode ? 'hover:bg-blue-700' : 'hover:bg-gray-300'}`}
             title="List View"
           >
