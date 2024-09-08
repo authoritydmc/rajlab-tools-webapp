@@ -92,7 +92,7 @@ export default function Base64Tool() {
           ></div>
         </div>
         <span className="ml-4 text-lg">
-          {isEncodeMode ? 'Encode to Base64 String' : 'Decode Base64 String'} 
+          {isEncodeMode ? 'Encode' : 'Decode'}
         </span>
       </div>
 
@@ -102,70 +102,82 @@ export default function Base64Tool() {
         } border`}
       >
         {/* Input Section */}
-        <div className="relative mb-8">
-          <textarea
-            id="input"
-            value={inputText}
-            onChange={handleInputChange}
-            placeholder="Type or paste text here..."
-            className={`w-full h-40 p-2 border rounded-md resize-none ${
-              isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'
-            }`}
-          />
-          {/* Input Action Buttons */}
-          <div className="absolute top-2 right-2 flex gap-2">
-            <button
-              onClick={() => handleSelectAll('input')}
-              className={`p-2 rounded-md transition-colors duration-300 ${
-                isDarkMode ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-500 text-white hover:bg-blue-600'
+        <div className="mb-4">
+          {/* Conditionally Render Input Label */}
+          <label htmlFor="input" className="block mb-2 font-semibold">
+            {isEncodeMode ? 'Text to Encode' : 'Base64 to Decode'}
+          </label>
+          <div className="relative">
+            <textarea
+              id="input"
+              value={inputText}
+              onChange={handleInputChange}
+              placeholder={isEncodeMode ? 'Enter text to encode...' : 'Enter Base64 string to decode...'}
+              className={`w-full h-40 p-2 border rounded-md resize-none ${
+                isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'
               }`}
-              title="Select All"
-            >
-              <PiSelectionAllFill size={16} />
-            </button>
-            <button
-              onClick={handleClear}
-              className={`p-2 rounded-md transition-colors duration-300 ${
-                isDarkMode ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-red-500 text-white hover:bg-red-600'
-              }`}
-              title="Clear"
-            >
-              <FaTrash />
-            </button>
+            />
+            {/* Input Action Buttons */}
+            <div className="absolute top-2 right-2 flex gap-2">
+              <button
+                onClick={() => handleSelectAll('input')}
+                className={`p-2 rounded-md transition-colors duration-300 ${
+                  isDarkMode ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-500 text-white hover:bg-blue-600'
+                }`}
+                title="Select All"
+              >
+                <PiSelectionAllFill size={16} />
+              </button>
+              <button
+                onClick={handleClear}
+                className={`p-2 rounded-md transition-colors duration-300 ${
+                  isDarkMode ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-red-500 text-white hover:bg-red-600'
+                }`}
+                title="Clear"
+              >
+                <FaTrash />
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Output Section */}
-        <div className="relative">
-          <textarea
-            id="output"
-            value={outputText}
-            placeholder="Your output goes here..."
-            readOnly
-            className={`w-full h-40 p-2 border rounded-md resize-none ${
-              isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'
-            }`}
-          />
-          {/* Output Action Buttons */}
-          <div className="absolute top-2 right-2 flex gap-2">
-            <button
-              onClick={() => handleSelectAll('output')}
-              className={`p-2 rounded-md transition-colors duration-300 ${
-                isDarkMode ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-500 text-white hover:bg-blue-600'
+        <div className="mb-4">
+          {/* Conditionally Render Output Label */}
+          <label htmlFor="output" className="block mb-2 font-semibold">
+            {isEncodeMode ? 'Base64 Output' : 'Decoded Text'}
+          </label>
+          <div className="relative">
+            <textarea
+              id="output"
+              value={outputText}
+              placeholder={isEncodeMode ? 'Your Base64 encoded output will appear here...' : 'Your decoded text will appear here...'}
+              readOnly
+              className={`w-full h-40 p-2 border rounded-md resize-none ${
+                isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'
               }`}
-              title="Select All"
-            >
-              <PiSelectionAllFill size={16} />
-            </button>
-            <button
-              onClick={handleCopyToClipboard}
-              className={`p-2 rounded-md transition-colors duration-300 ${
-                isDarkMode ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-green-500 text-white hover:bg-green-600'
-              }`}
-              title="Copy to Clipboard"
-            >
-              <FaClipboard size={16} />
-            </button>
+            />
+            {/* Output Action Buttons */}
+            <div className="absolute top-2 right-2 flex gap-2">
+              <button
+                onClick={() => handleSelectAll('output')}
+                className={`p-2 rounded-md transition-colors duration-300 ${
+                  isDarkMode ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-500 text-white hover:bg-blue-600'
+                }`}
+                title="Select All"
+              >
+                <PiSelectionAllFill size={16} />
+              </button>
+              <button
+                onClick={handleCopyToClipboard}
+                className={`p-2 rounded-md transition-colors duration-300 ${
+                  isDarkMode ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-green-500 text-white hover:bg-green-600'
+                }`}
+                title="Copy to Clipboard"
+              >
+                <FaClipboard size={16} />
+              </button>
+            </div>
           </div>
         </div>
       </div>
