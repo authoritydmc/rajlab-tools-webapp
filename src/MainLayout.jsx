@@ -1,6 +1,5 @@
 import { useTheme } from "./themeContext";
-import { Link } from 'react-router-dom';
-import { Outlet } from "react-router-dom";
+import { Link, Outlet } from 'react-router-dom';
 import { FaGithub, FaHeart } from 'react-icons/fa'; // Importing GitHub and Heart icons
 import { FiExternalLink } from 'react-icons/fi'; // Importing external link icon
 
@@ -16,13 +15,13 @@ function MainLayout() {
       } transition-colors duration-300`}
     >
       {/* Header Section */}
-      <header className={`flex items-center justify-between p-4 sm:p-6 lg:p-8 shadow-md ${
+      <header className={`flex items-center justify-between p-4 sm:p-5 md:p-6 lg:p-8 shadow-md ${
         isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-300 shadow-lg"
       }`}>
         {/* Brand Name */}
         <Link 
           to="/" 
-          className={`text-2xl sm:text-3xl font-bold ${
+          className={`text-xl sm:text-2xl md:text-3xl font-bold ${
             isDarkMode ? "text-white" : "text-gray-900"
           } flex-1 text-center`}
         >
@@ -48,18 +47,18 @@ function MainLayout() {
       </main>
 
       {/* Footer Section */}
-      <footer className={`flex items-center justify-center p-4 sm:p-6 lg:p-8 ${
+      <footer className={`flex flex-col items-center p-4 sm:p-6 lg:p-8 ${
         isDarkMode ? "bg-gray-800 text-gray-400" : "bg-white text-gray-700"
       }`}>
-        {/* Footer content with GitHub icon, heart icon, and external link */}
-        <p className="text-sm sm:text-base flex items-center gap-2">
-          Made with <FaHeart className="text-red-500" /> by{" "}
+        {/* Footer content with GitHub icon, heart icon, external link, and sitemap link */}
+        <p className="text-sm sm:text-base flex flex-wrap items-center gap-2 mb-2 text-center">
+          Made with <span className="animate-pulse"><FaHeart className="text-red-500" /></span> by{" "}
           <a 
             href="https://github.com/authoritydmc" 
             target="_blank" 
             rel="noopener noreferrer"
             className={`flex items-center gap-1 underline ${
-              isDarkMode ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-500"
+              isDarkMode ? "text-blue-300 hover:text-blue-200" : "text-blue-700 hover:text-blue-600"
             }`}
           >
             <FaGithub /> authoritydmc 
@@ -69,10 +68,21 @@ function MainLayout() {
             target="_blank" 
             rel="noopener noreferrer"
             className={`flex items-center gap-1 underline ${
-              isDarkMode ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-500"
+              isDarkMode ? "text-blue-300 hover:text-blue-200" : "text-blue-700 hover:text-blue-600"
             }`}
           >
             Rajlab 
+          </a>
+          <span className="mx-2">||</span>
+          <a 
+            href="/sitemap.xml" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className={`flex items-center gap-1 underline ${
+              isDarkMode ? "text-blue-300 hover:text-blue-200" : "text-blue-700 hover:text-blue-600"
+            }`}
+          >
+            Sitemap <FiExternalLink size={16} />
           </a>
         </p>
       </footer>
