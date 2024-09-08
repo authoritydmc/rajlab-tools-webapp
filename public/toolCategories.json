@@ -13,7 +13,7 @@
       {
         "name": "Text Formatter",
         "link": "/format-text",
-        "iconName": "FormatShapes",
+        "iconName": "FaText",
         "isEnabled": true,
         "description": "Formats text with lowercase,uppercase,reverse etc."
       }
@@ -21,19 +21,19 @@
   },
   {
     "title": "Encryption & Encoding Utilities",
-    "iconName": "Lock",
+    "iconName": "FaLock",
     "tools": [
       {
         "name": "Base 64 Encoder/Decoder",
         "link": "/base64-encoder-decoder",
-        "iconName": "Transform",
+        "iconName": "FaUnlock",
         "isEnabled": true,
         "description": "Encodes or decodes text into or from Base64 format, commonly used in data transmission."
       },
       {
         "name": "BCrypt Hashing",
         "link": "/bcrypt-hashing",
-        "iconName": "Security",
+        "iconName": "FaLock",
         "isEnabled": true,
         "description": "Generates secure hashed passwords using the BCrypt hashing algorithm."
       }
