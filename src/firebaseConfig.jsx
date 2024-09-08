@@ -10,7 +10,7 @@ const firebaseApp = initializeApp(firebaseConfigData);
 
 const analytics =getAnalytics(firebaseApp) 
 // console.log(firebaseApp)
-console.log("analytics->",analytics)
+
 
 const logFirebaseEvent = (eventName, eventParams = {}) => {
   // Check if analytics is initialized
