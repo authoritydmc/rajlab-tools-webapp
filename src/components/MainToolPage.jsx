@@ -48,11 +48,7 @@ export default function MainToolListPage() {
         isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'
       }`}
     >
-      <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-center">
-        Available Tools
-      </h2>
-
-      {/* List of Tool Categories */}
+        {/* List of Tool Categories */}
       <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl`}>
         {toolCategories.map((category, index) => (
           <div
