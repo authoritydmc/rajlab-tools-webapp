@@ -2,8 +2,8 @@
     {
       "title": "Text Utilities",
       "tools": [
-        { "name": "Sanitize Text", "link": "/tools/sanitize-text", "iconName": "sanitize", "isEnabled": true },
-        { "name": "Text Formatter", "link": "/tools/format-text", "iconName": "sanitize", "isEnabled": true }
+        { "name": "Sanitize Text", "link": "/sanitize-text", "iconName": "sanitize", "isEnabled": true },
+        { "name": "Text Formatter", "link": "/format-text", "iconName": "sanitize", "isEnabled": true }
       ]
     },
     {

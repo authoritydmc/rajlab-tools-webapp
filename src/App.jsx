@@ -14,11 +14,11 @@ const router = createBrowserRouter([
         element: <MainToolPage />,
       },
       {
-        path: "tools/sanitize-text", // Relative path for nested route
+        path: "sanitize-text", // Relative path for nested route
         element: <TextSanitize />,
       },
       {
-        path: "tools/format-text", // Relative path for nested route
+        path: "format-text", // Relative path for nested route
         element: <TextFormatter />,
       },
     ],
