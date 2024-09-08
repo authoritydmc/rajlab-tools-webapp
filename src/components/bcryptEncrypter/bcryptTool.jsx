@@ -11,9 +11,12 @@ export default function BcryptTool() {
   const [outputHash, setOutputHash] = useState('');  // Output hash state
   const [saltRounds, setSaltRounds] = useState(10);  // Salt rounds for bcrypt
 
-  // Set the page title when the component mounts
   useEffect(() => {
-    document.title = "BCrypt Encrypter - Rajlab Utilities";
+    document.title = 'BCrypt Hashing Tool | Rajlabs';
+
+    return () => {
+      document.title = 'Utilities || Rajlabs';
+    };
   }, []);
 
   // Handler for input text changes

@@ -9,10 +9,16 @@ export default function SanitizeText() {
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
 
-   // Set the page title when the component mounts
-   useEffect(() => {
-    document.title = "Text Sanitizer - Rajlab Utilities"; // Set the desired page title
-  }, []);
+  useEffect(() => {
+    // Set the document title for the "Sanitize Text" tool
+    document.title = 'Sanitize Text Tool | Rajlabs';
+
+    // Cleanup function to reset the title when the component is unmounted or route changes
+    return () => {
+      document.title = 'Utilities || Rajlabs'; // Default title
+    };
+  }, []); 
+  
   // Function to sanitize text by removing non-word characters
   const sanitizeText = (text) => {
     return text.replace(/[^\w\s]/g, ''); // Keep letters, digits, and whitespace

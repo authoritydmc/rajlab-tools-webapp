@@ -10,9 +10,14 @@ export default function Base64Tool() {
   const [outputText, setOutputText] = useState('');
   const [isEncodeMode, setIsEncodeMode] = useState(true); // Toggle for Encode/Decode mode
 
-  // Set the page title when the component mounts
   useEffect(() => {
-    document.title = "Base64 Encoder/Decoder - Rajlab Utilities";
+    // Set the document title for the "Base64 Encoder/Decoder" tool
+    document.title = 'Base64 Encoder/Decoder | Rajlabs';
+
+    // Cleanup function to reset the title when the component is unmounted
+    return () => {
+      document.title = 'Utilities || Rajlabs'; // Reset to the default title when leaving the page
+    };
   }, []);
 
   // Function to handle mode change (Encode/Decode)

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect} from 'react';
 import { toast, Toaster } from 'react-hot-toast'; // Import react-hot-toast
 import { useTheme } from '../../themeContext';
 import { FaClipboard, FaTrash } from 'react-icons/fa'; // Import your clipboard icon
@@ -9,6 +9,14 @@ export default function TextFormatter() {
   const [inputText, setInputText] = useState("");
   const [outputText, setOutputText] = useState("");
 
+
+  useEffect(() => {
+    document.title = 'Text Formatter | Rajlabs';
+
+    return () => {
+      document.title = 'Utilities || Rajlabs';
+    };
+  }, []);
   // Function to sanitize the text by removing non-word characters
   const sanitizeText = (text) => {
     return text.replace(/[^\w\s]/g, ""); // Retains letters, digits, and whitespace
