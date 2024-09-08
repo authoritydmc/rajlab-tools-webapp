@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom styles for hover effects */
+.card-hover-grow {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .card-hover-grow:hover {
+    transform: scale(1.05); /* Slightly grow the card */
+    box-shadow: 0 0 10px rgba(128, 0, 128, 0.5); /* Purple glow effect */
+  }
+  
+  .card-hover-border {
+    border: 2px solid transparent; /* Default border color */
+    transition: border-color 0.3s ease;
+  }
+  
+  .card-hover-border:hover {
+    border-color: rgba(128, 0, 128, 0.5); /* Purple glow effect */
+  }
+  

@@ -111,7 +111,7 @@ export default function MainToolListPage() {
           toolCategories.map((category, index) => (
             <div
               key={index}
-              className={`shadow-md rounded-lg overflow-hidden border ${
+              className={`shadow-md rounded-lg overflow-hidden border card-hover-border ${
                 isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'
               }`}
             >
@@ -165,14 +165,12 @@ export default function MainToolListPage() {
             <div
               key={toolIndex}
               onClick={() => handleCardClick(tool.link)}
-              className={`shadow-md rounded-lg overflow-hidden border cursor-pointer ${
+              className={`shadow-md rounded-lg overflow-hidden border card-hover-border card-hover-grow cursor-pointer ${
                 isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'
               }`}
               style={{ aspectRatio: '1 / 1' }} // Ensures square aspect ratio
             >
-              <div className={`p-6 flex flex-col items-center space-y-4 ${
-                isDarkMode ? 'bg-gray-700' : 'bg-gray-100'
-              }`}>
+              <div className={`p-6 flex flex-col items-center space-y-4 `}>
                 <span className={`text-2xl ${
                   isDarkMode ? 'text-gray-300' : 'text-gray-600'
                 }`}>
