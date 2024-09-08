@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import * as FaIcons from 'react-icons/fa'; // Import all Fa icons dynamically
 import { useTheme } from '../themeContext'; // Adjust path if necessary
-
+import { logFirebaseEvent } from '../firebaseConfig';
 export default function MainToolListPage() {
   const [toolCategories, setToolCategories] = useState([]);
   const { isDarkMode } = useTheme();
@@ -24,6 +24,11 @@ export default function MainToolListPage() {
     };
 
     fetchData();
+
+    logFirebaseEvent('MainTool Page loaded', {
+      page_title: "/",
+      page_path: "/",
+    });
   }, []);
 
   // Function to dynamically get icon component from react-icons/fa based on iconName from JSON

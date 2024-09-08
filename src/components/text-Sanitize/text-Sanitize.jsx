@@ -4,19 +4,25 @@ import { PiSelectionAllFill } from 'react-icons/pi';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
 import { useEffect } from 'react';
+import { logFirebaseEvent } from '../../firebaseConfig';
 export default function SanitizeText() {
   const { isDarkMode } = useTheme(); // Access theme context
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
 
   useEffect(() => {
-    // Set the document title for the "Sanitize Text" tool
+    logFirebaseEvent('Sanitize  Page loaded', {
+      page_title: "Sanitize Text",
+      page_path: "/sanitize-text",
+    });
     document.title = 'Sanitize Text Tool | Rajlabs';
 
     // Cleanup function to reset the title when the component is unmounted or route changes
     return () => {
       document.title = 'Utilities || Rajlabs'; // Default title
     };
+
+   
   }, []); 
   
   // Function to sanitize text by removing non-word characters
