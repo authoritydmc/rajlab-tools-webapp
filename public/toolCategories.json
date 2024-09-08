@@ -7,9 +7,10 @@
       ]
     },
     {
-      "title": "Encoder/Decoder",
+      "title": "Encryption & Encoding Utilities",
       "tools": [
-        { "name": "Base 64 Encoder/Decoder", "link": "/base64-encoder-decoder", "iconName": "resizer", "isEnabled": true }
+        { "name": "Base 64 Encoder/Decoder", "link": "/base64-encoder-decoder", "iconName": "resizer", "isEnabled": true },
+        { "name": "BCrypt hashing", "link": "/bcrypt-hashing", "iconName": "resizer", "isEnabled": true }
       ]
     }
   ]

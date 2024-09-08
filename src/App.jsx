@@ -5,6 +5,7 @@ import { ThemeProvider } from './themeContext'; // Ensure correct path
 import TextSanitize from './components/text-Sanitize/text-Sanitize'
 import TextFormatter from './components/text-formatter/text-formatter';
 import Base64Tool from './components/base64EncoderDecoder/base64tools';
+import BcryptTool from './components/bcryptEncrypter/bcryptTool';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
       {
         path: "base64-encoder-decoder", // Relative path for nested route
         element: <Base64Tool />,
+      },
+      {
+        path: "bcrypt-hashing", // Relative path for nested route
+        element: <BcryptTool />,
       },
     ],
   },
