@@ -5,6 +5,7 @@ import TextSanitize from './components/text-Sanitize/text-Sanitize'
 import TextFormatter from './components/text-formatter/text-formatter';
 import Base64Tool from './components/base64EncoderDecoder/base64tools';
 import BcryptTool from './components/bcryptEncrypter/bcryptTool';
+import ImageToBase64Tool from './components/base64EncoderDecoder/imageToBase64Tool';
 
 export const router = createBrowserRouter([
     {
@@ -30,6 +31,10 @@ export const router = createBrowserRouter([
         {
           path: "bcrypt-hashing", // Relative path for nested route
           element: <BcryptTool />,
+        },
+        {
+          path: "image-to-base64", // Relative path for nested route
+          element: <ImageToBase64Tool />,
         },
       ],
     },

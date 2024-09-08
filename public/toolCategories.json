@@ -15,7 +15,7 @@
         "link": "/format-text",
         "iconName": "FaText",
         "isEnabled": true,
-        "description": "Formats text with lowercase,uppercase,reverse etc."
+        "description": "Formats text with lowercase, uppercase, reverse, etc."
       }
     ]
   },
@@ -36,6 +36,13 @@
         "iconName": "FaLock",
         "isEnabled": true,
         "description": "Generates secure hashed passwords using the BCrypt hashing algorithm."
+      },
+      {
+        "name": "Image to Base64 String Converter",
+        "link": "/image-to-base64",
+        "iconName": "FaImage",
+        "isEnabled": true,
+        "description": "Converts images to Base64 encoded strings for easy embedding and transmission."
       }
     ]
   }

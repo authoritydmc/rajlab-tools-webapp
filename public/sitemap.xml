@@ -2,8 +2,8 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://utility.rajlabs.in/,</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <changefreq>daily</changefreq>
+    <priority>1</priority>
   </url>
   <url>
     <loc>https://utility.rajlabs.in/,  Home route</loc>
@@ -27,6 +27,11 @@
   </url>
   <url>
     <loc>https://utility.rajlabs.in/bcrypt-hashing,  Relative path for nested route</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://utility.rajlabs.in/image-to-base64,  Relative path for nested route</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
