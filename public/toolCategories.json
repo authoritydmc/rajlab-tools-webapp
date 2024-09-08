@@ -50,6 +50,13 @@
         "iconName": "FaImage",
         "isEnabled": true,
         "description": "Generates a preview of an image from a Base64 encoded string, allowing you to visualize the image directly."
+      },
+      {
+        "name": "URL Encoder/Decoder",
+        "link": "/url-encoder-decoder",
+        "iconName": "FaLink",
+        "isEnabled": true,
+        "description": "Encodes or decodes URLs for safe transmission and readability."
       }
     ]
   }

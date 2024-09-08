@@ -4,15 +4,20 @@ import { PiSelectionAllFill } from 'react-icons/pi';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
 import { MdSwapVert } from "react-icons/md";
-export default function Base64Tool() {
+export default function URLTool() {
   const { isDarkMode } = useTheme(); // Access theme context
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
   const [isEncodeMode, setIsEncodeMode] = useState(true); // Toggle for Encode/Decode mode
 
-  // Set the page title when the component mounts
   useEffect(() => {
-    document.title = "Base64 Encoder/Decoder - Rajlabs";
+    // Set the document title for the "URL Encoder/Decoder" tool
+    document.title = 'URL Encoder/Decoder | Rajlabs';
+
+    // Cleanup function to reset the title when the component is unmounted
+    return () => {
+      document.title = 'Utilities | Rajlabs'; // Reset to the default title when leaving the page
+    };
   }, []);
 
   // Function to handle mode change (Encode/Decode)
@@ -21,13 +26,13 @@ export default function Base64Tool() {
     setOutputText(''); // Clear output when mode changes
     if (inputText) {
       if (isEncodeMode) {
-        try {
-          setOutputText(atob(inputText)); // Decode Base64 to text
-        } catch (error) {
-          toast.error('Invalid Base64 string'); // Handle decoding error
-        }
+        setOutputText(encodeURIComponent(inputText)); // Encode URL
       } else {
-        setOutputText(btoa(inputText)); // Encode input to Base64
+        try {
+          setOutputText(decodeURIComponent(inputText)); // Decode URL
+        } catch (error) {
+          toast.error('Invalid encoded URL'); // Handle decoding error
+        }
       }
     }
   };
@@ -37,13 +42,13 @@ export default function Base64Tool() {
     const newText = event.target.value;
     setInputText(newText);
     if (isEncodeMode) {
-      setOutputText(btoa(newText)); // Encode text to Base64
+      setOutputText(encodeURIComponent(newText)); // Encode text to URL format
     } else {
       try {
-        setOutputText(atob(newText)); // Decode Base64 to text
+        setOutputText(decodeURIComponent(newText)); // Decode URL to text
       } catch (error) {
         setOutputText('');
-        toast.error('Invalid Base64 string');
+        toast.error('Invalid encoded URL');
       }
     }
   };
@@ -67,9 +72,8 @@ export default function Base64Tool() {
 
   // Function to handle "Swap" button click
   const handleSwap = () => {
-    const temp = inputText;
     setInputText(outputText);
-    setOutputText(temp);
+    setOutputText(inputText);
   };
 
   return (
@@ -78,7 +82,7 @@ export default function Base64Tool() {
         isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'
       } transition-colors duration-300`}
     >
-      <h1 className="text-3xl font-bold mb-8 text-center">Base64 Encoder/Decoder</h1>
+      <h1 className="text-3xl font-bold mb-8 text-center">URL Encoder/Decoder</h1>
       <Toaster /> {/* Toast container */}
 
       {/* Mode Toggle Switch */}
@@ -110,16 +114,15 @@ export default function Base64Tool() {
       >
         {/* Input Section */}
         <div className="mb-4">
-          {/* Conditionally Render Input Label */}
           <label htmlFor="input" className="block mb-2 font-semibold">
-            {isEncodeMode ? 'Text to Encode' : 'Base64 to Decode'}
+            {isEncodeMode ? 'Text to Encode' : 'URL to Decode'}
           </label>
           <div className="relative">
             <textarea
               id="input"
               value={inputText}
               onChange={handleInputChange}
-              placeholder={isEncodeMode ? 'Enter text to encode...' : 'Enter Base64 string to decode...'}
+              placeholder={isEncodeMode ? 'Enter text to encode...' : 'Enter URL to decode...'}
               className={`w-full h-40 p-2 border rounded-md resize-none ${
                 isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'
               }`}
@@ -157,21 +160,20 @@ export default function Base64Tool() {
             }`}
             title="Swap"
           >
-             <MdSwapVert />
+           <MdSwapVert />
           </button>
         </div>
 
         {/* Output Section */}
         <div className="mb-4">
-          {/* Conditionally Render Output Label */}
           <label htmlFor="output" className="block mb-2 font-semibold">
-            {isEncodeMode ? 'Base64 Output' : 'Decoded Text'}
+            {isEncodeMode ? 'Encoded URL' : 'Decoded Text'}
           </label>
           <div className="relative">
             <textarea
               id="output"
               value={outputText}
-              placeholder={isEncodeMode ? 'Your Base64 encoded output will appear here...' : 'Your decoded text will appear here...'}
+              placeholder={isEncodeMode ? 'Your encoded URL will appear here...' : 'Your decoded text will appear here...'}
               readOnly
               className={`w-full h-40 p-2 border rounded-md resize-none ${
                 isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'
