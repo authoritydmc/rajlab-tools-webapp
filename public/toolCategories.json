@@ -1,17 +1,42 @@
 [
-    {
-      "title": "Text Utilities",
-      "tools": [
-        { "name": "Sanitize Text", "link": "/sanitize-text", "iconName": "sanitize", "isEnabled": true },
-        { "name": "Text Formatter", "link": "/format-text", "iconName": "sanitize", "isEnabled": true }
-      ]
-    },
-    {
-      "title": "Encryption & Encoding Utilities",
-      "tools": [
-        { "name": "Base 64 Encoder/Decoder", "link": "/base64-encoder-decoder", "iconName": "resizer", "isEnabled": true },
-        { "name": "BCrypt hashing", "link": "/bcrypt-hashing", "iconName": "resizer", "isEnabled": true }
-      ]
-    }
-  ]
-  
+  {
+    "title": "Text Utilities",
+    "iconName": "TextFields",
+    "tools": [
+      {
+        "name": "Sanitize Text",
+        "link": "/sanitize-text",
+        "iconName": "CleanHands",
+        "isEnabled": true,
+        "description": "Removes unwanted characters, formatting, and HTML from text to clean it up."
+      },
+      {
+        "name": "Text Formatter",
+        "link": "/format-text",
+        "iconName": "FormatShapes",
+        "isEnabled": true,
+        "description": "Formats text with lowercase,uppercase,reverse etc."
+      }
+    ]
+  },
+  {
+    "title": "Encryption & Encoding Utilities",
+    "iconName": "Lock",
+    "tools": [
+      {
+        "name": "Base 64 Encoder/Decoder",
+        "link": "/base64-encoder-decoder",
+        "iconName": "Transform",
+        "isEnabled": true,
+        "description": "Encodes or decodes text into or from Base64 format, commonly used in data transmission."
+      },
+      {
+        "name": "BCrypt Hashing",
+        "link": "/bcrypt-hashing",
+        "iconName": "Security",
+        "isEnabled": true,
+        "description": "Generates secure hashed passwords using the BCrypt hashing algorithm."
+      }
+    ]
+  }
+]

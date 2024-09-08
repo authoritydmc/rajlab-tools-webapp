@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaArrowsAltH, FaCompressArrowsAlt, FaImage, FaCogs } from 'react-icons/fa'; // Import icons
+import * as FaIcons from 'react-icons/fa'; // Import all Fa icons dynamically
 import { useTheme } from '../themeContext'; // Adjust path if necessary
 
 export default function MainToolListPage() {
@@ -26,17 +26,14 @@ export default function MainToolListPage() {
     fetchData();
   }, []);
 
-  // Function to get icon based on iconName
+  // Function to dynamically get icon component from react-icons/fa based on iconName from JSON
   const getIcon = (iconName) => {
-    switch (iconName) {
-      case 'sanitize':
-        return <FaCogs />;
-      case 'resizer':
-        return <FaArrowsAltH />;
-      case 'converter':
-        return <FaCompressArrowsAlt />;
-      default:
-        return <FaImage />;
+    const IconComponent = FaIcons[iconName];
+    if (IconComponent) {
+      return <IconComponent />;
+    } else {
+      // Default icon if the iconName is not found in the FaIcons
+      return <FaIcons.FaCog />;
     }
   };
 
@@ -69,22 +66,31 @@ export default function MainToolListPage() {
             </div>
             <ul className="p-6 space-y-4">
               {category.tools.map((tool, toolIndex) => (
-                <li key={toolIndex} className={`flex items-center space-x-3 ${tool.isEnabled ? 'text-gray-900' : 'text-gray-400'}`}>
-                  <span
-                    className={`flex-shrink-0 text-2xl ${
-                      isDarkMode ? 'text-gray-300' : 'text-gray-600'
-                    }`}
-                  >
-                    {getIcon(tool.iconName)}
-                  </span>
-                  <Link
-                    to={tool.link}
-                    className={`flex-1 text-lg ${tool.isEnabled ? 'text-blue-600 hover:underline' : 'text-gray-400'} ${
-                      isDarkMode ? 'hover:text-blue-400' : 'hover:text-blue-800'
-                    }`}
-                  >
-                    {tool.name}
-                  </Link>
+                <li key={toolIndex} className={`flex flex-col space-y-2 ${tool.isEnabled ? 'text-gray-900' : 'text-gray-400'}`}>
+                  {/* Icon and Link */}
+                  <div className="flex items-center space-x-3">
+                    <span
+                      className={`flex-shrink-0 text-2xl ${
+                        isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                      }`}
+                    >
+                      {getIcon(tool.iconName)} {/* Dynamically render icon */}
+                    </span>
+                    <Link
+                      to={tool.link}
+                      className={`flex-1 text-lg font-semibold ${tool.isEnabled ? 'text-blue-600 hover:underline' : 'text-gray-400'} ${
+                        isDarkMode ? 'hover:text-blue-400' : 'hover:text-blue-800'
+                      }`}
+                    >
+                      {tool.name}
+                    </Link>
+                  </div>
+                  {/* Tool Description */}
+                  {tool.description && (
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      {tool.description}
+                    </p>
+                  )}
                 </li>
               ))}
             </ul>
