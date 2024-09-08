@@ -7,9 +7,9 @@
       ]
     },
     {
-      "title": "TODO",
+      "title": "Encoder/Decoder",
       "tools": [
-        { "name": "TODO TOOL 1", "link": "/", "iconName": "resizer", "isEnabled": false }
+        { "name": "Base 64 Encoder/Decoder", "link": "/base64-encoder-decoder", "iconName": "resizer", "isEnabled": true }
       ]
     }
   ]
