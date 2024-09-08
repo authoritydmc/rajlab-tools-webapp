@@ -6,6 +6,7 @@ import TextFormatter from './components/text-formatter/text-formatter';
 import Base64Tool from './components/base64EncoderDecoder/base64tools';
 import BcryptTool from './components/bcryptEncrypter/bcryptTool';
 import ImageToBase64Tool from './components/base64EncoderDecoder/imageToBase64Tool';
+import Base64ToImagePreviewGenerator from './components/base64EncoderDecoder/base64ToImage';
 
 export const router = createBrowserRouter([
     {
@@ -35,6 +36,10 @@ export const router = createBrowserRouter([
         {
           path: "image-to-base64", // Relative path for nested route
           element: <ImageToBase64Tool />,
+        },
+        {
+          path: "base64-to-image", // Relative path for nested route
+          element: <Base64ToImagePreviewGenerator />,
         },
       ],
     },

@@ -43,6 +43,13 @@
         "iconName": "FaImage",
         "isEnabled": true,
         "description": "Converts images to Base64 encoded strings for easy embedding and transmission."
+      },
+      {
+        "name": "Base64 to Image Preview Generator",
+        "link": "/base64-to-image",
+        "iconName": "FaImage",
+        "isEnabled": true,
+        "description": "Generates a preview of an image from a Base64 encoded string, allowing you to visualize the image directly."
       }
     ]
   }
