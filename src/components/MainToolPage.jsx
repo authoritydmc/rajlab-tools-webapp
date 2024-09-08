@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import * as FaIcons from 'react-icons/fa'; // Import all Fa icons dynamically
 import { useTheme } from '../themeContext'; // Adjust path if necessary
 import { logFirebaseEvent } from '../firebaseConfig';
+import { BiCategoryAlt  } from "react-icons/bi";
 
 export default function MainToolListPage() {
   const [toolCategories, setToolCategories] = useState([]);
@@ -94,7 +95,7 @@ export default function MainToolListPage() {
             className={`p-2 rounded-md ${viewMode === 'category' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-900'} ${isDarkMode ? 'hover:bg-blue-700' : 'hover:bg-gray-300'}`}
             title="Category View"
           >
-            <FaIcons.FaThList size={24} />
+            <BiCategoryAlt   size={24} />
           </button>
           <button
             onClick={() => setViewModeWithSave('list')}
