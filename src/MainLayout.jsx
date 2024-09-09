@@ -1,7 +1,7 @@
 import { useTheme } from "./themeContext";
 import { Link, Outlet } from 'react-router-dom';
 import { FaGithub, FaHeart } from 'react-icons/fa'; // Importing GitHub and Heart icons
-import { FiExternalLink } from 'react-icons/fi'; // Importing external link icon
+
 
 // Main layout component for applying theme and other styling
 function MainLayout() {
