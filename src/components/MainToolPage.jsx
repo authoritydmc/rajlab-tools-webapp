@@ -1,26 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import * as FaIcons from 'react-icons/fa'; // Import all Fa icons dynamically
-import { useTheme } from '../themeContext'; // Adjust path if necessary
+import getIconByName from '../utils/getIconsUtil';
+import { useTheme } from '../themeContext'; 
 import { logFirebaseEvent } from '../firebaseConfig';
-import { BiCategoryAlt  } from "react-icons/bi";
 
 export default function MainToolListPage() {
   const [toolCategories, setToolCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState('category'); // Default to 'category' view mode
+  const [viewMode, setViewMode] = useState('category');
   const { isDarkMode } = useTheme();
-  const navigate = useNavigate(); // Hook for programmatic navigation
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Retrieve view mode from localStorage
     const savedViewMode = localStorage.getItem('viewMode') || 'list';
     setViewMode(savedViewMode);
 
-    // Fetch the JSON data from the `data` folder
     const fetchData = async () => {
       try {
-        const response = await fetch('/toolCategories.json'); // Update URL to match the location of your JSON file
+        const response = await fetch('/toolCategories.json');
         if (!response.ok) {
           console.error('Failed to fetch tool categories');
           return;
@@ -39,35 +36,15 @@ export default function MainToolListPage() {
       page_path: "/",
     });
   }, []);
- 
-  const setViewModeWithSave=(mode)=>{
-    localStorage.setItem('viewMode',mode)
 
-    setViewMode(mode)
-  }
- 
-  // Function to dynamically get icon component from react-icons/fa based on iconName from JSON
-  const getIcon = (iconName) => {
-    const IconComponent = FaIcons[iconName];
-    if (IconComponent) {
-      return <IconComponent />;
-    } else {
-      // Default icon if the iconName is not found in the FaIcons
-      return <FaIcons.FaCog />;
-    }
+  const setViewModeWithSave = (mode) => {
+    localStorage.setItem('viewMode', mode);
+    setViewMode(mode);
   };
-
-  // Filtered tools based on search query
-  const filteredTools = toolCategories.flatMap(category => 
-    category.tools.filter(tool => 
-      tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (tool.description && tool.description.toLowerCase().includes(searchQuery.toLowerCase()))
-    )
-  );
 
   // Handler for card click
   const handleCardClick = (link) => {
-    navigate(link); // Navigate to the tool's page
+    navigate(link);
   };
 
   return (
@@ -95,14 +72,14 @@ export default function MainToolListPage() {
             className={`p-2 rounded-md ${viewMode === 'category' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-900'} ${isDarkMode ? 'hover:bg-blue-700' : 'hover:bg-gray-300'}`}
             title="Category View"
           >
-            <BiCategoryAlt   size={24} />
+            {getIconByName('BiCategoryAlt')} {/* Get icon by name */}
           </button>
           <button
             onClick={() => setViewModeWithSave('list')}
             className={`p-2 rounded-md ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-900'} ${isDarkMode ? 'hover:bg-blue-700' : 'hover:bg-gray-300'}`}
             title="List View"
           >
-            <FaIcons.FaList size={24} />
+            {getIconByName('FaList')} {/* Get icon by name */}
           </button>
         </div>
       </div>
@@ -140,7 +117,7 @@ export default function MainToolListPage() {
                             isDarkMode ? 'text-gray-300' : 'text-gray-600'
                           }`}
                         >
-                          {getIcon(tool.iconName)} {/* Dynamically render icon */}
+                          {getIconByName(tool.iconName)} {/* Dynamically render icon */}
                         </span>
                         <Link
                           to={tool.link}
@@ -176,7 +153,7 @@ export default function MainToolListPage() {
                 <span className={`text-2xl ${
                   isDarkMode ? 'text-gray-300' : 'text-gray-600'
                 }`}>
-                  {getIcon(tool.iconName)} {/* Dynamically render icon */}
+                  {getIconByName(tool.iconName)} {/* Dynamically render icon */}
                 </span>
                 <div className="text-center">
                   <div
