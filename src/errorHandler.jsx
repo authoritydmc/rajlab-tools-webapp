@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from './themeContext'; // Import useTheme
 
 const ErrorBoundary = () => {
-  const [countdown, setCountdown] = useState(15000);
+  const [countdown, setCountdown] = useState(15);
   const navigate = useNavigate();
 
   // Get the current theme mode (isDarkMode) from the theme context
