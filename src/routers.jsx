@@ -8,6 +8,7 @@ import BcryptTool from './components/bcryptEncrypter/bcryptTool';
 import ImageToBase64Tool from './components/base64EncoderDecoder/imageToBase64Tool';
 import Base64ToImagePreviewGenerator from './components/base64EncoderDecoder/base64ToImage';
 import URLEncoderDecoderTool from './components/urlEncodeDecode/urlEncoderDecoder';
+import ErrorBoundary from './errorHandler';
 
 export const router = createBrowserRouter([
     {
@@ -17,6 +18,10 @@ export const router = createBrowserRouter([
         {
           path: "/", // Home route
           element: <MainToolPage />,
+        },
+        {
+          path: '*', // Catch-all route for 404 pages
+          element: <ErrorBoundary />, // Render the ErrorBoundary component here
         },
         {
           path: "sanitize-text", // Relative path for nested route
