@@ -42,6 +42,25 @@ export default function MainToolListPage() {
     setViewMode(mode);
   };
 
+  // Filtered tools based on search query
+  const filteredTools = toolCategories.flatMap(category => 
+    category.tools.filter(tool => 
+      tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (tool.description && tool.description.toLowerCase().includes(searchQuery.toLowerCase()))
+    )
+  );
+
+  // Filtered categories based on search query
+  const filteredCategories = toolCategories
+    .map(category => ({
+      ...category,
+      tools: category.tools.filter(tool => 
+        tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (tool.description && tool.description.toLowerCase().includes(searchQuery.toLowerCase()))
+      )
+    }))
+    .filter(category => category.tools.length > 0);
+
   // Handler for card click
   const handleCardClick = (link) => {
     navigate(link);
@@ -87,7 +106,7 @@ export default function MainToolListPage() {
       {/* Tool Display */}
       <div className={`grid ${viewMode === 'category' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'} gap-6 w-full max-w-6xl`}>
         {viewMode === 'category' ? (
-          toolCategories.map((category, index) => (
+          filteredCategories.map((category, index) => (
             <div
               key={index}
               className={`shadow-md rounded-lg overflow-hidden border card-hover-border ${
@@ -103,39 +122,34 @@ export default function MainToolListPage() {
                 <p className="text-sm text-gray-500">Explore the tools below</p>
               </div>
               <ul className="p-6 space-y-4">
-                {category.tools
-                  .filter(tool => 
-                    tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    (tool.description && tool.description.toLowerCase().includes(searchQuery.toLowerCase()))
-                  )
-                  .map((tool, toolIndex) => (
-                    <li key={toolIndex} className={`flex flex-col space-y-2 ${tool.isEnabled ? 'text-gray-900' : 'text-gray-400'}`}>
-                      {/* Icon and Link */}
-                      <div className="flex items-center space-x-3">
-                        <span
-                          className={`flex-shrink-0 text-2xl ${
-                            isDarkMode ? 'text-gray-300' : 'text-gray-600'
-                          }`}
-                        >
-                          {getIconByName(tool.iconName)} {/* Dynamically render icon */}
-                        </span>
-                        <Link
-                          to={tool.link}
-                          className={`flex-1 text-lg font-semibold ${tool.isEnabled ? 'text-blue-600 hover:underline' : 'text-gray-400'} ${
-                            isDarkMode ? 'hover:text-blue-400' : 'hover:text-blue-800'
-                          }`}
-                        >
-                          {tool.name}
-                        </Link>
-                      </div>
-                      {/* Tool Description */}
-                      {tool.description && (
-                        <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                          {tool.description}
-                        </p>
-                      )}
-                    </li>
-                  ))}
+                {category.tools.map((tool, toolIndex) => (
+                  <li key={toolIndex} className={`flex flex-col space-y-2 ${tool.isEnabled ? 'text-gray-900' : 'text-gray-400'}`}>
+                    {/* Icon and Link */}
+                    <div className="flex items-center space-x-3">
+                      <span
+                        className={`flex-shrink-0 text-2xl ${
+                          isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                        }`}
+                      >
+                        {getIconByName(tool.iconName)} {/* Dynamically render icon */}
+                      </span>
+                      <Link
+                        to={tool.link}
+                        className={`flex-1 text-lg font-semibold ${tool.isEnabled ? 'text-blue-600 hover:underline' : 'text-gray-400'} ${
+                          isDarkMode ? 'hover:text-blue-400' : 'hover:text-blue-800'
+                        }`}
+                      >
+                        {tool.name}
+                      </Link>
+                    </div>
+                    {/* Tool Description */}
+                    {tool.description && (
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {tool.description}
+                      </p>
+                    )}
+                  </li>
+                ))}
               </ul>
             </div>
           ))
