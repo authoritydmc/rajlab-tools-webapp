@@ -5,7 +5,7 @@ import { CgFormatText } from "react-icons/cg";
 import { FaHashtag } from "react-icons/fa6";
 import { AiOutlineFieldString } from "react-icons/ai";
 const iconMap = {
-    FaList, FaCog, BiCategoryAlt, FaCog, FaImage, FaLink,MdCleaningServices,CgFormatText,FaHashtag,AiOutlineFieldString
+    FaList, BiCategoryAlt, FaCog, FaImage, FaLink,MdCleaningServices,CgFormatText,FaHashtag,AiOutlineFieldString
 }
 
 
