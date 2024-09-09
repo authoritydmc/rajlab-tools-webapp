@@ -73,17 +73,6 @@ function MainLayout() {
           >
             Rajlab 
           </a>
-          <span className="mx-2">||</span>
-          <a 
-            href="/sitemap.xml" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className={`flex items-center gap-1 underline ${
-              isDarkMode ? "text-blue-300 hover:text-blue-200" : "text-blue-700 hover:text-blue-600"
-            }`}
-          >
-            Sitemap <FiExternalLink size={16} />
-          </a>
         </p>
       </footer>
     </div>
