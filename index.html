@@ -33,7 +33,6 @@
     <!-- Robots for search engine indexing -->
     <meta name="robots" content="index,follow" />
 
-
     <!-- Charset and UTF-8 Support -->
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
@@ -43,5 +42,11 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Hidden Sitemap Links -->
+    <div style="position: absolute; top: -9999px; left: -9999px;">
+      <a href="/sitemap.xml" rel="sitemap" type="application/xml">Sitemap</a>
+      <a href="/sitemap1.xml" rel="sitemap" type="application/xml">Sitemap utils</a>
+    </div>
   </body>
 </html>
