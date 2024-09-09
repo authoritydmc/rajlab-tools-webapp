@@ -71,7 +71,7 @@ function MainLayout() {
               isDarkMode ? "text-blue-300 hover:text-blue-200" : "text-blue-700 hover:text-blue-600"
             }`}
           >
-            Rajlab 
+            Rajlabs
           </a>
         </p>
       </footer>
