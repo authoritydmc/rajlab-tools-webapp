@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from './themeContext'; // Import useTheme
 
 const ErrorBoundary = () => {
-  const [countdown, setCountdown] = useState(15);
+  const [countdown, setCountdown] = useState(15000);
   const navigate = useNavigate();
 
   // Get the current theme mode (isDarkMode) from the theme context
@@ -26,17 +26,9 @@ const ErrorBoundary = () => {
 
   // List of Harry Potter-related GIFs
   const harryPotterGIFs = [
-    "https://media.giphy.com/media/11F0d3IVhQmDle/giphy.gif", // Confused Harry
-    "https://media.giphy.com/media/5kHp3AyXhMOlK/giphy.gif", // Platform 9¾
-    "https://media.giphy.com/media/12bVDtXPEzRfYw/giphy.gif", // Invisibility Cloak
-    "https://media.giphy.com/media/l0G17W5mgmDqAYr5q/giphy.gif", // Accio
-    "https://media.giphy.com/media/vVCo9ME8aLRAQ/giphy.gif",     // Marauder's Map
-    "https://media.giphy.com/media/5t8nnUcs5kX04/giphy.gif",     // Basilisk stare
-    "https://media.giphy.com/media/ZLiq3QbLPoOFG/giphy.gif",     // Room of Requirement
-    "https://media.giphy.com/media/11kEuHSQAXXiGQ/giphy.gif",    // Dobby
-    "https://media.giphy.com/media/wl6tI8T1sz9vq/giphy.gif",     // Golden Snitch
-    "https://media.giphy.com/media/xUOxfk4jPGL3toqun2/giphy.gif", // Triwizard Tournament
-    "https://media.giphy.com/media/etbA3v3LtS3AI/giphy.gif"      // Anti-Muggle Defenses
+    "https://media1.tenor.com/m/CUNm8n1xS_kAAAAC/what-seriously.gif", 
+    "https://media1.tenor.com/m/R7m2W1cD-UkAAAAC/harry-potter-hogwarts.gif",
+    "https://media1.tenor.com/m/ImxiGgipE7gAAAAC/harrypotter-i-solemnly-swear.gif"
   ];
 
   // Select a random Harry Potter error message and GIF
