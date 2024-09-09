@@ -18,7 +18,7 @@ def generate_sitemap(domain, routes):
     
     for route in routes:
         # Remove unnecessary quotes and extra slashes from the route
-        route = route.strip().strip('"').strip("'").strip(",")
+        route = route.strip().replace('"', '').replace("'", '').replace(',', '')
         if not route.startswith('/'):
             route = '/' + route
         
