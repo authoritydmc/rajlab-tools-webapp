@@ -1,47 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://utility.rajlabs.in/"</loc>
+    <loc>https://utils.rajlabs.in/"</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://utility.rajlabs.in/"</loc>
+    <loc>https://utils.rajlabs.in/"</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://utility.rajlabs.in/sanitize-text"</loc>
+    <loc>https://utils.rajlabs.in/sanitize-text"</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://utility.rajlabs.in/format-text"</loc>
+    <loc>https://utils.rajlabs.in/format-text"</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://utility.rajlabs.in/base64-encoder-decoder"</loc>
+    <loc>https://utils.rajlabs.in/base64-encoder-decoder"</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://utility.rajlabs.in/bcrypt-hashing"</loc>
+    <loc>https://utils.rajlabs.in/bcrypt-hashing"</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://utility.rajlabs.in/image-to-base64"</loc>
+    <loc>https://utils.rajlabs.in/image-to-base64"</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://utility.rajlabs.in/base64-to-image"</loc>
+    <loc>https://utils.rajlabs.in/base64-to-image"</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://utility.rajlabs.in/url-encoder-decoder"</loc>
+    <loc>https://utils.rajlabs.in/url-encoder-decoder"</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
