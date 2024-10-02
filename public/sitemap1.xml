@@ -11,6 +11,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://utils.rajlabs.in/*</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://utils.rajlabs.in/sanitize-text</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -42,6 +47,11 @@
   </url>
   <url>
     <loc>https://utils.rajlabs.in/url-encoder-decoder</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://utils.rajlabs.in/password-generator</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
