@@ -9,6 +9,7 @@ import ImageToBase64Tool from './components/base64EncoderDecoder/imageToBase64To
 import Base64ToImagePreviewGenerator from './components/base64EncoderDecoder/base64ToImage';
 import URLEncoderDecoderTool from './components/urlEncodeDecode/urlEncoderDecoder';
 import ErrorBoundary from './errorHandler';
+import PasswordGenerator from './components/passwords/passwordGen';
 
 export const router = createBrowserRouter([
     {
@@ -50,6 +51,10 @@ export const router = createBrowserRouter([
         {
           path: "url-encoder-decoder", // Relative path for nested route
           element: <URLEncoderDecoderTool />,
+        },
+        {
+          path: "password-generator", // Relative path for nested route
+          element: <PasswordGenerator />,
         },
       ],
     },
