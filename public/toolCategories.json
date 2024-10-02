@@ -33,10 +33,11 @@
       {
         "name": "Password Generator",
         "link": "/password-generator",
-        "iconName": "FaKey",  
+        "iconName": "FaKey",
         "isEnabled": true,
-        "description": "Generates strong, random passwords with customizable options."
-      },
+        "description": "Generate strong, random passwords effortlessly with our Password Generator. Customize your password length and choose from various character types, including numbers, lowercase, uppercase, and symbols. Whether you want to create a secure password for your accounts or generate multiple passwords at once, our intuitive tool ensures your passwords are both complex and easy to remember. Stay protected and enhance your online security with just a few clicks!"
+      }
+      ,
       {
         "name": "BCrypt Hashing",
         "link": "/bcrypt-hashing",
