@@ -18,7 +18,7 @@ function MainLayout() {
         {/* Brand Name with Sliding Color Change Effect */}
         <Link 
           to="/" 
-          className={`text-xl sm:text-2xl md:text-3xl font-bold sliding-effect flex-1 text-center`}
+          className={`ml-10 text-xl sm:text-2xl md:text-3xl font-bold sliding-effect flex-1 text-center`}
         >
           Rajlab Utilities
         </Link>
