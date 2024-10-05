@@ -1,67 +1,122 @@
 import React, { useState, useEffect } from 'react';
-import { FaPrint } from 'react-icons/fa';
+import { FaCog } from 'react-icons/fa';
+import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
+import PrintRateSettingsModal from './printRateSetting';
 
 export default function PrintRateCalculator() {
   const { isDarkMode } = useTheme(); // Access theme context
 
-  // State to store user input
-  const [numPages, setNumPages] = useState('');
+  // Default cost settings
+  const defaultSettings = {
+    pageCost: {
+      cost: 335, // ₹
+      pages: 500, // pages
+    },
+    blackInk: {
+      cost: 570, // ₹ per bottle
+      yield: 6600, // pages per bottle
+    },
+    colorInk: {
+      cyan: {
+        cost: 420, // ₹ per bottle
+        yield: 4500, // pages per bottle
+      },
+      magenta: {
+        cost: 420, // ₹ per bottle
+        yield: 4500, // pages per bottle
+      },
+      yellow: {
+        cost: 420, // ₹ per bottle
+        yield: 4500, // pages per bottle
+      },
+    },
+    showInternalCost: false, // Toggle for internal cost section
+  };
+
+  // State to hold settings
+  const [settings, setSettings] = useState(defaultSettings);
+  
+  // State for calculator inputs
+  const [numPages, setNumPages] = useState('1');
   const [printType, setPrintType] = useState('1-Sided');
   const [printMode, setPrintMode] = useState('Black & White');
+  const [currencyUnit, setCurrencyUnit] = useState('₹'); // State for currency unit
 
-  // Set document title and fetch meta description
+  // State for settings modal
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Load settings from localStorage on mount
   useEffect(() => {
-    document.title = 'Print Rate Calculator | Rajlabs';
-
-    const setMetaDescription = (description) => {
-      let metaTag = document.querySelector('meta[name="description"]');
-      if (!metaTag) {
-        metaTag = document.createElement('meta');
-        metaTag.name = 'description';
-        document.head.appendChild(metaTag);
-      }
-      metaTag.content = description;
-    };
-
-    setMetaDescription('Use this Print Rate Calculator to calculate printing costs for Black & White or Color prints.');
-    
-    return () => {
-      document.title = 'Utilities | Rajlabs'; // Reset title on unmount
-      const metaTag = document.querySelector('meta[name="description"]');
-      if (metaTag) {
-        document.head.removeChild(metaTag); // Clean up meta tag on unmount
-      }
-    };
+    const savedSettings = JSON.parse(localStorage.getItem('printRateSettings'));
+    if (savedSettings) {
+      setSettings(savedSettings);
+    }
   }, []);
 
-  // Rate calculation based on print type and mode
+  // Save settings to localStorage whenever settings change
+  useEffect(() => {
+    localStorage.setItem('printRateSettings', JSON.stringify(settings));
+  }, [settings]);
+
+  // Function to handle opening settings modal
+  const openSettings = () => {
+    setIsSettingsOpen(true);
+  };
+
+  // Function to handle closing settings modal
+  const closeSettings = () => {
+    setIsSettingsOpen(false);
+  };
+
+  // Function to calculate rates
   const calculateRates = () => {
-    const customerRates = { 
-      "Black & White": { "1-Sided": 1.20, "2-Sided": 1.60 },
-      "Color": { "1-Sided": 1.50, "2-Sided": 2.00 }
-    };
+    if (!numPages || numPages <= 0) return { customerTotal: 0 };
 
-    const internalRates = {
-      "Black & White": { "1-Sided": { cost: 0.75, profit: 0.45 }, "2-Sided": { cost: 0.80, profit: 0.80 } },
-      "Color": { "1-Sided": { cost: 0.95, profit: 0.55 }, "2-Sided": { cost: 1.90, profit: 0.10 } }
-    };
-
-    const selectedRate = customerRates[printMode][printType];
-    const selectedInternal = internalRates[printMode][printType];
-
-    const customerTotal = numPages * selectedRate;
-    const internalCost = numPages * selectedInternal.cost;
-    const totalProfit = numPages * selectedInternal.profit;
+    let customerTotal = 0;
+    if (printMode === 'Black & White') {
+      const rate = printType === '1-Sided' ? 1.20 : 1.60;
+      customerTotal = (printType === '2-Sided') ? (numPages / 2) * rate : numPages * rate;
+    } else {
+      const rate = printType === '1-Sided' ? 1.50 : 2.00;
+      customerTotal = (printType === '2-Sided') ? (numPages / 2) * rate : numPages * rate;
+    }
 
     return {
-      customerTotal,
-      internalCost,
-      totalProfit
+      customerTotal: customerTotal.toFixed(2),
     };
   };
 
-  const { customerTotal, internalCost, totalProfit } = calculateRates();
+  const { customerTotal } = calculateRates();
+
+  // Function to calculate internal costs and profits
+  const calculateInternal = () => {
+    if (!numPages || numPages <= 0) return { internalCost: 0, totalProfit: 0 };
+
+    const pageCostPerPage = settings.pageCost.cost / settings.pageCost.pages;
+    let inkCostPerPage = 0;
+
+    if (printMode === 'Black & White') {
+      inkCostPerPage = settings.blackInk.cost / settings.blackInk.yield;
+    } else {
+      // Color ink (CMY)
+      const colorInkTotalCost = Object.values(settings.colorInk).reduce((total, ink) => total + ink.cost, 0);
+      inkCostPerPage = colorInkTotalCost / Object.values(settings.colorInk).reduce((total, ink) => total + ink.yield, 0);
+    }
+
+    const costPerPage = pageCostPerPage + inkCostPerPage;
+    const selectedProfit = printMode === 'Black & White' ? (printType === '1-Sided' ? 0.45 : 0.80) : (printType === '1-Sided' ? 0.55 : 0.10);
+    
+    const internalCost = numPages * costPerPage;
+    const totalProfit = numPages * selectedProfit;
+
+    return {
+      internalCost: internalCost.toFixed(2),
+      totalProfit: totalProfit.toFixed(2),
+    };
+  };
+
+  const { internalCost, totalProfit } = calculateInternal();
 
   // Handle printing
   const handlePrint = () => {
@@ -69,10 +124,21 @@ export default function PrintRateCalculator() {
   };
 
   return (
-    <div className={`min-h-screen p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'} transition-colors duration-300`}>
+    <div className={`min-h-screen p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'} transition-colors duration-300 relative`}>
+      <Toaster /> {/* Toast container */}
+
+      {/* Settings Icon */}
+      <button
+        onClick={openSettings}
+        className={`absolute top-8 right-8 p-2 rounded-full ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-300 hover:bg-gray-400'} transition-colors duration-300`}
+        aria-label="Settings"
+      >
+        <FaCog size={20} />
+      </button>
+
       <h1 className="text-3xl font-bold mb-8 text-center">Print Rate Calculator</h1>
 
-      <div className={`max-w-2xl mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'} border`}>
+      <div className={`max-w-3xl mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'} border`}>
         {/* Input Section */}
         <div className="mb-6">
           <label className="block mb-2">Number of Pages:</label>
@@ -86,14 +152,14 @@ export default function PrintRateCalculator() {
         </div>
 
         <div className="mb-6">
-          <label className="block mb-2">Print Type:</label>
+          <label className="block mb-2">Print Type / Page:</label>
           <select
             value={printType}
             onChange={(e) => setPrintType(e.target.value)}
             className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'}`}
           >
-            <option value="1-Sided">1-Sided</option>
-            <option value="2-Sided">2-Sided</option>
+            <option value="1-Sided">1-Sided (1 Side only print per page)</option>
+            <option value="2-Sided">2-Sided (Both Side of Page Printed)</option>
           </select>
         </div>
 
@@ -109,27 +175,56 @@ export default function PrintRateCalculator() {
           </select>
         </div>
 
-        {/* Display Calculated Rates */}
+        {/* Currency Unit Selector */}
         <div className="mb-6">
-          <h3 className="text-lg font-bold">Customer Rate</h3>
-          <p>Total for {numPages} pages ({printType}, {printMode}): ₹{customerTotal}</p>
+          <label className="block mb-2">Currency Unit:</label>
+          <select
+            value={currencyUnit}
+            onChange={(e) => setCurrencyUnit(e.target.value)}
+            className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'}`}
+          >
+            <option value="₹">Rupees (₹)</option>
+            <option value="$">Dollars ($)</option>
+            <option value="€">Euros (€)</option>
+            {/* Add more currency options as needed */}
+          </select>
         </div>
 
-        <div className="mb-6">
-          <h3 className="text-lg font-bold">Internal Cost & Profit</h3>
-          <p>Cost: ₹{internalCost}</p>
-          <p>Profit: ₹{totalProfit}</p>
+        {/* Example Costs Section */}
+        <div className={`mb-6 p-4 border rounded-md ${isDarkMode ? 'bg-gray-800 text-white border-gray-700' : 'bg-gray-100 text-gray-900 border-gray-300'}`}>
+          <h2 className="text-xl font-semibold mb-2">Estimated Costs:</h2>
+          <p>Customer Total: {currencyUnit}{customerTotal}</p>
+          <p>Internal Cost: {currencyUnit}{internalCost}</p>
+          <p>Total Profit: {currencyUnit}{totalProfit}</p>
+        </div>
+
+        {/* Print Rate with Example for Customer */}
+        <div className={`mb-6 p-4 border rounded-md ${isDarkMode ? 'bg-gray-800 text-white border-gray-700' : 'bg-gray-100 text-gray-900 border-gray-300'}`}>
+          <h2 className="text-xl font-semibold mb-2">Print Rate with Example for Customer:</h2>
+          <p>For printing {numPages} page(s) in {printMode} mode:</p>
+          <p>Your total estimated cost is: {currencyUnit}{customerTotal}.</p>
+          <p>This includes internal costs and expected profit margins.</p>
         </div>
 
         {/* Print Button */}
         <button
           onClick={handlePrint}
-          className={`w-full p-2 rounded-md transition-colors duration-300 flex justify-center items-center gap-2 ${isDarkMode ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+          className={`w-full py-2 mt-4 rounded-md ${isDarkMode ? 'bg-blue-500 hover:bg-blue-400' : 'bg-blue-700 hover:bg-blue-600'} text-white transition-colors duration-300`}
         >
-          <FaPrint />
-          Print Rate
+          Print Estimate
         </button>
       </div>
+
+      {/* Settings Modal */}
+      {isSettingsOpen && (
+        <PrintRateSettingsModal
+          isOpen={isSettingsOpen}
+          onClose={closeSettings}
+          settings={settings}
+          setSettings={setSettings}
+          isDarkMode={isDarkMode}
+        />
+      )}
     </div>
   );
 }
