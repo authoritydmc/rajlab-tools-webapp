@@ -153,13 +153,13 @@ useEffect(() => {
 
   return (
     <div
-      className={`min-h-screen p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'} transition-colors duration-300`}
+      className={`min-h-screen p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'} transition-colors duration-300`}
     >
       <h1 className="text-3xl font-bold mb-8 text-center">Password Generator</h1>
       <Toaster /> {/* Toast container */}
 
       <div
-        className={`max-w-2xl mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'} border`}
+        className={`max-w-2xl mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}
       >
         {/* Options Section */}
         <div className="mb-6">
@@ -169,7 +169,7 @@ useEffect(() => {
             value={settings.passwordLength}
             onChange={(e) => handleSettingChange('passwordLength', Number(e.target.value))}
             min="1"
-            className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'}`}
+            className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-50 text-gray-900 border-gray-300'}`}
           />
         </div>
 
@@ -236,7 +236,7 @@ useEffect(() => {
             value={settings.customCharacters}
             onChange={(e) => handleSettingChange('customCharacters', e.target.value)}
             placeholder="Enter custom characters"
-            className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'}`}
+            className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-50 text-gray-900 border-gray-300'}`}
           />
         )}
 
@@ -256,7 +256,7 @@ useEffect(() => {
 }
         {/* Output Section */}
         <div className="relative mb-4">
-          <div className={`w-full border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'}`}>
+          <div className={`w-full border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-50 text-gray-900 border-gray-300'}`}>
             {/* Show the trash icon only if there are generated passwords */}
             {generatedPasswords.length > 0 && (
               <button
