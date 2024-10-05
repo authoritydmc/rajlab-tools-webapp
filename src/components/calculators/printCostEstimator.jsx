@@ -27,21 +27,29 @@ export default function PrintRateCalculator() {
 
     // State to hold settings
     const [settings, setSettings] = useState(() => {
-        // Load settings from localStorage or use default settings
         const savedSettings = JSON.parse(localStorage.getItem('printRateSettings'));
         return savedSettings ? savedSettings : defaultSettings;
     });
 
     // State for calculator inputs
-    const [numPages, setNumPages] = useState('1');
-    const [printType, setPrintType] = useState('1-Sided');
-    const [printMode, setPrintMode] = useState('Black & White');
+    const [numPages, setNumPages] = useState('10'); // Input number of pages
+    const [printType, setPrintType] = useState('1-Sided'); // Input print type
+    const [printMode, setPrintMode] = useState('Black & White'); // Input print mode
     const [currencyUnit, setCurrencyUnit] = useState('₹'); // State for currency unit
 
     // State for settings modal
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [actualNumPagesUsed, setActualNumPagesUsed] = useState(0); // State to hold actual number of pages used
 
-
+    // Effect to update actualNumPagesUsed based on numPages and printType
+    useEffect(() => {
+        if (printType === "1-Sided") {
+            setActualNumPagesUsed(Number(numPages)); // No change needed for 1-Sided
+        } else {
+            setActualNumPagesUsed(Math.ceil(Number(numPages) / 2)); // Round up for double-sided
+        }
+        calculateRates();
+    }, [numPages, printType]);
 
     // Function to handle opening settings modal
     const openSettings = () => {
@@ -53,74 +61,47 @@ export default function PrintRateCalculator() {
         setIsSettingsOpen(false);
     };
 
-    // Function to calculate customer total cost
+    // Unified function to calculate all rates and costs
     const calculateRates = () => {
-        if (!numPages || numPages <= 0) return { customerTotal: 0 };
+        console.log("calculating cost")
+        if (!numPages || numPages <= 0) return {
+            customerTotal: 0,
+            internalCost: 0,
+            totalProfit: 0,
+            inkCostPerPage: 0,
+            costPerPage: 0,
+            totalInkCost: 0,
+            totalPageCost: 0,
+            profitPerPrint: settings.profitPerPrint.toFixed(2),
+        };
 
-        let customerTotal = 0;
-
-        // Get the page cost from settings
         const pageCostPerPrint = settings.pageCost.cost / settings.pageCost.pages; // Cost per print
 
-        // Determine ink cost per page based on print mode
-        let inkCostPerPage = 0;
-        if (printMode === 'Black & White') {
-            inkCostPerPage = settings.blackInk.cost / settings.blackInk.yield; // Ink cost per page for Black & White
-        } else {
-            inkCostPerPage = settings.colorInk.cost / settings.colorInk.yield; // Ink cost per page for Color
-        }
+        let inkCostPerPage = printMode === 'Black & White'
+            ? settings.blackInk.cost / settings.blackInk.yield // Ink cost per page for Black & White
+            : settings.colorInk.cost / settings.colorInk.yield; // Ink cost per page for Color
 
-        // Calculate total cost per print including page cost and ink cost
-        const totalCostPerPrint = pageCostPerPrint + inkCostPerPage + settings.profitPerPrint; // Adding profit margin
-
-        // Calculate customer total
-        customerTotal = numPages * totalCostPerPrint; // Total cost for the number of pages
+        
+        // Calculate internal costs
+        const totalPageCost = actualNumPagesUsed * pageCostPerPrint; // Total page cost
+        const totalInkCost = inkCostPerPage * numPages; // Total ink cost
+        const totalProfit = numPages * settings.profitPerPrint; // Total profit for the number of pages
+        const internalCost = totalPageCost + totalInkCost; // Internal cost
+        const customerTotal = internalCost +totalProfit; // Total cost for the number of pages
 
         return {
-            customerTotal: customerTotal.toFixed(2), // Returning the total cost formatted to 2 decimal places
+            customerTotal: customerTotal.toFixed(2), // Total cost formatted to 2 decimal places
+            internalCost: internalCost.toFixed(2), // Internal cost formatted to 2 decimal places
+            totalProfit: totalProfit.toFixed(2), // Total profit formatted to 2 decimal places
+            inkCostPerPage: inkCostPerPage.toFixed(2), // Ink cost per page formatted to 2 decimal places
+            costPerPage: pageCostPerPrint.toFixed(2), // Cost per page formatted to 2 decimal places
+            totalInkCost: totalInkCost.toFixed(2), // Total ink cost formatted to 2 decimal places
+            totalPageCost: totalPageCost.toFixed(2), // Total page cost formatted to 2 decimal places
+            profitPerPrint: settings.profitPerPrint.toFixed(2), // Profit per print formatted to 2 decimal places
         };
     };
 
-    const { customerTotal } = calculateRates(); // Calculate customer total
-
-    // Function to calculate internal costs and profits
-    const calculateInternal = () => {
-        if (!numPages || numPages <= 0) return { internalCost: 0, totalProfit: 0 };
-
-        const pageCostPerPrint = settings.pageCost.cost / settings.pageCost.pages; // Cost per print
-        let inkCostPerPage = 0;
-
-        // Determine ink cost per page based on print mode
-        if (printMode === 'Black & White') {
-            inkCostPerPage = settings.blackInk.cost / settings.blackInk.yield; // Ink cost per page for Black & White
-        } else {
-            inkCostPerPage = settings.colorInk.cost / settings.colorInk.yield; // Ink cost per page for Color
-        }
-
-        // Calculate total internal cost
-        const costPerPage = pageCostPerPrint + inkCostPerPage; // Total cost per page
-        const internalCost = numPages * costPerPage; // Total internal cost for the number of pages
-
-        // Profit per print is set at a fixed value for simplicity
-        const profitPerPrint = settings.profitPerPrint;
-        const totalProfit = numPages * profitPerPrint; // Total profit for the number of pages
-
-        return {
-            internalCost: internalCost.toFixed(2), // Return internal cost formatted to 2 decimal places
-            totalProfit: totalProfit.toFixed(2), // Return total profit formatted to 2 decimal places
-            costPerPage: costPerPage.toFixed(2),
-            inkCostPerPage: inkCostPerPage.toFixed(2),
-            profitPerPrint: profitPerPrint.toFixed(2),
-        };
-    };
-
-    const { internalCost, totalProfit, costPerPage, inkCostPerPage, profitPerPrint } = calculateInternal(); // Calculate internal costs and profits
-
-    // Open a Customer Rate Page and print it
-
-    const openPrintRatePage = () => {
-
-    };
+    const rates = calculateRates(); // Calculate all rates and costs
 
     return (
         <div className={`min-h-screen p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'} transition-colors duration-300 relative`}>
@@ -191,11 +172,12 @@ export default function PrintRateCalculator() {
                 {/* Display Costs */}
                 <div className={`p-4 border rounded-md ${isDarkMode ? 'bg-gray-800 text-white border-gray-700' : 'bg-gray-100 text-gray-900 border-gray-300'}`}>
                     <h2 className="text-xl font-semibold mb-2">Estimated Costs:</h2>
-                    <p>Customer Total: {currencyUnit}{customerTotal}</p>
-
+                    <p>Customer Total: {currencyUnit}{rates.customerTotal}</p>
+                    <p>Total {actualNumPagesUsed} pages will be used to print </p>
+                   
                     {settings.showInternalCost && ( // Conditional rendering
                         <>
-                            <h3 className="text-lg font-semibold mb-2">Detailed Internal Cost Breakdown:</h3>
+                            <h3 className="mt-10 text-lg font-semibold mb-2">Detailed Internal Cost Breakdown:</h3>
                             <table className="w-full border border-gray-300">
                                 <thead>
                                     <tr className={`${isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-900'}`}>
@@ -205,53 +187,37 @@ export default function PrintRateCalculator() {
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td className="border px-4 py-2 text-red-500">Cost per Page:</td>
-                                        <td className="border px-4 py-2 text-red-500">{costPerPage}</td>
+                                        <td className="border px-4 py-2 text-red-500">Page Cost:</td>
+                                        <td className="border px-4 py-2 text-red-500">{currencyUnit}{rates.costPerPage}*{actualNumPagesUsed}(No of pages used) = {currencyUnit}{rates.totalPageCost}</td>
                                     </tr>
                                     <tr>
-                                        <td className="border px-4 py-2 text-red-500">Ink Cost per Page:</td>
-                                        <td className="border px-4 py-2 text-red-500">{inkCostPerPage}</td>
+                                        <td className="border px-4 py-2 text-red-500">Ink Cost:</td>
+                                        <td className="border px-4 py-2 text-red-500">{currencyUnit}{rates.inkCostPerPage}*{numPages}(No of pages used) = {currencyUnit}{rates.totalInkCost}</td>
+
                                     </tr>
-                                    <tr>
-                                        <td className="border px-4 py-2 text-red-500">Profit per Print:</td>
-                                        <td className="border px-4 py-2 text-red-500">{profitPerPrint}</td>
-                                    </tr>
+                          
                                     <tr >
                                         <td className="border px-4 py-2 font-bold text-red-500">Total Internal Cost:</td>
-                                        <td className="border px-4 py-2 font-bold text-red-500">{internalCost}</td>
+                                        <td className="border px-4 py-2 font-bold text-red-500">{currencyUnit}{rates.totalPageCost} + {currencyUnit}{rates.totalInkCost} = {currencyUnit}{rates.internalCost}</td>
                                     </tr>
                                     <tr className={`${isDarkMode ? ' text-white' : ' text-gray-900'}`}>
                                         <td className="border px-4 py-2 font-bold text-green-500">+ Profit:</td>
-                                        <td className="border px-4 py-2 font-bold text-green-500">{totalProfit}</td>
+                                        <td className="border px-4 py-2 font-bold text-green-500">{currencyUnit}{rates.profitPerPrint} *{numPages}(No of pages used)={currencyUnit}{rates.totalProfit}</td>
                                     </tr>
 
                                     <tr className={`${isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-900'}`}>
                                         <td className="border px-4 py-2 font-bold text-yellow-500">Total Customer Rate:</td>
-                                        <td className="border px-4 py-2 font-bold text-yellow-500">{customerTotal}</td>
+                                        <td className="border px-4 py-2 font-bold text-yellow-500">{currencyUnit}{rates.customerTotal}</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </>
                     )}
                 </div>
-                <button
-
-                    className={`w-full py-2 mt-4 rounded-md ${isDarkMode ? 'bg-blue-500 hover:bg-blue-400' : 'bg-blue-700 hover:bg-blue-600'} text-white transition-colors duration-300`}
-                >
-                    Get Customer Rate
-                </button>
             </div>
 
             {/* Settings Modal */}
-            {isSettingsOpen && (
-                <PrintRateSettingsModal
-                    isOpen={isSettingsOpen}
-                    onClose={closeSettings}
-                    settings={settings}
-                    setSettings={setSettings}
-                    isDarkMode={isDarkMode}
-                />
-            )}
+            <PrintRateSettingsModal isOpen={isSettingsOpen} onClose={closeSettings} settings={settings} setSettings={setSettings} isDarkMode={isDarkMode} />
         </div>
     );
 }
