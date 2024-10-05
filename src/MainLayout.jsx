@@ -1,7 +1,6 @@
 import { useTheme } from "./themeContext";
 import { Link, Outlet } from 'react-router-dom';
-import { FaGithub, FaHeart } from 'react-icons/fa'; // Importing GitHub and Heart icons
-
+import { FaGithub, FaHeart, FaHome } from 'react-icons/fa'; // Importing GitHub, Heart, and Home icons
 
 // Main layout component for applying theme and other styling
 function MainLayout() {
@@ -15,8 +14,8 @@ function MainLayout() {
       } transition-colors duration-300`}
     >
       {/* Header Section */}
-      <header className={`flex items-center justify-between p-4 sm:p-5 md:p-6 lg:p-8 shadow-md ${
-        isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-300 shadow-lg"
+      <header className={`flex items-center justify-between p-4 sticky top-0 z-10 shadow-md backdrop-filter backdrop-blur-md ${
+        isDarkMode ? "bg-gray-800 bg-opacity-70 border-b border-gray-700" : "bg-white bg-opacity-60 border-b border-gray-300 shadow-lg"
       }`}>
         {/* Brand Name */}
         <Link 
@@ -28,10 +27,21 @@ function MainLayout() {
           Rajlab Utilities
         </Link>
 
-        {/* Dark Mode Toggle Button */}
+        {/* Home Icon Link */}
+        <Link 
+          to="/" 
+          className={`p-2 rounded-full transition-colors duration-300 ${
+            isDarkMode ? "bg-gray-700 text-white hover:bg-gray-600" : "bg-blue-500 text-white hover:bg-blue-600"
+          }`}
+          title="Home"
+        >
+          <FaHome size={24}/>
+        </Link>
+
+        {/* Dark Mode Toggle Button with margin for gap */}
         <button
           type="button"
-          className={`p-2 rounded-full transition-colors duration-300 ${
+          className={`p-2 rounded-full transition-colors duration-300 ml-4 ${
             isDarkMode ? "bg-gray-700 text-white hover:bg-gray-600" : "bg-blue-500 text-white hover:bg-blue-600"
           }`}
           onClick={toggleDarkMode}

@@ -60,6 +60,42 @@ export default function PrintRateCalculator() {
     
     }, [numPages, printType, settings]); // Add settings to dependencies to re-calculate on setting changes
 
+
+    useEffect(() => {
+        document.title = 'Print Cost Estimator| Rajlabs'; // Set the document title
+        
+        const setMetaDescriptionFromLink = async (key) => {
+          const description = await fetchDescriptionByLink(key); // Fetch the description using the link
+          console.log("found Description "+description);
+          
+          // Check for existing meta description tag and update or create one
+          let metaTag = document.querySelector('meta[name="description"]');
+          if (metaTag) {
+            metaTag.content = description; // Update existing meta tag content
+          } else {
+            // Create a new meta tag if it doesn't exist
+            metaTag = document.createElement('meta');
+            metaTag.name = 'description';
+            metaTag.content = description; // Set the fetched description
+            document.head.appendChild(metaTag);
+          }
+        };
+      
+        // Call function with desired key (adjust as needed)
+        setMetaDescriptionFromLink('/print-cost-estimator');
+      
+        return () => {
+          document.title = 'Utilities || Rajlabs'; // Reset title on unmount
+      
+          // Optionally, remove the meta description on unmount
+          const metaTag = document.querySelector('meta[name="description"]');
+          if (metaTag) {
+            document.head.removeChild(metaTag); // Clean up the meta tag on unmount
+          }
+        };
+      }, []);
+
+
     // Function to handle opening settings modal
     const openSettings = () => {
         setIsSettingsOpen(true);

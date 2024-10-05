@@ -26,10 +26,11 @@
       {
         "name": "Print Cost Estimator",
         "link": "/print-cost-estimator",
-        "iconName": "AiOutlineFieldString",
+        "iconName": "ImPrinter",
         "isEnabled": true,
-        "description": "print cost estimator"
-      }
+        "description": "The Print Cost Estimator is a user-friendly tool designed to help individuals and businesses accurately calculate the costs associated with printing documents. Users can input various parameters such as the number of pages, print type (single-sided or double-sided), and print mode (black & white or color) to receive an instant estimate of printing expenses, including breakdowns for ink and paper costs. This estimator is essential for budget planning and cost management, providing transparency and efficiency in print-related expenditures."
+    }
+    
     ]
   },
   {
