@@ -4,8 +4,9 @@ import { MdCleaningServices } from "react-icons/md";
 import { CgFormatText } from "react-icons/cg";
 import { FaHashtag } from "react-icons/fa6";
 import { AiOutlineFieldString } from "react-icons/ai";
+import { ImPrinter } from "react-icons/im";
 const iconMap = {
-    FaList, BiCategoryAlt, FaCog, FaImage, FaLink,MdCleaningServices,CgFormatText,FaHashtag,AiOutlineFieldString,FaKey
+    FaList, BiCategoryAlt, FaCog, FaImage, FaLink,MdCleaningServices,CgFormatText,FaHashtag,AiOutlineFieldString,FaKey,ImPrinter
 }
 
 

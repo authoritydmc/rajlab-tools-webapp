@@ -52,7 +52,7 @@ export default function Base64ToImagePreviewGenerator() {
   return (
     <div
       className={`min-h-screen p-8 ${
-        isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'
+        isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'
       } transition-colors duration-300`}
     >
       <h1 className="text-3xl font-bold mb-8 text-center">Base64 to Image Preview Generator</h1>
@@ -60,7 +60,7 @@ export default function Base64ToImagePreviewGenerator() {
 
       <div
         className={`max-w-3xl mx-auto p-6 shadow-lg rounded-md ${
-          isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'
+          isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'
         } border`}
       >
         {/* Base64 Input Section */}
@@ -74,7 +74,7 @@ export default function Base64ToImagePreviewGenerator() {
             onChange={handleBase64InputChange}
             placeholder="Paste your Base64 encoded image here..."
             className={`w-full h-40 p-2 border rounded-md resize-none ${
-              isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'
+              isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-50 text-gray-900 border-gray-300'
             }`}
           />
         </div>

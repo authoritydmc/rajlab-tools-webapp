@@ -1,37 +1,43 @@
 import { useTheme } from "./themeContext";
 import { Link, Outlet } from 'react-router-dom';
-import { FaGithub, FaHeart } from 'react-icons/fa'; // Importing GitHub and Heart icons
-
+import { FaGithub, FaHeart, FaHome } from 'react-icons/fa'; // Importing GitHub, Heart, and Home icons
+import './shimmerEffect.css'; // Import the CSS file for the sliding effect
 
 // Main layout component for applying theme and other styling
 function MainLayout() {
-  // Extracting dark mode state and toggle function from theme context
   const { isDarkMode, toggleDarkMode } = useTheme();
 
   return (
     <div
-      className={`flex flex-col min-h-screen ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
-      } transition-colors duration-300`}
+      className={`flex flex-col min-h-screen ${isDarkMode ? "bg-gray-900 text-white" : "bg-green-50 text-gray-900"} transition-colors duration-300`}
     >
       {/* Header Section */}
-      <header className={`flex items-center justify-between p-4 sm:p-5 md:p-6 lg:p-8 shadow-md ${
-        isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-300 shadow-lg"
+      <header className={`flex items-center justify-between p-4 sticky top-0 z-10 shadow-md backdrop-filter backdrop-blur-md ${
+        isDarkMode ? "bg-gray-800 bg-opacity-70 border-b border-gray-700" : "bg-green-100 bg-opacity-60 border-b border-gray-300 shadow-lg"
       }`}>
-        {/* Brand Name */}
+        {/* Brand Name with Sliding Color Change Effect */}
         <Link 
           to="/" 
-          className={`text-xl sm:text-2xl md:text-3xl font-bold ${
-            isDarkMode ? "text-white" : "text-gray-900"
-          } flex-1 text-center`}
+          className={`ml-10 text-xl sm:text-2xl md:text-3xl font-bold sliding-effect flex-1 text-center`}
         >
           Rajlab Utilities
         </Link>
 
-        {/* Dark Mode Toggle Button */}
+        {/* Home Icon Link */}
+        <Link 
+          to="/" 
+          className={`p-2 rounded-full transition-colors duration-300 ml-4 ${
+            isDarkMode ? "bg-gray-700 text-white hover:bg-gray-600" : "bg-blue-500 text-white hover:bg-blue-600"
+          }`}
+          title="Home"
+        >
+          <FaHome size={24}/>
+        </Link>
+
+        {/* Dark Mode Toggle Button with margin for gap */}
         <button
           type="button"
-          className={`p-2 rounded-full transition-colors duration-300 ${
+          className={`p-2 rounded-full transition-colors duration-300 ml-4 ${
             isDarkMode ? "bg-gray-700 text-white hover:bg-gray-600" : "bg-blue-500 text-white hover:bg-blue-600"
           }`}
           onClick={toggleDarkMode}
@@ -48,7 +54,7 @@ function MainLayout() {
 
       {/* Footer Section */}
       <footer className={`flex flex-col items-center p-4 sm:p-6 lg:p-8 ${
-        isDarkMode ? "bg-gray-800 text-gray-400" : "bg-white text-gray-700"
+        isDarkMode ? "bg-gray-800 text-gray-400" : "bg-green-150 text-gray-700"
       }`}>
         {/* Footer content with GitHub icon, heart icon, external link, and sitemap link */}
         <p className="text-sm sm:text-base flex flex-wrap items-center gap-2 mb-2 text-center">
