@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
 
+// Define a reusable Card component for better structure
+const Card = ({ title, children, isDarkMode }) => (
+  <div className={`rounded-lg shadow-md p-4 mb-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+    <h3 className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>{title}</h3>
+    {children}
+  </div>
+);
+
 const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDarkMode }) => {
   const [localSettings, setLocalSettings] = useState(settings); // Local copy of settings
 
@@ -33,121 +41,135 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
           backgroundColor: 'rgba(0, 0, 0, 0.75)',
         },
         content: {
-          width: '80vw', // 80% viewport width
+          width: '60vw', // Optimized width
+          maxWidth: '800px', // Maximum width
           height: 'auto', // Auto height
-          maxHeight: '90vh', // Max height to avoid overflow
+          maxHeight: '80vh', // Max height to avoid overflow
           margin: 'auto',
           padding: '20px',
           borderRadius: '8px',
-          background: isDarkMode ? '#333' : '#fff',
+          background: isDarkMode ? '#444' : '#fff', // Darker background for dark mode
           color: isDarkMode ? '#fff' : '#000',
+          overflowY: 'auto', // Allow scrolling if content exceeds max height
         },
       }}
     >
-      <h2 className="text-xl font-bold mb-4">Print Rate Settings</h2>
-      
-      {/* Page Cost Section */}
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold">Page Cost</h3>
-        <div className="flex justify-between mb-2">
-          <label>Cost (₹):</label>
-          <input
-            type="number"
-            name="cost"
-            value={localSettings.pageCost.cost}
-            onChange={(e) => handleSettingChange(e, 'pageCost')}
-            className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'}`}
-          />
-        </div>
-        <div className="flex justify-between mb-2">
-          <label>Pages:</label>
-          <input
-            type="number"
-            name="pages"
-            value={localSettings.pageCost.pages}
-            onChange={(e) => handleSettingChange(e, 'pageCost')}
-            className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'}`}
-          />
-        </div>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-black'}`}>Print Rate Settings</h2>
+        {/* Save Icon */}
+        <button onClick={saveSettings} title="Save Settings" className="text-blue-600 hover:text-blue-800">
+          <i className="fas fa-save fa-lg"></i>
+        </button>
+        {/* Close Icon */}
+        <button onClick={onClose} title="Close" className="text-red-600 hover:text-red-800">
+          <i className="fas fa-times fa-lg"></i>
+        </button>
       </div>
+
+      {/* Page Cost Section */}
+      <Card title="Page Cost" isDarkMode={isDarkMode}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Cost (₹):</label>
+            <input
+              type="number"
+              name="cost"
+              value={localSettings.pageCost.cost}
+              onChange={(e) => handleSettingChange(e, 'pageCost')}
+              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
+            />
+          </div>
+          <div>
+            <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Pages:</label>
+            <input
+              type="number"
+              name="pages"
+              value={localSettings.pageCost.pages}
+              onChange={(e) => handleSettingChange(e, 'pageCost')}
+              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
+            />
+          </div>
+        </div>
+      </Card>
 
       {/* Black Ink Section */}
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold">Black Ink</h3>
-        <div className="flex justify-between mb-2">
-          <label>Cost (₹):</label>
-          <input
-            type="number"
-            name="cost"
-            value={localSettings.blackInk.cost}
-            onChange={(e) => handleSettingChange(e, 'blackInk')}
-            className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'}`}
-          />
+      <Card title="Black Ink" isDarkMode={isDarkMode}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Cost (₹):</label>
+            <input
+              type="number"
+              name="cost"
+              value={localSettings.blackInk.cost}
+              onChange={(e) => handleSettingChange(e, 'blackInk')}
+              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
+            />
+          </div>
+          <div>
+            <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Yield (pages):</label>
+            <input
+              type="number"
+              name="yield"
+              value={localSettings.blackInk.yield}
+              onChange={(e) => handleSettingChange(e, 'blackInk')}
+              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
+            />
+          </div>
         </div>
-        <div className="flex justify-between mb-2">
-          <label>Yield (pages):</label>
-          <input
-            type="number"
-            name="yield"
-            value={localSettings.blackInk.yield}
-            onChange={(e) => handleSettingChange(e, 'blackInk')}
-            className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'}`}
-          />
-        </div>
-      </div>
+      </Card>
 
       {/* Color Ink Section */}
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold">Color Ink</h3>
-        <div className="flex justify-between mb-2">
-          <label>Cost for All (₹):</label>
-          <input
-            type="number"
-            name="cost"
-            value={localSettings.colorInk.cost} // Total cost for all bottles
-            onChange={(e) => handleSettingChange(e, 'colorInk')}
-            className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'}`}
-          />
+      <Card title="Color Ink" isDarkMode={isDarkMode}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Cost for All (₹):</label>
+            <input
+              type="number"
+              name="cost"
+              value={localSettings.colorInk.cost}
+              onChange={(e) => handleSettingChange(e, 'colorInk')}
+              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
+            />
+          </div>
+          <div>
+            <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Yield (pages):</label>
+            <input
+              type="number"
+              name="yield"
+              value={localSettings.colorInk.yield}
+              onChange={(e) => handleSettingChange(e, 'colorInk')}
+              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
+            />
+          </div>
         </div>
-        <div className="flex justify-between mb-2">
-          <label>Yield (pages):</label>
-          <input
-            type="number"
-            name="yield"
-            value={localSettings.colorInk.yield} // Total yield for all bottles together
-            onChange={(e) => handleSettingChange(e, 'colorInk')}
-            className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'}`}
-          />
-        </div>
-      </div>
+      </Card>
 
       {/* Profit Per Print Section */}
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold">Profit Per Print</h3>
-        <div className="flex justify-between mb-2">
-          <label>Profit (₹):</label>
+      <Card title="Profit Per Print" isDarkMode={isDarkMode}>
+        <div>
+          <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Profit (₹):</label>
           <input
             type="number"
             name="profitPerPrint"
-            value={localSettings.profitPerPrint} // Profit per print
+            value={localSettings.profitPerPrint}
             onChange={(e) => handleSettingChange(e, 'profitPerPrint')}
-            className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'}`}
+            className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
           />
         </div>
-      </div>
+      </Card>
 
       {/* Show Internal Cost Section */}
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold">Show Internal Cost</h3>
-        <label>
+      <Card title="Show Internal Cost" isDarkMode={isDarkMode}>
+        <label className="flex items-center">
           <input
             type="checkbox"
             checked={localSettings.showInternalCost}
             onChange={() => setLocalSettings(prev => ({ ...prev, showInternalCost: !prev.showInternalCost }))}
+            className="mr-2"
           />
-          Show Internal Cost
+          <span className={`${isDarkMode ? 'text-white' : 'text-black'}`}>Show Internal Cost</span>
         </label>
-      </div>
+      </Card>
 
       <div className="flex justify-end mt-6">
         <button
