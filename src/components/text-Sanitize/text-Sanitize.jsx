@@ -57,7 +57,7 @@ export default function SanitizeText() {
   return (
     <div
       className={`min-h-screen p-8 ${
-        isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'
+        isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'
       } transition-colors duration-300`}
     >
       <h1 className="text-3xl font-bold mb-8 text-center">Sanitize Text Utility</h1>
@@ -65,7 +65,7 @@ export default function SanitizeText() {
 
       <div
         className={`max-w-2xl mx-auto p-6 shadow-lg rounded-md ${
-          isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'
+          isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'
         } border`}
       >
         {/* Input Section */}
@@ -76,7 +76,7 @@ export default function SanitizeText() {
             onChange={handleInputChange}
             placeholder="Type or paste text here..."
             className={`w-full h-40 p-2 border rounded-md resize-none ${
-              isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-50 text-gray-900 border-gray-300'
+              isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'
             }`}
           />
           {/* Input Action Buttons */}
@@ -110,7 +110,7 @@ export default function SanitizeText() {
             placeholder="Your output goes here..."
             readOnly
             className={`w-full h-40 p-2 border rounded-md resize-none ${
-              isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-50 text-gray-900 border-gray-300'
+              isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'
             }`}
           />
           {/* Output Action Buttons */}
