@@ -18,19 +18,10 @@ export default function PrintRateCalculator() {
       yield: 6600, // pages per bottle
     },
     colorInk: {
-      cyan: {
-        cost: 420, // ₹ per bottle
-        yield: 4500, // pages per bottle
-      },
-      magenta: {
-        cost: 420, // ₹ per bottle
-        yield: 4500, // pages per bottle
-      },
-      yellow: {
-        cost: 420, // ₹ per bottle
-        yield: 4500, // pages per bottle
-      },
+     cost:1260,
+     yield:4500
     },
+    profitPerPrint:0.50,
     showInternalCost: false, // Toggle for internal cost section
   };
 
@@ -194,17 +185,16 @@ export default function PrintRateCalculator() {
         <div className={`mb-6 p-4 border rounded-md ${isDarkMode ? 'bg-gray-800 text-white border-gray-700' : 'bg-gray-100 text-gray-900 border-gray-300'}`}>
           <h2 className="text-xl font-semibold mb-2">Estimated Costs:</h2>
           <p>Customer Total: {currencyUnit}{customerTotal}</p>
-          <p>Internal Cost: {currencyUnit}{internalCost}</p>
-          <p>Total Profit: {currencyUnit}{totalProfit}</p>
+
+         {settings.showInternalCost && ( // Conditional rendering
+        <>
+          <p>Internal Cost: {currencyUnit}{results.internalCost.toFixed(2)}</p>
+          <p>Total Profit: {currencyUnit}{results.profit.toFixed(2)}</p>
+        </>
+      )}
         </div>
 
-        {/* Print Rate with Example for Customer */}
-        <div className={`mb-6 p-4 border rounded-md ${isDarkMode ? 'bg-gray-800 text-white border-gray-700' : 'bg-gray-100 text-gray-900 border-gray-300'}`}>
-          <h2 className="text-xl font-semibold mb-2">Print Rate with Example for Customer:</h2>
-          <p>For printing {numPages} page(s) in {printMode} mode:</p>
-          <p>Your total estimated cost is: {currencyUnit}{customerTotal}.</p>
-          <p>This includes internal costs and expected profit margins.</p>
-        </div>
+  
 
         {/* Print Button */}
         <button
