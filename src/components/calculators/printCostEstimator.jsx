@@ -24,10 +24,10 @@ export default function PrintRateCalculator() {
         profit: {
             blackAndWhite: {
                 singleSided: 0.74, // Profit per page for 1-Sided Black & White
-                doubleSided: 0.5, // Profit per page for 2-Sided Black & White
+                doubleSided: 0.58, // Profit per page for 2-Sided Black & White
             },
             color: {
-                singleSided: 1, // Profit per page for 1-Sided Color
+                singleSided: 1.10, // Profit per page for 1-Sided Color
                 doubleSided: 0.8, // Profit per page for 2-Sided Color
             },
         },
@@ -102,7 +102,7 @@ export default function PrintRateCalculator() {
         const totalProfit = numPages * parseFloat(profitPerPrint); // Total profit for the number of pages
         const internalCost = totalPageCost + totalInkCost; // Internal cost
         const customerTotal = internalCost + totalProfit; // Total cost for the number of pages
-
+        const customerCostPerPage=customerTotal/numPages;
         return {
             customerTotal: customerTotal.toFixed(2), // Total cost formatted to 2 decimal places
             internalCost: internalCost.toFixed(2), // Internal cost formatted to 2 decimal places
@@ -112,6 +112,7 @@ export default function PrintRateCalculator() {
             totalInkCost: totalInkCost.toFixed(2), // Total ink cost formatted to 2 decimal places
             totalPageCost: totalPageCost.toFixed(2), // Total page cost formatted to 2 decimal places
             profitPerPrint: parseFloat(profitPerPrint).toFixed(2), // Profit per print formatted to 2 decimal places
+            customerCostPerPage:customerCostPerPage.toFixed(2)
         };
     };
 
@@ -121,19 +122,21 @@ export default function PrintRateCalculator() {
         <div className={`min-h-screen p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'} transition-colors duration-300 relative`}>
             <Toaster /> {/* Toast container */}
 
-            {/* Settings Icon */}
-            <button
-                onClick={openSettings}
-                className={`absolute top-8 right-8 p-2 rounded-full ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-300 hover:bg-gray-400'} transition-colors duration-300`}
-                aria-label="Settings"
-            >
-                <FaCog size={20} />
-            </button>
-
             <h1 className="text-3xl font-bold mb-8 text-center">Print Rate Calculator</h1>
 
             <div className={`max-w-3xl mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'} border`}>
-                {/* Input Section */}
+            <div className="flex justify-between items-center mb-6">
+                    <div className="flex-grow"></div> {/* This div takes up all available space to push the button to the right */}
+                    <button
+                        onClick={openSettings}
+                        className={`p-2 flex items-center rounded-full ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-300 hover:bg-gray-400'} transition-colors duration-300`}
+                        aria-label="Settings"
+                    >
+                        <FaCog size={20} className="mr-2" /> {/* Add margin to separate icon from text */}
+                        Settings
+                    </button>
+                </div>
+
                 <div className="mb-6">
                     <label className="block mb-2">Number of Pages:</label>
                     <input
@@ -220,7 +223,7 @@ export default function PrintRateCalculator() {
 
                                     <tr className={`${isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-900'}`}>
                                         <td className="border px-4 py-2 font-bold text-yellow-500">Total Customer Rate:</td>
-                                        <td className="border px-4 py-2 font-bold text-yellow-500">{currencyUnit}{rates.customerTotal}</td>
+                                        <td className="border px-4 py-2 font-bold text-yellow-500">{currencyUnit}{rates.customerTotal} [ {currencyUnit}{rates.customerCostPerPage} / Page ]</td>
                                     </tr>
                                 </tbody>
                             </table>
