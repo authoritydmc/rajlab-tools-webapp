@@ -69,7 +69,7 @@ export default function MainToolListPage() {
 
   return (
     <main
-      className={`min-h-screen flex flex-col items-center gap-8 px-4 py-8 transition-colors duration-300 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'
+      className={`min-h-screen flex flex-col items-center gap-8 px-4 py-8 transition-colors duration-300 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50  text-gray-900'
         }`}
     >
       {/* Search and View Mode Toggle */}
@@ -80,7 +80,7 @@ export default function MainToolListPage() {
             placeholder="Search tools..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'
+            className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-green-100 text-gray-900 border-gray-300'
               }`}
           />
         </div>
@@ -108,11 +108,11 @@ export default function MainToolListPage() {
           filteredCategories.map((category, index) => (
             <div
               key={index}
-              className={`shadow-md rounded-lg overflow-hidden border card-hover-border ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'
+              className={`shadow-md rounded-lg overflow-hidden border card-hover-border ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-green-50 '
                 }`}
             >
               <div
-                className={`p-6 border-b ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-100 border-gray-200'
+                className={`p-6 border-b ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-green-200 border-gray-200'
                   }`}
               >
                 <h3 className="text-xl font-semibold mb-2">{category.title}</h3>
@@ -153,7 +153,7 @@ export default function MainToolListPage() {
             <div
               key={toolIndex}
               onClick={() => handleCardClick(tool.link)}
-              className={`shadow-md rounded-lg overflow-hidden border card-hover-border card-hover-grow cursor-pointer ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'
+              className={`shadow-md rounded-lg overflow-hidden border card-hover-border card-hover-grow cursor-pointer ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-green-150'
                 }`}
               style={{ aspectRatio: '1 / 1' }} // Ensures square aspect ratio
             >

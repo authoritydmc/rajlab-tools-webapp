@@ -3,7 +3,7 @@ import Modal from 'react-modal';
 
 // Define a reusable Card component for better structure
 const Card = ({ title, children, isDarkMode }) => (
-  <div className={`rounded-lg shadow-md p-4 mb-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+  <div className={`rounded-lg shadow-md p-4 mb-4 ${isDarkMode ? 'bg-gray-800' : 'bg-green-150'}`}>
     <h3 className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>{title}</h3>
     {children}
   </div>
@@ -91,7 +91,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               name="cost"
               value={localSettings.pageCost.cost}
               onChange={(e) => handleSettingChange(e, 'pageCost')}
-              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
+              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
             />
           </div>
           <div>
@@ -101,7 +101,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               name="pages"
               value={localSettings.pageCost.pages}
               onChange={(e) => handleSettingChange(e, 'pageCost')}
-              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
+              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
             />
           </div>
         </div>
@@ -117,7 +117,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               name="cost"
               value={localSettings.blackInk.cost}
               onChange={(e) => handleSettingChange(e, 'blackInk')}
-              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
+              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
             />
           </div>
           <div>
@@ -127,7 +127,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               name="yield"
               value={localSettings.blackInk.yield}
               onChange={(e) => handleSettingChange(e, 'blackInk')}
-              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
+              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
             />
           </div>
         </div>
@@ -143,7 +143,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               name="cost"
               value={localSettings.colorInk.cost}
               onChange={(e) => handleSettingChange(e, 'colorInk')}
-              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
+              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
             />
           </div>
           <div>
@@ -153,7 +153,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               name="yield"
               value={localSettings.colorInk.yield}
               onChange={(e) => handleSettingChange(e, 'colorInk')}
-              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
+              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
             />
           </div>
         </div>
@@ -171,7 +171,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               name="singleSided"
               value={localSettings.profit.blackAndWhite.singleSided}
               onChange={(e) => handleSettingChange(e, 'profit', 'blackAndWhite')}
-              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
+              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
             />
             <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Double Sided (₹):</label>
             <input
@@ -187,7 +187,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
   }}
   step="0.01" // Allow decimal values
   min="0" // Minimum value is 0 to prevent negative values
-  className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
+  className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
 />
 
           </div>
@@ -200,7 +200,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               name="singleSided"
               value={localSettings.profit.color.singleSided}
               onChange={(e) => handleSettingChange(e, 'profit', 'color')}
-              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
+              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
             />
             <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Double Sided (₹):</label>
             <input
@@ -208,7 +208,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               name="doubleSided"
               value={localSettings.profit.color.doubleSided}
               onChange={(e) => handleSettingChange(e, 'profit', 'color')}
-              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
+              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
             />
           </div>
         </div>

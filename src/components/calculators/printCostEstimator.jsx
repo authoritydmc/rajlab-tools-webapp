@@ -155,12 +155,12 @@ export default function PrintRateCalculator() {
     const rates = calculateRates(); // Calculate all rates and costs
 
     return (
-        <div className={`min-h-screen p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'} transition-colors duration-300 relative`}>
+        <div className={`min-h-screen p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'} transition-colors duration-300 relative`}>
             <Toaster /> {/* Toast container */}
 
             <h1 className="text-3xl font-bold mb-8 text-center">Print Rate Calculator</h1>
 
-            <div className={`max-w-3xl mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'} border`}>
+            <div className={`max-w-3xl mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}>
             <div className="flex justify-between items-center mb-6">
                     <div className="flex-grow"></div> {/* This div takes up all available space to push the button to the right */}
                     <button
@@ -180,7 +180,7 @@ export default function PrintRateCalculator() {
                         value={numPages}
                         onChange={(e) => setNumPages(e.target.value)}
                         min="1"
-                        className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'}`}
+                        className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-50 text-gray-900 border-gray-300'}`}
                     />
                 </div>
 
@@ -189,7 +189,7 @@ export default function PrintRateCalculator() {
                     <select
                         value={printType}
                         onChange={(e) => setPrintType(e.target.value)}
-                        className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'}`}
+                        className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-50 text-gray-900 border-gray-300'}`}
                     >
                         <option value="1-Sided">1-Sided (1 Side only print per page)</option>
                         <option value="2-Sided">2-Sided (Both Side of Page Printed)</option>
@@ -201,7 +201,7 @@ export default function PrintRateCalculator() {
                     <select
                         value={printMode}
                         onChange={(e) => setPrintMode(e.target.value)}
-                        className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'}`}
+                        className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-50 text-gray-900 border-gray-300'}`}
                     >
                         <option value="Black & White">Black & White</option>
                         <option value="Color">Color</option>
@@ -214,7 +214,7 @@ export default function PrintRateCalculator() {
                     <select
                         value={currencyUnit}
                         onChange={(e) => setCurrencyUnit(e.target.value)}
-                        className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'}`}
+                        className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-50 text-gray-900 border-gray-300'}`}
                     >
                         <option value="₹">Indian Rupee (₹)</option>
                         <option value="$">US Dollar ($)</option>
@@ -223,7 +223,7 @@ export default function PrintRateCalculator() {
                 </div>
 
                 {/* Display Costs */}
-                <div className={`p-4 border rounded-md ${isDarkMode ? 'bg-gray-800 text-white border-gray-700' : 'bg-gray-100 text-gray-900 border-gray-300'}`}>
+                <div className={`p-4 border rounded-md ${isDarkMode ? 'bg-gray-800 text-white border-gray-700' : 'bg-green-50 text-gray-900 border-gray-300'}`}>
                     <h2 className="text-xl font-semibold mb-2">Estimated Costs:</h2>
                     <p>Customer Total: {currencyUnit}{rates.customerTotal}</p>
                     <p>Total {actualNumPagesUsed} pages will be used to print </p>
