@@ -18,10 +18,10 @@ export default function PrintRateCalculator() {
       yield: 6600, // pages per bottle
     },
     colorInk: {
-     cost:1260,
-     yield:4500
+      cost: 1260, // ₹ per bottle
+      yield: 4500, // pages per bottle
     },
-    profitPerPrint:0.50,
+    profitPerPrint: 0.50, // Fixed profit margin per print
     showInternalCost: false, // Toggle for internal cost section
   };
 
@@ -60,54 +60,65 @@ export default function PrintRateCalculator() {
     setIsSettingsOpen(false);
   };
 
-  // Function to calculate rates
+  // Function to calculate customer total cost
   const calculateRates = () => {
     if (!numPages || numPages <= 0) return { customerTotal: 0 };
 
     let customerTotal = 0;
+
+    // Get the page cost from settings
+    const pageCostPerPrint = settings.pageCost.cost / settings.pageCost.pages; // Cost per print
+
+    // Determine ink cost per page based on print mode
+    let inkCostPerPage = 0;
     if (printMode === 'Black & White') {
-      const rate = printType === '1-Sided' ? 1.20 : 1.60;
-      customerTotal = (printType === '2-Sided') ? (numPages / 2) * rate : numPages * rate;
+      inkCostPerPage = settings.blackInk.cost / settings.blackInk.yield; // Ink cost per page for Black & White
     } else {
-      const rate = printType === '1-Sided' ? 1.50 : 2.00;
-      customerTotal = (printType === '2-Sided') ? (numPages / 2) * rate : numPages * rate;
+      inkCostPerPage = settings.colorInk.cost / settings.colorInk.yield; // Ink cost per page for Color
     }
 
+    // Calculate total cost per print including page cost and ink cost
+    const totalCostPerPrint = pageCostPerPrint + inkCostPerPage + settings.profitPerPrint; // Adding profit margin
+
+    // Calculate customer total
+    customerTotal = numPages * totalCostPerPrint; // Total cost for the number of pages
+
     return {
-      customerTotal: customerTotal.toFixed(2),
+      customerTotal: customerTotal.toFixed(2), // Returning the total cost formatted to 2 decimal places
     };
   };
 
-  const { customerTotal } = calculateRates();
+  const { customerTotal } = calculateRates(); // Calculate customer total
 
   // Function to calculate internal costs and profits
   const calculateInternal = () => {
     if (!numPages || numPages <= 0) return { internalCost: 0, totalProfit: 0 };
 
-    const pageCostPerPage = settings.pageCost.cost / settings.pageCost.pages;
+    const pageCostPerPrint = settings.pageCost.cost / settings.pageCost.pages; // Cost per print
     let inkCostPerPage = 0;
 
+    // Determine ink cost per page based on print mode
     if (printMode === 'Black & White') {
-      inkCostPerPage = settings.blackInk.cost / settings.blackInk.yield;
+      inkCostPerPage = settings.blackInk.cost / settings.blackInk.yield; // Ink cost per page for Black & White
     } else {
-      // Color ink (CMY)
-      const colorInkTotalCost = Object.values(settings.colorInk).reduce((total, ink) => total + ink.cost, 0);
-      inkCostPerPage = colorInkTotalCost / Object.values(settings.colorInk).reduce((total, ink) => total + ink.yield, 0);
+      inkCostPerPage = settings.colorInk.cost / settings.colorInk.yield; // Ink cost per page for Color
     }
 
-    const costPerPage = pageCostPerPage + inkCostPerPage;
-    const selectedProfit = printMode === 'Black & White' ? (printType === '1-Sided' ? 0.45 : 0.80) : (printType === '1-Sided' ? 0.55 : 0.10);
-    
-    const internalCost = numPages * costPerPage;
-    const totalProfit = numPages * selectedProfit;
+    // Calculate total internal cost
+    const costPerPage = pageCostPerPrint + inkCostPerPage; // Total cost per page
+    const internalCost = numPages * costPerPage; // Total internal cost for the number of pages
+
+    // Profit per page is set at a fixed value for simplicity, you can adjust this as needed
+    const profitPerPrint = settings.profitPerPrint; 
+    const totalProfit = numPages * profitPerPrint; // Total profit for the number of pages
 
     return {
-      internalCost: internalCost.toFixed(2),
-      totalProfit: totalProfit.toFixed(2),
+      internalCost: internalCost.toFixed(2), // Return internal cost formatted to 2 decimal places
+      totalProfit: totalProfit.toFixed(2), // Return total profit formatted to 2 decimal places
     };
   };
 
-  const { internalCost, totalProfit } = calculateInternal();
+  const { internalCost, totalProfit } = calculateInternal(); // Calculate internal costs and profits
 
   // Handle printing
   const handlePrint = () => {
@@ -186,15 +197,13 @@ export default function PrintRateCalculator() {
           <h2 className="text-xl font-semibold mb-2">Estimated Costs:</h2>
           <p>Customer Total: {currencyUnit}{customerTotal}</p>
 
-         {settings.showInternalCost && ( // Conditional rendering
-        <>
-          <p>Internal Cost: {currencyUnit}{results.internalCost.toFixed(2)}</p>
-          <p>Total Profit: {currencyUnit}{results.profit.toFixed(2)}</p>
-        </>
-      )}
+          {settings.showInternalCost && ( // Conditional rendering
+            <>
+              <p>Internal Cost: {currencyUnit}{internalCost}</p>
+              <p>Total Profit: {currencyUnit}{totalProfit}</p>
+            </>
+          )}
         </div>
-
-  
 
         {/* Print Button */}
         <button
