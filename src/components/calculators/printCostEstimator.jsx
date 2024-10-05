@@ -41,7 +41,7 @@ export default function PrintRateCalculator() {
     });
 
     // State for calculator inputs
-    const [numPages, setNumPages] = useState('1'); // Input number of pages
+    const [numPages, setNumPages] = useState('2'); // Input number of pages
     const [printType, setPrintType] = useState('1-Sided'); // Input print type
     const [printMode, setPrintMode] = useState('Black & White'); // Input print mode
     const [currencyUnit, setCurrencyUnit] = useState('₹'); // State for currency unit
@@ -225,7 +225,7 @@ export default function PrintRateCalculator() {
                 {/* Display Costs */}
                 <div className={`p-4 border rounded-md ${isDarkMode ? 'bg-gray-800 text-white border-gray-700' : 'bg-green-50 text-gray-900 border-gray-300'}`}>
                     <h2 className="text-xl font-semibold mb-2">Estimated Costs:</h2>
-                    <p>Customer Total: {currencyUnit}{rates.customerTotal}</p>
+                    <p>Customer Total: {currencyUnit}{rates.customerTotal} [ {currencyUnit}{rates.customerCostPerPage} / Page ]</p>
                     <p>Total {actualNumPagesUsed} pages will be used to print </p>
 
                     {settings.showInternalCost && ( // Conditional rendering
