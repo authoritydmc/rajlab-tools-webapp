@@ -13,15 +13,30 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
   const [localSettings, setLocalSettings] = useState(settings); // Local copy of settings
 
   // Function to handle setting changes
-  const handleSettingChange = (e, section) => {
+  const handleSettingChange = (e, section, subSection) => {
     const { name, value } = e.target;
-    setLocalSettings((prev) => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [name]: value,
-      },
-    }));
+    
+    // Check if a subSection is specified
+    if (subSection) {
+      setLocalSettings((prev) => ({
+        ...prev,
+        [section]: {
+          ...prev[section],
+          [subSection]: {
+            ...prev[section][subSection],
+            [name]: value,
+          },
+        },
+      }));
+    } else {
+      setLocalSettings((prev) => ({
+        ...prev,
+        [section]: {
+          ...prev[section],
+          [name]: value,
+        },
+      }));
+    }
   };
 
   // Function to save settings and close modal
@@ -146,15 +161,56 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
 
       {/* Profit Per Print Section */}
       <Card title="Profit Per Print" isDarkMode={isDarkMode}>
-        <div>
-          <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Profit (₹):</label>
-          <input
-            type="number"
-            name="profitPerPrint"
-            value={localSettings.profitPerPrint}
-            onChange={(e) => handleSettingChange(e, 'profitPerPrint')}
-            className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          {/* Black & White Profit Settings */}
+          <div>
+            <h4 className={`mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Black & White:</h4>
+            <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Single Sided (₹):</label>
+            <input
+              type="number"
+              name="singleSided"
+              value={localSettings.profit.blackAndWhite.singleSided}
+              onChange={(e) => handleSettingChange(e, 'profit', 'blackAndWhite')}
+              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
+            />
+            <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Double Sided (₹):</label>
+            <input
+  type="number"
+  name="doubleSided"
+  value={localSettings.profit.blackAndWhite.doubleSided}
+  onChange={(e) => {
+    const value = parseFloat(e.target.value); // Parse input value to a float
+    // Only update if the value is a positive float or an empty string
+    if (value >= 0) {
+      handleSettingChange(e, 'profit', 'blackAndWhite'); // Call to handle the setting change
+    }
+  }}
+  step="0.01" // Allow decimal values
+  min="0" // Minimum value is 0 to prevent negative values
+  className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
+/>
+
+          </div>
+          {/* Color Profit Settings */}
+          <div>
+            <h4 className={`mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Color:</h4>
+            <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Single Sided (₹):</label>
+            <input
+              type="number"
+              name="singleSided"
+              value={localSettings.profit.color.singleSided}
+              onChange={(e) => handleSettingChange(e, 'profit', 'color')}
+              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
+            />
+            <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Double Sided (₹):</label>
+            <input
+              type="number"
+              name="doubleSided"
+              value={localSettings.profit.color.doubleSided}
+              onChange={(e) => handleSettingChange(e, 'profit', 'color')}
+              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black'}`}
+            />
+          </div>
         </div>
       </Card>
 
@@ -164,7 +220,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
           <input
             type="checkbox"
             checked={localSettings.showInternalCost}
-            onChange={() => setLocalSettings(prev => ({ ...prev, showInternalCost: !prev.showInternalCost }))}
+            onChange={() => setLocalSettings((prev) => ({ ...prev, showInternalCost: !prev.showInternalCost }))}
             className="mr-2"
           />
           <span className={`${isDarkMode ? 'text-white' : 'text-black'}`}>Show Internal Cost</span>
