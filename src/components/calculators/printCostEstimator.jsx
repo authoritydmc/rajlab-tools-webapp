@@ -108,17 +108,20 @@ export default function PrintRateCalculator() {
     const costPerPage = pageCostPerPrint + inkCostPerPage; // Total cost per page
     const internalCost = numPages * costPerPage; // Total internal cost for the number of pages
 
-    // Profit per page is set at a fixed value for simplicity, you can adjust this as needed
+    // Profit per print is set at a fixed value for simplicity
     const profitPerPrint = settings.profitPerPrint; 
     const totalProfit = numPages * profitPerPrint; // Total profit for the number of pages
 
     return {
       internalCost: internalCost.toFixed(2), // Return internal cost formatted to 2 decimal places
       totalProfit: totalProfit.toFixed(2), // Return total profit formatted to 2 decimal places
+      costPerPage: pageCostPerPrint.toFixed(2),
+      inkCostPerPage: inkCostPerPage.toFixed(2),
+      profitPerPrint: profitPerPrint.toFixed(2),
     };
   };
 
-  const { internalCost, totalProfit } = calculateInternal(); // Calculate internal costs and profits
+  const { internalCost, totalProfit, costPerPage, inkCostPerPage, profitPerPrint } = calculateInternal(); // Calculate internal costs and profits
 
   // Handle printing
   const handlePrint = () => {
@@ -199,8 +202,37 @@ export default function PrintRateCalculator() {
 
           {settings.showInternalCost && ( // Conditional rendering
             <>
-              <p>Internal Cost: {currencyUnit}{internalCost}</p>
-              <p>Total Profit: {currencyUnit}{totalProfit}</p>
+              <h3 className="text-lg font-semibold mb-2">Detailed Internal Cost Breakdown:</h3>
+              <table className="w-full border border-gray-300">
+                <thead>
+                  <tr className={`${isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-900'}`}>
+                    <th className="border px-4 py-2">Description</th>
+                    <th className="border px-4 py-2">Cost ({currencyUnit})</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="border px-4 py-2">Cost per Page:</td>
+                    <td className="border px-4 py-2">{costPerPage}</td>
+                  </tr>
+                  <tr>
+                    <td className="border px-4 py-2">Ink Cost per Page:</td>
+                    <td className="border px-4 py-2">{inkCostPerPage}</td>
+                  </tr>
+                  <tr>
+                    <td className="border px-4 py-2">Profit per Print:</td>
+                    <td className="border px-4 py-2">{profitPerPrint}</td>
+                  </tr>
+                  <tr className={`${isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-900'}`}>
+                    <td className="border px-4 py-2 font-bold">Total Internal Cost:</td>
+                    <td className="border px-4 py-2 font-bold">{internalCost}</td>
+                  </tr>
+                  <tr className={`${isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-900'}`}>
+                    <td className="border px-4 py-2 font-bold">Total Profit:</td>
+                    <td className="border px-4 py-2 font-bold">{totalProfit}</td>
+                  </tr>
+                </tbody>
+              </table>
             </>
           )}
         </div>
