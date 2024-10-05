@@ -10,6 +10,7 @@ import Base64ToImagePreviewGenerator from './components/base64EncoderDecoder/bas
 import URLEncoderDecoderTool from './components/urlEncodeDecode/urlEncoderDecoder';
 import ErrorBoundary from './errorHandler';
 import PasswordGenerator from './components/passwords/passwordGen';
+import PrintRateCalculator from './components/calculators/printCostEstimator';
 
 export const router = createBrowserRouter([
     {
@@ -55,6 +56,10 @@ export const router = createBrowserRouter([
         {
           path: "password-generator", // Relative path for nested route
           element: <PasswordGenerator />,
+        },
+        {
+          path: "print-cost-estimator", // Relative path for nested route
+          element: <PrintRateCalculator />,
         },
       ],
     },

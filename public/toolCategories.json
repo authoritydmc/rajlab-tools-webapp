@@ -20,6 +20,19 @@
     ]
   },
   {
+    "title": "Calculators",
+    "iconName": "FaLock",
+    "tools":[
+      {
+        "name": "Print Cost Estimator",
+        "link": "/print-cost-estimator",
+        "iconName": "AiOutlineFieldString",
+        "isEnabled": true,
+        "description": "print cost estimator"
+      }
+    ]
+  },
+  {
     "title": "Encryption & Encoding Utilities",
     "iconName": "FaLock",
     "tools": [
