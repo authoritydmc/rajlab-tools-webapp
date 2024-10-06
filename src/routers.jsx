@@ -11,6 +11,7 @@ import URLEncoderDecoderTool from './components/urlEncodeDecode/urlEncoderDecode
 import ErrorBoundary from './errorHandler';
 import PasswordGenerator from './components/passwords/passwordGen';
 import PrintRateCalculator from './components/calculators/printCostEstimator';
+import QRCodeSettings from './components/CodeGenerators/QRSettingMainPage';
 
 export const router = createBrowserRouter([
     {
@@ -60,6 +61,10 @@ export const router = createBrowserRouter([
         {
           path: "print-cost-estimator", // Relative path for nested route
           element: <PrintRateCalculator />,
+        },
+        {
+          path: "qr-code-generator", // Relative path for nested route
+          element: <QRCodeSettings />,
         },
       ],
     },
