@@ -84,9 +84,6 @@ export default function QRCodeDisplay({
           {/* QR Code Canvas */}
           <div
             className="flex justify-center mb-4 p-4 rounded-md"
-            style={{
-              backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
-            }}
             ref={qrRef} // Attach the ref to this div
           >
             <QRCodeCanvas
