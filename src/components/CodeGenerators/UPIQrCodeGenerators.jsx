@@ -23,7 +23,7 @@ export default function UPIPaymentSettings() {
   // Effect to automatically retrieve stored UPI address and receiver's name from localStorage
   useEffect(() => {
     const storedUpi = localStorage.getItem('upiAddress');
-    const storedName = localStorage.getItem('receiverName');
+    const storedName = localStorage.getItem('upiName');
 
     if (storedUpi) setUpi(storedUpi);
     if (storedName) setName(storedName);
@@ -65,7 +65,7 @@ export default function UPIPaymentSettings() {
     setName(value);
 
     // Store name in localStorage
-    localStorage.setItem('receiverName', value);
+    localStorage.setItem('upiName', value);
   };
 
   return (
