@@ -11,7 +11,8 @@ export default function QRCodeDisplay({
   shareTitle = 'QR Code',
   shareText = '',
   showHeader = true,
-  headerText = "Generated QR Code"
+  headerText = "Generated QR Code",
+  showButtons= true
 }) {
   const { isDarkMode } = useTheme();
   const qrRef = useRef(null); // Reference to the QRCodeCanvas
@@ -105,7 +106,7 @@ export default function QRCodeDisplay({
       } text-center`}
     >
       {/* Conditionally render header */}
-      {showHeader && <h2 className="text-2xl font-bold mb-4">{headerText}</h2>}
+      {showHeader && <h2 className="text-xl font-bold mb-4">{headerText}</h2>}
 
       {/* Display instruction if no data */}
       {!data ? (
@@ -128,6 +129,7 @@ export default function QRCodeDisplay({
           </div>
 
           {/* Action Buttons */}
+          {showButtons &&
           <div className="flex flex-wrap justify-center gap-2 md:gap-4">
             {/* Copy Button */}
             <button
@@ -181,6 +183,7 @@ export default function QRCodeDisplay({
               <FaPrint className="mr-2" /> Print
             </button>
           </div>
+}
         </>
       )}
     </div>
