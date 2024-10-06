@@ -17,9 +17,9 @@ function MainLayout() {
       }`}>
            <Link to="/" className="flex items-center">
           <img 
-            src="/favicon-32x32.png" // Path to your favicon
+            src="/android-chrome-512x512.png"
             alt="Logo"
-            className="w-8 h-8 mr-2" // Adjust size as needed
+            className="w-8 h-8 mr-2 lg:w-12 lg:h-12 mix-blend-multiply" 
           />
           </Link>
         {/* Brand Name with Sliding Color Change Effect */}
