@@ -15,10 +15,18 @@ function MainLayout() {
       <header className={`flex items-center justify-between p-4 sticky top-0 z-10 shadow-md backdrop-filter backdrop-blur-md ${
         isDarkMode ? "bg-gray-800 bg-opacity-70 border-b border-gray-700" : "bg-green-100 bg-opacity-60 border-b border-gray-300 shadow-lg"
       }`}>
+           <Link to="/" className="flex items-center">
+          <img 
+            src="/favicon-32x32.png" // Path to your favicon
+            alt="Logo"
+            className="w-8 h-8 mr-2" // Adjust size as needed
+          />
+          </Link>
         {/* Brand Name with Sliding Color Change Effect */}
         <Link 
           to="/" 
-          className={`ml-10 text-xl sm:text-2xl md:text-3xl font-bold sliding-effect flex-1 text-center`}
+          className={`ml-10 text-xl sm:text-2xl md:text-3xl font-bold sliding-effect flex-1 text-center headerFont`}
+      
         >
           Rajlab Utilities
         </Link>

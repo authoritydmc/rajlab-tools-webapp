@@ -311,7 +311,7 @@ const generateTransactionNote = (rates) => {
                         <option value="Black & White">Black & White</option>
                         <option value="Color">Color</option>
                     </select>
-                </div>
+                </div>  
                 <div className="mb-6">
                     <label className="block mb-2">Print Type / Page:</label>
                     <select
