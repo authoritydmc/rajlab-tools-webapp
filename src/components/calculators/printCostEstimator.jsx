@@ -28,12 +28,16 @@ export default function PrintRateCalculator() {
         profit: {
             blackAndWhite: {
                 singleSided: 0.74, // Profit per page for 1-Sided Black & White
-                doubleSided: 0.58, // Profit per page for 2-Sided Black & White
+                doubleSided: 0.581, // Profit per page for 2-Sided Black & White
             },
             color: {
                 singleSided: 1.10, // Profit per page for 1-Sided Color
                 doubleSided: 0.8, // Profit per page for 2-Sided Color
             },
+        },
+        discount:{
+            minPages:100,
+            percentage:5
         },
         showInternalCost: false, // Toggle for internal cost section
     };
@@ -78,7 +82,6 @@ export default function PrintRateCalculator() {
 
         const setMetaDescriptionFromLink = async (key) => {
             const description = await fetchDescriptionByLink(key); // Fetch the description using the link
-            console.log("found Description " + description);
 
             // Check for existing meta description tag and update or create one
             let metaTag = document.querySelector('meta[name="description"]');
@@ -120,7 +123,7 @@ export default function PrintRateCalculator() {
     // Function to generate the UPI link for the QR code
 const generateUpiLink = (rates) => {
     // Check if UPI address and name are available
-    if (!upiAddress || !upiName) {
+    if (!upiAddress ) {
         console.log("UPI details not available");
         // Uncomment the following line if you want to prompt for UPI details when not set
         // handleUpiDetails(); 
@@ -143,10 +146,7 @@ const generateTransactionNote = (rates) => {
 };
 
 
-    // Function to toggle the visibility of the QR code
-    const toggleQrCode = () => {
-        setShowQrCode(!showQrCode); // Toggle QR code visibility
-    };
+
 
     // Function to handle opening settings modal
     const openSettings = () => {
@@ -169,7 +169,9 @@ const generateTransactionNote = (rates) => {
             costPerPage: 0,
             totalInkCost: 0,
             totalPageCost: 0,
-            profitPerPrint: 0, // Set to 0 as we don't calculate profit when no pages are input
+            profitPerPrint: 0,
+            discountApplied:0 ,
+            customerTotalWithoutDiscount:0// Set to 0 as we don't calculate profit when no pages are input
         };
 
         // Calculate cost per print and ink cost per page based on print mode
@@ -183,15 +185,24 @@ const generateTransactionNote = (rates) => {
             ? (printType === '1-Sided' ? settings.profit.blackAndWhite.singleSided : numPages > 1 ? settings.profit.blackAndWhite.doubleSided : settings.profit.blackAndWhite.singleSided)
             : (printType === '1-Sided' ? settings.profit.color.singleSided : numPages > 1 ? settings.profit.color.doubleSided : settings.profit.color.singleSided);
 
-
+        const shouldDiscountApplied= parseInt(numPages) >= parseInt(settings.discount.minPages) 
+        console.log("Should discount be applied ",shouldDiscountApplied)
         // Calculate internal costs
         const totalPageCost = actualNumPagesUsed * pageCostPerPrint; // Total page cost
         const totalInkCost = parseFloat(inkCostPerPage) * numPages; // Total ink cost for actual pages used
         const totalProfit = numPages * parseFloat(profitPerPrint); // Total profit for the number of pages
+        const discountApplied= shouldDiscountApplied ? totalProfit*((parseFloat(settings.discount.percentage))/100): 0.0;
+        console.log("discount applied ",discountApplied)
         const internalCost = totalPageCost + totalInkCost; // Internal cost
-        const customerTotal = internalCost + totalProfit; // Total cost for the number of pages
+        const customerTotalWithoutDiscount = internalCost + totalProfit; // Total cost for the number of pages
+        const customerTotal=customerTotalWithoutDiscount-discountApplied;
         const customerCostPerPage = customerTotal / numPages;
+        
+        //calculate bulk discount
+        
         return {
+            customerTotalWithoutDiscount: customerTotalWithoutDiscount.toFixed(2), // Total cost formatted to 2 decimal places
+
             customerTotal: customerTotal.toFixed(2), // Total cost formatted to 2 decimal places
             internalCost: internalCost.toFixed(2), // Internal cost formatted to 2 decimal places
             totalProfit: totalProfit.toFixed(2), // Total profit formatted to 2 decimal places
@@ -200,14 +211,15 @@ const generateTransactionNote = (rates) => {
             totalInkCost: totalInkCost.toFixed(2), // Total ink cost formatted to 2 decimal places
             totalPageCost: totalPageCost.toFixed(2), // Total page cost formatted to 2 decimal places
             profitPerPrint: parseFloat(profitPerPrint).toFixed(2), // Profit per print formatted to 2 decimal places
-            customerCostPerPage: customerCostPerPage.toFixed(2)
+            customerCostPerPage: customerCostPerPage.toFixed(2),
+            discountApplied:discountApplied.toFixed(2)
         };
     };
 
     const rates = calculateRates(); // Calculate all rates and costs
 
     return (
-        <div className={`min-h-screen p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'} transition-colors duration-300 relative`}>
+        <div className={`min-h-screen p-2 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'} transition-colors duration-300 relative`}>
             <Toaster /> {/* Toast container */}
 
             <h1 className="text-3xl font-bold mb-8 text-center">Print Rate Calculator</h1>
@@ -217,7 +229,7 @@ const generateTransactionNote = (rates) => {
                     <div className="flex-grow"></div> {/* This div takes up all available space to push the button to the right */}
                     <button
                         onClick={openSettings}
-                        className={`p-2 flex items-center rounded-full ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-300 hover:bg-gray-400'} transition-colors duration-300`}
+                        className={`p-2 flex items-center rounded-full ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-blue-300 hover:bg-gray-400'} transition-colors duration-300`}
                         aria-label="Settings"
                     >
                         <FaCog size={20} className="mr-2" /> {/* Add margin to separate icon from text */}
@@ -287,15 +299,16 @@ const generateTransactionNote = (rates) => {
                     </p>
                     <p>Total {actualNumPagesUsed} pages will be used to print</p>
 
-                    <div className="flex justify-center mb-6">
+                   
                     {showQrCode ? (
                         <QRCodeDisplay
                             data={generateUpiLink(rates)} // Generate UPI link
-                            size={256} // Example size
+                            size={200} // Example size
                             errorCorrectionLevel="H" // Example error correction level
                             shareTitle={`UPI Payment QR `}
                             shareText={`Paying ${upiName} (${upiAddress}) ${rates.customerTotal ? ` ₹${rates.customerTotal}` : ''}`} // Conditional sharing text
                             headerText={`UPI Payment of ${rates.customerTotal} to ${upiName} (${upiAddress}) `}
+                            showButtons= {false}
                         />
                     ) : (
                         <button 
@@ -305,7 +318,7 @@ const generateTransactionNote = (rates) => {
                             Generate Payment QR
                         </button>
                     )}
-                </div>
+             
                     {settings.showInternalCost && ( // Conditional rendering
                         <>
                             <h3 className="mt-5 text-lg font-semibold mb-2">Detailed Internal Cost Breakdown:</h3>
@@ -334,9 +347,20 @@ const generateTransactionNote = (rates) => {
                                         <td className="border px-4 py-2 font-bold text-green-500">+ Profit:</td>
                                         <td className="border px-4 py-2 font-bold text-green-500">{currencyUnit}{rates.profitPerPrint} * {numPages} (No of pages printed) = {currencyUnit}{rates.totalProfit}</td>
                                     </tr>
-
+                                    { parseInt(numPages) >= parseInt(settings.discount.minPages) &&
+                                    <>
+                                    <tr className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                        <td className="border px-4 py-2 font-bold text-yellow-500">Total Before Discount:</td>
+                                        <td className="border px-4 py-2 font-bold text-yellow-500">{currencyUnit}{rates.customerTotalWithoutDiscount} [ {currencyUnit}{(rates.customerTotalWithoutDiscount/numPages).toFixed(2)} / Page ]</td>
+                                        
+                                    </tr>
+                                    <tr className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                        <td className="border px-4 py-2 font-bold text-red-500">- Bulk Discount :</td>
+                                        <td className="border px-4 py-2 font-bold text-red-500">{currencyUnit}{rates.totalProfit}(Profit) * {settings.discount.percentage}% = {currencyUnit}{rates.discountApplied}</td>
+                                    </tr>
+                                    </>}
                                     <tr className={`${isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-900'}`}>
-                                        <td className="border px-4 py-2 font-bold text-yellow-500">Total Customer Rate:</td>
+                                        <td className="border px-4 py-2 font-bold text-yellow-500">Final Customer Rate:</td>
                                         <td className="border px-4 py-2 font-bold text-yellow-500">{currencyUnit}{rates.customerTotal} [ {currencyUnit}{rates.customerCostPerPage} / Page ]</td>
                                     </tr>
                                 </tbody>
@@ -347,7 +371,7 @@ const generateTransactionNote = (rates) => {
             </div>
 
             {/* Settings Modal */}
-            <PrintRateSettingsModal isOpen={isSettingsOpen} onClose={closeSettings} settings={settings} setSettings={setSettings} isDarkMode={isDarkMode} />
+            <PrintRateSettingsModal isOpen={isSettingsOpen} onClose={closeSettings} settings={settings} setSettings={setSettings} isDarkMode={isDarkMode} setIsUpiModalOpen={setIsUpiModalOpen}defaultSettings={defaultSettings} />
         
                 {/* UPI Details Modal */}
                 <UpiDetailsModal 
