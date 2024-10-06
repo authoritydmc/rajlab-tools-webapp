@@ -1,24 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-/* Custom styles for hover effects */
-.card-hover-grow {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  .card-hover-grow:hover {
-    transform: scale(1.05); /* Slightly grow the card */
-    box-shadow: 0 0 10px rgba(128, 0, 128, 0.5); /* Purple glow effect */
-  }
-  
-  .card-hover-border {
-    border: 2px solid transparent; /* Default border color */
-    transition: border-color 0.3s ease;
-  }
-  
-  .card-hover-border:hover {
-    border-color: rgba(128, 0, 128, 0.5); /* Purple glow effect */
-  }
+
 
 
   
@@ -32,4 +15,34 @@
     "SCAN" 0,
     "XELA" 0,
     "YELA" 0;
+}
+
+/* Add this CSS to your global stylesheet or a relevant CSS module */
+
+/* Masonry Styles */
+.my-masonry-grid {
+  display: -webkit-box; /* Not needed if autoprefixing */
+  display: -ms-flexbox; /* Not needed if autoprefixing */
+  display: flex;
+  margin-left: -30px; /* gutter size offset */
+  width: auto;
+}
+.my-masonry-grid_column {
+  padding-left: 30px; /* gutter size */
+  background-clip: padding-box;
+}
+
+/* Style your masonry items */
+.my-masonry-grid_column > div {
+  margin-bottom: 30px;
+}
+
+/* Optional: Smooth transitions */
+.card-hover-border:hover {
+  border-color: #3182ce; /* Example hover border color */
+}
+
+.card-hover-grow:hover {
+  transform: scale(1.02);
+  transition: transform 0.2s;
 }
