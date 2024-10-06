@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../themeContext';
 import LocalStorageUtils from './localStorageUtils';
-import { KEYS } from './Constants';
+import { KEYS } from './constants';
 const UpiDetailsModal = ({ isOpen, onClose, onSubmit }) => {
     const { isDarkMode } = useTheme();
     // State for UPI address and name
