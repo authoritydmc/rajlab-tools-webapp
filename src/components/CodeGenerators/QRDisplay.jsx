@@ -90,7 +90,7 @@ export default function QRCodeDisplay({
   
       printWindow.print(); // Trigger print dialog
       // Optionally, you can close the print window after a timeout
-      // setTimeout(() => printWindow.close(), 5000); // Close the window after 5 seconds
+      setTimeout(() => printWindow.close(), 5000); // Close the window after 5 seconds
     } else {
       toast.error('Failed to find QR Code for printing.'); // Error message if no canvas is found
     }
