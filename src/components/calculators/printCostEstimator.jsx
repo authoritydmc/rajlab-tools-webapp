@@ -329,7 +329,7 @@ export default function PrintRateCalculator() {
             </div>
 
             {/* Settings Modal */}
-            <PrintRateSettingsModal isOpen={isSettingsOpen} onClose={closeSettings} settings={settings} setSettings={setSettings} isDarkMode={isDarkMode} />
+            <PrintRateSettingsModal isOpen={isSettingsOpen} onClose={closeSettings} settings={settings} setSettings={setSettings} isDarkMode={isDarkMode} handleUpiDetailsSubmit={handleUpiDetailsSubmit} />
         
                 {/* UPI Details Modal */}
                 <UpiDetailsModal 

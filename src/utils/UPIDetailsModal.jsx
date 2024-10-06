@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useTheme } from '../themeContext';
 
-const UpiDetailsModal = ({ isOpen, onClose, onSubmit, isDarkMode }) => {
+const UpiDetailsModal = ({ isOpen, onClose, onSubmit }) => {
+    const { isDarkMode } = useTheme();
     // State for UPI address and name
     const [upiAddress, setUpiAddress] = useState('');
     const [upiName, setUpiName] = useState('');
@@ -42,7 +44,7 @@ const UpiDetailsModal = ({ isOpen, onClose, onSubmit, isDarkMode }) => {
 
     return (
         <div className={`fixed inset-0 flex items-center justify-center ${isDarkMode ? 'bg-gray-900' : 'bg-gray-800'} bg-opacity-75`}>
-            <div className={`rounded-lg p-6 shadow-lg ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}>
+            <div className={`rounded-lg p-6 shadow-lg ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-green-50 text-gray-900'}`}>
                 <h2 className="text-xl font-semibold mb-4">Enter UPI Details</h2>
                 {error && <p className="text-red-500 mb-2">{error}</p>}
                 <div className="mb-4">
