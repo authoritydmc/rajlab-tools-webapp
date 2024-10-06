@@ -22,10 +22,18 @@ jobs:
           FIREBASE_CONFIG: ${{ secrets.FIREBASE_API_CONFIG }}
         run: echo "$FIREBASE_CONFIG" > ./src/firebaseConfig.json
 
-      # Step 3: Install dependencies and build the project
+      # Step 3: Install Python
+      - name: Install Python
+        run: sudo apt-get install python3
+
+      # Step 4: Run Python script to generate sitemap
+      - name: Generate Sitemap
+        run: python3 ./generateSiteMap.py -f src/routers.jsx
+
+      # Step 5: Install dependencies and build the project
       - run: npm ci && npm run build
 
-      # Step 4: Deploy to Firebase Hosting
+      # Step 6: Deploy to Firebase Hosting
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
