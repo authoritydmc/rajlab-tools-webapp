@@ -3,8 +3,7 @@ import { useTheme } from '../../themeContext';
 import { toast, Toaster } from 'react-hot-toast';
 import QRCodeDisplay from './QRDisplay';
 import LocalStorageUtils from '../../utils/localStorageUtils';
-import { KEYS } from '../../utils/Constants';
-
+import { KEYS } from '../../utils/constants';
 export default function UPIPaymentSettings() {
   const { isDarkMode } = useTheme(); // Use theme context
   const [upi, setUpi] = useState(''); // UPI address
