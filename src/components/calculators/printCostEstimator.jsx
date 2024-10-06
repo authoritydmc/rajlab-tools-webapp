@@ -6,7 +6,7 @@ import PrintRateSettingsModal from './printRateSetting';
 import { fetchDescriptionByLink } from '../../utils/metaUtils';
 import UpiDetailsModal from '../../utils/UPIDetailsModal';
 import QRCodeDisplay from '../CodeGenerators/QRDisplay';
-import { KEYS } from '../../utils/Constants';
+import { KEYS } from '../../utils/constants';
 import LocalStorageUtils from '../../utils/localStorageUtils';
 export default function PrintRateCalculator() {
     const { isDarkMode } = useTheme(); // Access theme context
