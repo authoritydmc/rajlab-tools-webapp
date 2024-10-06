@@ -82,4 +82,19 @@
       }
     ]
   }
+,
+{
+  "title": "Misc",
+  "iconName": "FaCog",
+  "tools": [
+    {
+      "name": "QR Code Generator",
+      "link": "/qr-code-generator",
+      "iconName": "FaQrcode",
+      "isEnabled": true,
+      "description": "Easily generate QR codes for URLs, text, or contact information. This tool allows you to customize the size, color, and error correction level of the generated QR code. Simply input your data, and instantly create a downloadable QR code image for sharing or embedding."
+    }
+  ]
+}
+
 ]
