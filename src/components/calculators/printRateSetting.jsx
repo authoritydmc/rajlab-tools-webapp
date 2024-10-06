@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
-import { KEYS } from '../../utils/Constants';
+import { KEYS } from '../../utils/constants';
 import LocalStorageUtils from '../../utils/localStorageUtils';
 import { IoIosCloseCircle } from 'react-icons/io';
 
