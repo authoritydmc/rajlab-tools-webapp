@@ -12,6 +12,7 @@ import ErrorBoundary from './errorHandler';
 import PasswordGenerator from './components/passwords/passwordGen';
 import PrintRateCalculator from './components/calculators/printCostEstimator';
 import QRCodeSettings from './components/CodeGenerators/QRSettingMainPage';
+import UPIPaymentSettings from './components/CodeGenerators/UPIQrCodeGenerators';
 
 export const router = createBrowserRouter([
     {
@@ -66,6 +67,10 @@ export const router = createBrowserRouter([
           path: "qr-code-generator", // Relative path for nested route
           element: <QRCodeSettings />,
         },
+        {
+          path:"upi-code-generator",
+          element:<UPIPaymentSettings/>
+        }
       ],
     },
   ]);

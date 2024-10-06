@@ -93,7 +93,15 @@
       "iconName": "FaQrcode",
       "isEnabled": true,
       "description": "Easily generate QR codes for URLs, text, or contact information. This tool allows you to customize the size, color, and error correction level of the generated QR code. Simply input your data, and instantly create a downloadable QR code image for sharing or embedding."
+    },
+    {
+      "name": "UPI QR Code Generator",
+      "link": "/upi-code-generator",
+      "iconName": "FaRupeeSign",
+      "isEnabled": true,
+      "description": "Quickly generate QR codes for UPI payments. Enter the UPI address, receiver's name, and optional amount to create a customizable QR code. Adjust the size, color, and error correction level to suit your needs, and easily download or share the generated QR code."
     }
+    
   ]
 }
 
