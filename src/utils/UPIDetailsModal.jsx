@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../themeContext';
-
+import LocalStorageUtils from './localStorageUtils';
+import { KEYS } from './Constants';
 const UpiDetailsModal = ({ isOpen, onClose, onSubmit }) => {
     const { isDarkMode } = useTheme();
     // State for UPI address and name
@@ -18,8 +19,8 @@ const UpiDetailsModal = ({ isOpen, onClose, onSubmit }) => {
     // Load stored values when the modal opens
     useEffect(() => {
         if (isOpen) {
-            const storedUpiAddress = localStorage.getItem('upiAddress') || '';
-            const storedUpiName = localStorage.getItem('upiName') || '';
+            const storedUpiAddress = LocalStorageUtils.getItem(KEYS.UPI_ADDRESS)|| '';
+            const storedUpiName = LocalStorageUtils.getItem(KEYS.UPI_NAME) || '';
             setUpiAddress(storedUpiAddress);
             setUpiName(storedUpiName);
         }

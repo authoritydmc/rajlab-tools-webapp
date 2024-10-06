@@ -6,6 +6,8 @@ import PrintRateSettingsModal from './printRateSetting';
 import { fetchDescriptionByLink } from '../../utils/metaUtils';
 import UpiDetailsModal from '../../utils/UPIDetailsModal';
 import QRCodeDisplay from '../CodeGenerators/QRDisplay';
+import { KEYS } from '../../utils/Constants';
+import LocalStorageUtils from '../../utils/localStorageUtils';
 export default function PrintRateCalculator() {
     const { isDarkMode } = useTheme(); // Access theme context
 
@@ -55,9 +57,9 @@ export default function PrintRateCalculator() {
     // State for UPI details modal
     const [isUpiModalOpen, setIsUpiModalOpen] = useState(false);
     // State for UPI details
-    const [upiAddress, setUpiAddress] = useState(localStorage.getItem('upiAddress') || ''); // UPI address
-    const [upiName, setUpiName] = useState(localStorage.getItem('upiName') || ''); // UPI name
-    const [showQrCode, setShowQrCode] = useState(!!(localStorage.getItem('upiAddress') && localStorage.getItem('upiName'))); // Show QR code if UPI details are present
+    const [upiAddress, setUpiAddress] = useState(LocalStorageUtils.getItem(KEYS.UPI_ADDRESS) || ''); // UPI address
+    const [upiName, setUpiName] = useState( LocalStorageUtils.getItem(KEYS.UPI_NAME)  || ''); // UPI name
+    const [showQrCode, setShowQrCode] = useState(!!(LocalStorageUtils.getItem(KEYS.UPI_NAME)&& LocalStorageUtils.getItem(KEYS.UPI_ADDRESS))); // Show QR code if UPI details are present
 
 
     // Effect to update actualNumPagesUsed based on numPages and printType
@@ -110,8 +112,8 @@ export default function PrintRateCalculator() {
     const handleUpiDetailsSubmit = (address, name) => {
         setUpiAddress(address);
         setUpiName(name);
-        localStorage.setItem('upiAddress', address); // Save to localStorage
-        localStorage.setItem('upiName', name); // Save to localStorage
+        LocalStorageUtils.setItem(KEYS.UPI_ADDRESS,address)
+        LocalStorageUtils.setItem(KEYS.UPI_NAME,name)
         toast.success('UPI details saved successfully!'); // Toast notification
         setShowQrCode(true); // Show QR code after saving details
         setIsUpiModalOpen(false); // Close the modal

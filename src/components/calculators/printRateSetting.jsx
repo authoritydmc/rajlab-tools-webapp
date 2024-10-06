@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
 import UpiDetailsModal from '../../utils/UPIDetailsModal';
+
 // Define a reusable Card component for better structure
 const Card = ({ title, children, isDarkMode }) => (
   <div className={`rounded-lg shadow-md p-4 mb-4 ${isDarkMode ? 'bg-gray-800' : 'bg-green-150'}`}>
@@ -62,7 +63,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
           backgroundColor: 'rgba(0, 0, 0, 0.75)',
         },
         content: {
-          width: '60vw',
+          width: '90vw', // Use relative width for mobile responsiveness
           maxWidth: '800px',
           height: 'auto',
           maxHeight: '80vh',
@@ -97,7 +98,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               name="cost"
               value={localSettings.pageCost.cost}
               onChange={(e) => handleSettingChange(e, 'pageCost')}
-              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
+              className={`border rounded-md p-1 w-full ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
             />
           </div>
           <div>
@@ -107,7 +108,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               name="pages"
               value={localSettings.pageCost.pages}
               onChange={(e) => handleSettingChange(e, 'pageCost')}
-              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
+              className={`border rounded-md p-1 w-full ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
             />
           </div>
         </div>
@@ -123,7 +124,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               name="cost"
               value={localSettings.blackInk.cost}
               onChange={(e) => handleSettingChange(e, 'blackInk')}
-              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
+              className={`border rounded-md p-1 w-full ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
             />
           </div>
           <div>
@@ -133,7 +134,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               name="yield"
               value={localSettings.blackInk.yield}
               onChange={(e) => handleSettingChange(e, 'blackInk')}
-              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
+              className={`border rounded-md p-1 w-full ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
             />
           </div>
         </div>
@@ -149,7 +150,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               name="cost"
               value={localSettings.colorInk.cost}
               onChange={(e) => handleSettingChange(e, 'colorInk')}
-              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
+              className={`border rounded-md p-1 w-full ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
             />
           </div>
           <div>
@@ -159,7 +160,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               name="yield"
               value={localSettings.colorInk.yield}
               onChange={(e) => handleSettingChange(e, 'colorInk')}
-              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
+              className={`border rounded-md p-1 w-full ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
             />
           </div>
         </div>
@@ -177,21 +178,15 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               name="singleSided"
               value={localSettings.profit.blackAndWhite.singleSided}
               onChange={(e) => handleSettingChange(e, 'profit', 'blackAndWhite')}
-              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
+              className={`border rounded-md p-1 w-full ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
             />
             <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Double Sided (₹):</label>
             <input
               type="number"
               name="doubleSided"
               value={localSettings.profit.blackAndWhite.doubleSided}
-              onChange={(e) => {
-                const value = parseFloat(e.target.value); // Parse input value to a float
-                // Only update if the value is not NaN
-                if (!isNaN(value)) {
-                  handleSettingChange(e, 'profit', 'blackAndWhite');
-                }
-              }}
-              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
+              onChange={(e) => handleSettingChange(e, 'profit', 'blackAndWhite')}
+              className={`border rounded-md p-1 w-full ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
             />
           </div>
 
@@ -204,7 +199,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               name="singleSided"
               value={localSettings.profit.color.singleSided}
               onChange={(e) => handleSettingChange(e, 'profit', 'color')}
-              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
+              className={`border rounded-md p-1 w-full ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
             />
             <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Double Sided (₹):</label>
             <input
@@ -212,14 +207,12 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               name="doubleSided"
               value={localSettings.profit.color.doubleSided}
               onChange={(e) => handleSettingChange(e, 'profit', 'color')}
-              className={`border rounded-md p-1 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
+              className={`border rounded-md p-1 w-full ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
             />
           </div>
         </div>
       </Card>
-
-  {/* Show Internal Cost Section */}
-  <Card title="Show Internal Cost" isDarkMode={isDarkMode}>
+      <Card title="Show Internal Cost" isDarkMode={isDarkMode}>
         <label className="flex items-center">
           <input
             type="checkbox"
@@ -231,6 +224,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
         </label>
       </Card>
 
+
       {/* UPI Details Button */}
       <Card title="Manage UPI" isDarkMode={isDarkMode}>
 
@@ -241,29 +235,31 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
           Open UPI Details
         </button>
       </Card>
-
       {/* UPI Details Modal */}
       <UpiDetailsModal
         isOpen={isUpiModalOpen}
-        onClose={() => setIsUpiModalOpen(false)} // Close the UPI modal
-        handleSubmit={handleUpiDetailsSubmit}
+        onClose={() => setIsUpiModalOpen(false)}
+        handleUpiDetailsSubmit={handleUpiDetailsSubmit}
+        isDarkMode={isDarkMode}
       />
 
-<div className="flex justify-end mt-6">
-        <button
-          onClick={saveSettings}
-          className="bg-blue-600 text-white rounded-md px-4 py-2 hover:bg-blue-700 transition duration-200"
-        >
-          Save Settings
-        </button>
-        <button
-          onClick={onClose}
-          className="ml-2 bg-gray-300 text-gray-800 rounded-md px-4 py-2 hover:bg-gray-400 transition duration-200"
-        >
-          Cancel
-        </button>
-      </div>
+<div className="flex items-center mt-6 space-x-4"> {/* Added space-x-4 */}
+  <button
+    onClick={saveSettings}
+    className="bg-blue-600 text-white rounded-md px-4 py-2 hover:bg-blue-700 transition duration-200"
+  >
+    Save Settings
+  </button>
+  <button
+    onClick={onClose}
+    className="bg-gray-300 text-gray-800 rounded-md px-4 py-2 hover:bg-gray-400 transition duration-200"
+  >
+    Cancel
+  </button>
+</div>
+
     </Modal>
+    
   );
 };
 
