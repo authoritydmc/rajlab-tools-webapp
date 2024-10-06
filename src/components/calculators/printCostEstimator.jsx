@@ -41,7 +41,59 @@ export default function PrintRateCalculator() {
             percentage:5
         },
         showInternalCost: false, // Toggle for internal cost section
+        currencyUnit: '', 
     };
+
+    useEffect(() => {
+        // Function to get currency based on country code
+        const getCurrencyByCountry = async (countryCode) => {
+            try {
+                const response = await fetch(`https://restcountries.com/v3.1/alpha/${countryCode}`);
+                const data = await response.json();
+                return data[0]?.currencies ? Object.keys(data[0].currencies)[0] : '₹'; // Default to '₹' if not found
+            } catch (error) {
+                console.error('Error fetching currency:', error);
+                return '₹';
+            }
+        };
+    
+        // Function to detect user's currency
+        const detectCurrency = async () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    const { latitude, longitude } = position.coords;
+                    try {
+                        const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+                        const data = await response.json();
+                        const countryCode = data.countryCode;
+                        const currency = await getCurrencyByCountry(countryCode);
+                        setSettings((prevSettings) => ({
+                            ...prevSettings,
+                            currencyUnit: currency === 'USD' ? '$' : '₹', // Simplified mapping
+                        }));
+                    } catch (error) {
+                        console.error('Error detecting currency:', error);
+                    }
+                }, (error) => {
+                    console.error('Geolocation error:', error);
+                    // Default to Rupees if geolocation fails
+                    setSettings((prevSettings) => ({
+                        ...prevSettings,
+                        currencyUnit: '₹',
+                    }));
+                });
+            } else {
+                // Geolocation not supported
+                setSettings((prevSettings) => ({
+                    ...prevSettings,
+                    currencyUnit: '₹',
+                }));
+            }
+        };
+    if(settings.currencyUnit==="")
+        detectCurrency();
+    }, []); // Run once on mount
+    
 
     // State to hold settings with deep merge
     const [settings, setSettings] = useState(() => {
@@ -56,7 +108,6 @@ export default function PrintRateCalculator() {
     const [numPages, setNumPages] = useState('2'); // Input number of pages
     const [printType, setPrintType] = useState('1-Sided'); // Input print type
     const [printMode, setPrintMode] = useState('Black & White'); // Input print mode
-    const [currencyUnit, setCurrencyUnit] = useState('₹'); // State for currency unit
 
     // State for settings modal
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -164,7 +215,6 @@ const generateTransactionNote = (rates) => {
 
     // Unified function to calculate all rates and costs
     const calculateRates = () => {
-        console.log("calculating cost");
         if (!numPages || numPages <= 0) return {
             customerTotal: 0,
             internalCost: 0,
@@ -190,13 +240,13 @@ const generateTransactionNote = (rates) => {
             : (printType === '1-Sided' ? settings.profit.color.singleSided : numPages > 1 ? settings.profit.color.doubleSided : settings.profit.color.singleSided);
 
         const shouldDiscountApplied= parseInt(numPages) >= parseInt(settings.discount.minPages) 
-        console.log("Should discount be applied ",shouldDiscountApplied)
+        // console.log("Should discount be applied ",shouldDiscountApplied)
         // Calculate internal costs
         const totalPageCost = actualNumPagesUsed * pageCostPerPrint; // Total page cost
         const totalInkCost = parseFloat(inkCostPerPage) * numPages; // Total ink cost for actual pages used
         const totalProfit = numPages * parseFloat(profitPerPrint); // Total profit for the number of pages
         const discountApplied= shouldDiscountApplied ? totalProfit*((parseFloat(settings.discount.percentage))/100): 0.0;
-        console.log("discount applied ",discountApplied)
+        // console.log("discount applied ",discountApplied)
         const internalCost = totalPageCost + totalInkCost; // Internal cost
         const customerTotalWithoutDiscount = internalCost + totalProfit; // Total cost for the number of pages
         const customerTotal=customerTotalWithoutDiscount-discountApplied;
@@ -276,19 +326,7 @@ const generateTransactionNote = (rates) => {
                     </select>
                 </div>
 
-                {/* Currency Unit Selector */}
-                <div className="mb-6">
-                    <label className="block mb-2">Currency Unit:</label>
-                    <select
-                        value={currencyUnit}
-                        onChange={(e) => setCurrencyUnit(e.target.value)}
-                        className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-50 text-gray-900 border-gray-300'}`}
-                    >
-                        <option value="₹">Indian Rupee (₹)</option>
-                        <option value="$">US Dollar ($)</option>
-                        {/* Add more currencies as needed */}
-                    </select>
-                </div>
+ 
 
                 {/* Display Costs */}
                 <div className={`p-4 border rounded-md ${isDarkMode ? 'bg-gray-800 text-white border-gray-700' : 'bg-green-50 text-gray-900 border-gray-300'}`}>
@@ -297,31 +335,32 @@ const generateTransactionNote = (rates) => {
                     <p className="text-md">
                         Customer Total:
                         <span className="text-2xl font-bold text-green-500 ml-4 mr-4">
-                            {currencyUnit}{rates.customerTotal}
+                            {settings.currencyUnit}{rates.customerTotal}
                         </span>
-                        [ {currencyUnit}{rates.customerCostPerPage} / Page ]
+                        [ {settings.currencyUnit}{rates.customerCostPerPage} / Page ]
                     </p>
                     <p>Total {actualNumPagesUsed} pages will be used to print</p>
+                    {settings.currencyUnit === "₹" && (
+    showQrCode ? (
+        <QRCodeDisplay
+            data={generateUpiLink(rates)} // Generate UPI link
+            size={200} // Example size
+            errorCorrectionLevel="H" // Example error correction level
+            shareTitle={`UPI Payment QR`} // Sharing title
+            shareText={`Paying ${upiName} (${upiAddress}) ${rates.customerTotal ? ` ${settings.currencyUnit}${rates.customerTotal}` : ''}`} // Conditional sharing text
+            headerText={`UPI Payment of ${settings.currencyUnit}${rates.customerTotal} to ${upiName} (${upiAddress})`} // Header text
+            showButtons={false} // Hide buttons
+        />
+    ) : (
+        <button 
+            onClick={() => setIsUpiModalOpen(true)} // Open modal for UPI details
+            className="p-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300"
+        >
+            Generate Payment QR
+        </button>
+    )
+)}
 
-                   
-                    {showQrCode ? (
-                        <QRCodeDisplay
-                            data={generateUpiLink(rates)} // Generate UPI link
-                            size={200} // Example size
-                            errorCorrectionLevel="H" // Example error correction level
-                            shareTitle={`UPI Payment QR `}
-                            shareText={`Paying ${upiName} (${upiAddress}) ${rates.customerTotal ? ` ₹${rates.customerTotal}` : ''}`} // Conditional sharing text
-                            headerText={`UPI Payment of ${rates.customerTotal} to ${upiName} (${upiAddress}) `}
-                            showButtons= {false}
-                        />
-                    ) : (
-                        <button 
-                            onClick={() => setIsUpiModalOpen(true)} // Open modal for UPI details
-                            className="p-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300"
-                        >
-                            Generate Payment QR
-                        </button>
-                    )}
              
                     {settings.showInternalCost && ( // Conditional rendering
                         <>
@@ -330,42 +369,42 @@ const generateTransactionNote = (rates) => {
                                 <thead>
                                     <tr className={`${isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-900'}`}>
                                         <th className="border px-4 py-2">Description</th>
-                                        <th className="border px-4 py-2">Cost ({currencyUnit})</th>
+                                        <th className="border px-4 py-2">Cost ({settings.currencyUnit})</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         <td className="border px-4 py-2 text-red-500">Page Cost:</td>
-                                        <td className="border px-4 py-2 text-red-500">{currencyUnit}{rates.costPerPage} * {actualNumPagesUsed} (No of pages used) = {currencyUnit}{rates.totalPageCost}</td>
+                                        <td className="border px-4 py-2 text-red-500">{settings.currencyUnit}{rates.costPerPage} * {actualNumPagesUsed} (No of pages used) = {settings.currencyUnit}{rates.totalPageCost}</td>
                                     </tr>
                                     <tr>
                                         <td className="border px-4 py-2 text-red-500">Ink Cost:</td>
-                                        <td className="border px-4 py-2 text-red-500">{currencyUnit}{rates.inkCostPerPage} * {numPages} (No of page side printed) = {currencyUnit}{rates.totalInkCost}</td>
+                                        <td className="border px-4 py-2 text-red-500">{settings.currencyUnit}{rates.inkCostPerPage} * {numPages} (No of page side printed) = {settings.currencyUnit}{rates.totalInkCost}</td>
                                     </tr>
 
                                     <tr>
                                         <td className="border px-4 py-2 font-bold text-red-500">Total Internal Cost:</td>
-                                        <td className="border px-4 py-2 font-bold text-red-500">{currencyUnit}{rates.totalPageCost} + {currencyUnit}{rates.totalInkCost} = {currencyUnit}{rates.internalCost}</td>
+                                        <td className="border px-4 py-2 font-bold text-red-500">{settings.currencyUnit}{rates.totalPageCost} + {settings.currencyUnit}{rates.totalInkCost} = {settings.currencyUnit}{rates.internalCost}</td>
                                     </tr>
                                     <tr className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                                         <td className="border px-4 py-2 font-bold text-green-500">+ Profit:</td>
-                                        <td className="border px-4 py-2 font-bold text-green-500">{currencyUnit}{rates.profitPerPrint} * {numPages} (No of pages printed) = {currencyUnit}{rates.totalProfit}</td>
+                                        <td className="border px-4 py-2 font-bold text-green-500">{settings.currencyUnit}{rates.profitPerPrint} * {numPages} (No of pages printed) = {settings.currencyUnit}{rates.totalProfit}</td>
                                     </tr>
                                     { parseInt(numPages) >= parseInt(settings.discount.minPages) &&
                                     <>
                                     <tr className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                                         <td className="border px-4 py-2 font-bold text-yellow-500">Total Before Discount:</td>
-                                        <td className="border px-4 py-2 font-bold text-yellow-500">{currencyUnit}{rates.customerTotalWithoutDiscount} [ {currencyUnit}{(rates.customerTotalWithoutDiscount/numPages).toFixed(2)} / Page ]</td>
+                                        <td className="border px-4 py-2 font-bold text-yellow-500">{settings.currencyUnit}{rates.customerTotalWithoutDiscount} [ {settings.currencyUnit}{(rates.customerTotalWithoutDiscount/numPages).toFixed(2)} / Page ]</td>
                                         
                                     </tr>
                                     <tr className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                                         <td className="border px-4 py-2 font-bold text-red-500">- Bulk Discount :</td>
-                                        <td className="border px-4 py-2 font-bold text-red-500">{currencyUnit}{rates.totalProfit}(Profit) * {settings.discount.percentage}% = {currencyUnit}{rates.discountApplied}</td>
+                                        <td className="border px-4 py-2 font-bold text-red-500">{settings.currencyUnit}{rates.totalProfit}(Profit) * {settings.discount.percentage}% = {settings.currencyUnit}{rates.discountApplied}</td>
                                     </tr>
                                     </>}
                                     <tr className={`${isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-900'}`}>
                                         <td className="border px-4 py-2 font-bold text-yellow-500">Final Customer Rate:</td>
-                                        <td className="border px-4 py-2 font-bold text-yellow-500">{currencyUnit}{rates.customerTotal} [ {currencyUnit}{rates.customerCostPerPage} / Page ]</td>
+                                        <td className="border px-4 py-2 font-bold text-yellow-500">{settings.currencyUnit}{rates.customerTotal} [ {settings.currencyUnit}{rates.customerCostPerPage} / Page ]</td>
                                     </tr>
                                 </tbody>
                             </table>

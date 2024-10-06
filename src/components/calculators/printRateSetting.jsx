@@ -19,8 +19,19 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
   const handleSettingChange = (e, section, subSection) => {
     const { name, value } = e.target;
 
-    // Check if a subSection is specified
-    if (subSection) {
+    // Define top-level fields   
+    const topLevelFields = ['currencyUnit', 'showInternalCost']; // Add other top-level fields if any
+
+    if (topLevelFields.includes(section)) {
+      console.log("updating name "+name)
+      console.log(`Selected val: ${value}`);
+      // Directly update the top-level field
+      setLocalSettings((prev) => ({
+        ...prev,
+        [section]: name !== undefined ? { ...prev[section], [name]: value } : value,
+      }));
+    } else if (subSection) {
+      // Update nested settings
       setLocalSettings((prev) => ({
         ...prev,
         [section]: {
@@ -32,6 +43,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
         },
       }));
     } else {
+      // Update section without subSection
       setLocalSettings((prev) => ({
         ...prev,
         [section]: {
@@ -73,8 +85,6 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
     }
   };
 
-
-
   // If the modal is not open, return null
   if (!isOpen) return null;
 
@@ -99,7 +109,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
           <Card title="Page Cost" isDarkMode={isDarkMode}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Cost (₹):</label>
+                <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Cost ({localSettings.currencyUnit}):</label>
                 <input
                   type="number"
                   name="cost"
@@ -125,7 +135,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
           <Card title="Black Ink" isDarkMode={isDarkMode}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Cost (₹):</label>
+                <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Cost ({localSettings.currencyUnit}):</label>
                 <input
                   type="number"
                   name="cost"
@@ -151,7 +161,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
           <Card title="Color Ink" isDarkMode={isDarkMode}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Cost for All (₹):</label>
+                <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Cost for All ({localSettings.currencyUnit}):</label>
                 <input
                   type="number"
                   name="cost"
@@ -179,7 +189,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               {/* Black & White Profit Settings */}
               <div>
                 <h4 className={`mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Black & White:</h4>
-                <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Single Sided (₹):</label>
+                <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Single Sided ({localSettings.currencyUnit}):</label>
                 <input
                   type="number"
                   name="singleSided"
@@ -187,7 +197,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
                   onChange={(e) => handleSettingChange(e, 'profit', 'blackAndWhite')}
                   className={`border rounded-md p-1 w-full ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
                 />
-                <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Double Sided (₹):</label>
+                <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Double Sided ({localSettings.currencyUnit}):</label>
                 <input
                   type="number"
                   name="doubleSided"
@@ -200,7 +210,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               {/* Color Profit Settings */}
               <div>
                 <h4 className={`mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Color:</h4>
-                <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Single Sided (₹):</label>
+                <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Single Sided ({localSettings.currencyUnit}):</label>
                 <input
                   type="number"
                   name="singleSided"
@@ -208,7 +218,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
                   onChange={(e) => handleSettingChange(e, 'profit', 'color')}
                   className={`border rounded-md p-1 w-full ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-150 text-black'}`}
                 />
-                <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Double Sided (₹):</label>
+                <label className={`block mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>Double Sided ({localSettings.currencyUnit}):</label>
                 <input
                   type="number"
                   name="doubleSided"
@@ -248,20 +258,39 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               </div>
             </div>
           </Card>
+
+          {/* Show Internal Cost Section */}
           <Card title="Show Internal Cost" isDarkMode={isDarkMode}>
             <label className="flex items-center">
               <input
                 type="checkbox"
                 checked={localSettings.showInternalCost}
-                onChange={() => setLocalSettings((prev) => ({ ...prev, showInternalCost: !prev.showInternalCost }))}
+                onChange={() => handleSettingChange({ target: { name: undefined, value: !localSettings.showInternalCost } }, 'showInternalCost')}
                 className="mr-2"
               />
               <span className={`${isDarkMode ? 'text-white' : 'text-black'}`}>Show Internal Cost</span>
             </label>
           </Card>
+
+          {/* Currency Unit Selector */}
+          <Card title="Currency" isDarkMode={isDarkMode}>
+            <label className="block mb-2">Currency Unit:</label>
+            <select
+              name="currencyUnit"
+              value={localSettings.currencyUnit}
+              onChange={(e) => handleSettingChange({ target: { name: undefined ,value:e.target.value} }, 'currencyUnit')}
+              className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'}`}
+            >
+              <option value="₹">Indian Rupee (₹)</option>
+              <option value="$">US Dollar ($)</option>
+              <option value="€">Euro (€)</option>
+              <option value="£">British Pound (£)</option>
+              {/* Add more currencies as needed */}
+            </select>
+          </Card>
+
           {/* UPI Details Button */}
           <Card title="Manage UPI" isDarkMode={isDarkMode}>
-
             <button
               onClick={openUpiDialogBox}
               className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded`}
@@ -294,8 +323,6 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
           </div>
         </div>
       </div>
-
-
     </>
   );
 };
