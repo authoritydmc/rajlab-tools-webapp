@@ -85,7 +85,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
 
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-8">
         <div
           className={`relative rounded-lg shadow-lg p-6 max-w-lg w-full ${isDarkMode ? 'bg-gray-800' : 'bg-white'} max-h-[80vh] overflow-y-auto max-w-[80vw] md:max-w-[50vw]`}
         >
