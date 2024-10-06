@@ -32,8 +32,8 @@ export default function PrintRateCalculator() {
                 doubleSided: 0.581, // Profit per page for 2-Sided Black & White
             },
             color: {
-                singleSided: 1.10, // Profit per page for 1-Sided Color
-                doubleSided: 0.8, // Profit per page for 2-Sided Color
+                singleSided: 1.5, // Profit per page for 1-Sided Color
+                doubleSided: 1.0, // Profit per page for 2-Sided Color
             },
         },
         discount:{
@@ -146,7 +146,7 @@ const generateTransactionNote = (rates) => {
 
 
     // Create a descriptive transaction note
-    return `Print: ${printType}_${printMode}_${numPages} NoPage`;
+    return `Print: ${printType === '1-Sided'?"1S":"2S"}_${printMode === 'Black & White'?"BW":"CLR"}_${numPages}NoP`;
 };
 
 
