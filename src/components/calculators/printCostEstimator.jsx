@@ -8,6 +8,7 @@ import UpiDetailsModal from '../../utils/UPIDetailsModal';
 import QRCodeDisplay from '../CodeGenerators/QRDisplay';
 import { KEYS } from '../../utils/constants';
 import LocalStorageUtils from '../../utils/localStorageUtils';
+import { deepMerge } from '../../utils/deepMerge';
 export default function PrintRateCalculator() {
     const { isDarkMode } = useTheme(); // Access theme context
 
@@ -42,12 +43,15 @@ export default function PrintRateCalculator() {
         showInternalCost: false, // Toggle for internal cost section
     };
 
-    // State to hold settings
+    // State to hold settings with deep merge
     const [settings, setSettings] = useState(() => {
         const savedSettings = JSON.parse(localStorage.getItem('printRateSettings'));
-        return savedSettings ? savedSettings : defaultSettings;
+        if (savedSettings) {
+            // Deep merge defaultSettings with savedSettings
+            return deepMerge(JSON.parse(JSON.stringify(defaultSettings)), savedSettings);
+        }
+        return defaultSettings;
     });
-
     // State for calculator inputs
     const [numPages, setNumPages] = useState('2'); // Input number of pages
     const [printType, setPrintType] = useState('1-Sided'); // Input print type
