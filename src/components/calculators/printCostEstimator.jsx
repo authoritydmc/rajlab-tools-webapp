@@ -301,7 +301,17 @@ const generateTransactionNote = (rates) => {
                         className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-50 text-gray-900 border-gray-300'}`}
                     />
                 </div>
-
+                <div className="mb-6">
+                    <label className="block mb-2">Print Mode:</label>
+                    <select
+                        value={printMode}
+                        onChange={(e) => setPrintMode(e.target.value)}
+                        className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-50 text-gray-900 border-gray-300'}`}
+                    >
+                        <option value="Black & White">Black & White</option>
+                        <option value="Color">Color</option>
+                    </select>
+                </div>
                 <div className="mb-6">
                     <label className="block mb-2">Print Type / Page:</label>
                     <select
@@ -314,17 +324,7 @@ const generateTransactionNote = (rates) => {
                     </select>
                 </div>
 
-                <div className="mb-6">
-                    <label className="block mb-2">Print Mode:</label>
-                    <select
-                        value={printMode}
-                        onChange={(e) => setPrintMode(e.target.value)}
-                        className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-50 text-gray-900 border-gray-300'}`}
-                    >
-                        <option value="Black & White">Black & White</option>
-                        <option value="Color">Color</option>
-                    </select>
-                </div>
+            
 
  
 
