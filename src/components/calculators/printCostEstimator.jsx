@@ -224,9 +224,16 @@ export default function PrintRateCalculator() {
 
                 {/* Display Costs */}
                 <div className={`p-4 border rounded-md ${isDarkMode ? 'bg-gray-800 text-white border-gray-700' : 'bg-green-50 text-gray-900 border-gray-300'}`}>
-                    <h2 className="text-xl font-semibold mb-2">Estimated Costs:</h2>
-                    <p>Customer Total: {currencyUnit}{rates.customerTotal} [ {currencyUnit}{rates.customerCostPerPage} / Page ]</p>
-                    <p>Total {actualNumPagesUsed} pages will be used to print </p>
+                <h2 className="text-xl font-semibold mb-2">Estimated Costs:</h2>
+  {/* Updated the class to include a larger text size */}
+  <p className="text-md">
+  Customer Total: 
+  <span className="text-2xl font-bold text-green-500 ml-4 mr-4">
+     {currencyUnit}{rates.customerTotal}
+  </span> 
+      [ {currencyUnit}{rates.customerCostPerPage} / Page ]
+</p>
+<p>Total {actualNumPagesUsed} pages will be used to print</p>
 
                     {settings.showInternalCost && ( // Conditional rendering
                         <>
