@@ -12,7 +12,8 @@ export default function QRCodeDisplay({
   shareText = '',
   showHeader = true,
   headerText = "Generated QR Code",
-  showButtons= true
+  showButtons= true,
+  visibleButtons = { copy: true, download: true, share: true, print: true } // New prop for selective visibility
 }) {
   const { isDarkMode } = useTheme();
   const qrRef = useRef(null); // Reference to the QRCodeCanvas
@@ -77,7 +78,7 @@ export default function QRCodeDisplay({
       printWindow.document.write('<style>body { text-align: center; font-family: Arial, sans-serif; }</style>'); // Add styles for print
       printWindow.document.write('</head><body>');
       printWindow.document.write('<h2>' + shareTitle + '</h2>'); // Print header
-      printWindow.document.write('<img src="' + canvas.toDataURL() + '" />'); // Print QR Code
+      printWindow.document.write('<img width="200px" height="200px" src="' + canvas.toDataURL() + '" />'); // Print QR Code
       printWindow.document.write('<p>' + shareText + '</p>'); // Print share text
   
       // Adding a footer
@@ -96,8 +97,6 @@ export default function QRCodeDisplay({
       toast.error('Failed to find QR Code for printing.'); // Error message if no canvas is found
     }
   };
-  
-  
 
   return (
     <div
@@ -131,57 +130,62 @@ export default function QRCodeDisplay({
           {/* Action Buttons */}
           {showButtons &&
           <div className="flex flex-wrap justify-center gap-2 md:gap-4">
-            {/* Copy Button */}
-            <button
-              onClick={handleCopyToClipboard}
-              className={`flex items-center p-2 rounded-md ${
-                isDarkMode
-                  ? 'bg-green-600 text-white hover:bg-green-700'
-                  : 'bg-green-500 text-white hover:bg-green-600'
-              } transition-colors duration-300`}
-              title="Copy QR Code Data"
-            >
-              <FaClipboard className="mr-2" /> Copy
-            </button>
+            {/* Conditionally render each button based on the visibleButtons prop */}
+            {visibleButtons.copy && (
+              <button
+                onClick={handleCopyToClipboard}
+                className={`flex items-center p-2 rounded-md ${
+                  isDarkMode
+                    ? 'bg-green-600 text-white hover:bg-green-700'
+                    : 'bg-green-500 text-white hover:bg-green-600'
+                } transition-colors duration-300`}
+                title="Copy QR Code Data"
+              >
+                <FaClipboard className="mr-2" /> Copy
+              </button>
+            )}
 
-            {/* Download Button */}
-            <button
-              onClick={handleDownload}
-              className={`flex items-center p-2 rounded-md ${
-                isDarkMode
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
-                  : 'bg-blue-500 text-white hover:bg-blue-600'
-              } transition-colors duration-300`}
-              title="Download QR Code"
-            >
-              <FaDownload className="mr-2" /> Download
-            </button>
+            {visibleButtons.download && (
+              <button
+                onClick={handleDownload}
+                className={`flex items-center p-2 rounded-md ${
+                  isDarkMode
+                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-blue-500 text-white hover:bg-blue-600'
+                } transition-colors duration-300`}
+                title="Download QR Code"
+              >
+                <FaDownload className="mr-2" /> Download
+              </button>
+            )}
 
-            {/* Share Button */}
-            <button
-              onClick={handleShare}
-              className={`flex items-center p-2 rounded-md ${
-                isDarkMode
-                  ? 'bg-purple-600 text-white hover:bg-purple-700'
-                  : 'bg-purple-500 text-white hover:bg-purple-600'
-              } transition-colors duration-300`}
-              title="Share QR Code"
-            >
-              <FaShareAlt className="mr-2" /> Share
-            </button>
+            {visibleButtons.share && (
+              <button
+                onClick={handleShare}
+                className={`flex items-center p-2 rounded-md ${
+                  isDarkMode
+                    ? 'bg-purple-600 text-white hover:bg-purple-700'
+                    : 'bg-purple-500 text-white hover:bg-purple-600'
+                } transition-colors duration-300`}
+                title="Share QR Code"
+              >
+                <FaShareAlt className="mr-2" /> Share
+              </button>
+            )}
 
-            {/* Print Button */}
-            <button
-              onClick={handlePrint}
-              className={`flex items-center p-2 rounded-md ${
-                isDarkMode
-                  ? 'bg-yellow-600 text-white hover:bg-yellow-700'
-                  : 'bg-yellow-500 text-white hover:bg-yellow-600'
-              } transition-colors duration-300`}
-              title="Print QR Code"
-            >
-              <FaPrint className="mr-2" /> Print
-            </button>
+            {visibleButtons.print && (
+              <button
+                onClick={handlePrint}
+                className={`flex items-center p-2 rounded-md ${
+                  isDarkMode
+                    ? 'bg-yellow-600 text-white hover:bg-yellow-700'
+                    : 'bg-yellow-500 text-white hover:bg-yellow-600'
+                } transition-colors duration-300`}
+                title="Print QR Code"
+              >
+                <FaPrint className="mr-2" /> Print
+              </button>
+            )}
           </div>
 }
         </>

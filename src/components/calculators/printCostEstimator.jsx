@@ -133,7 +133,7 @@ export default function PrintRateCalculator() {
 
 
     useEffect(() => {
-        document.title = 'Print Cost Estimator| Rajlabs'; // Set the document title
+        document.title = 'Print Cost Estimator || Rajlabs'; // Set the document title
 
         const setMetaDescriptionFromLink = async (key) => {
             const description = await fetchDescriptionByLink(key); // Fetch the description using the link
@@ -349,7 +349,7 @@ const generateTransactionNote = (rates) => {
             shareTitle={`UPI Payment QR`} // Sharing title
             shareText={`Paying ${upiName} (${upiAddress}) ${rates.customerTotal ? ` ${settings.currencyUnit}${rates.customerTotal}` : ''}`} // Conditional sharing text
             headerText={`UPI Payment of ${settings.currencyUnit}${rates.customerTotal} to ${upiName} (${upiAddress})`} // Header text
-            showButtons={false} // Hide buttons
+            visibleButtons= {{ copy: false, download: false, share: true, print: false }}
         />
     ) : (
         <button 
