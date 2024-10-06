@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
 import UpiDetailsModal from '../../utils/UPIDetailsModal';
+import LocalStorageUtils from '../../utils/localStorageUtils';
+import { KEYS } from '../../utils/Constants';
+import toast from 'react-hot-toast';
 
 // Define a reusable Card component for better structure
 const Card = ({ title, children, isDarkMode }) => (
@@ -10,7 +13,7 @@ const Card = ({ title, children, isDarkMode }) => (
   </div>
 );
 
-const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDarkMode, handleUpiDetailsSubmit }) => {
+const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDarkMode }) => {
   const [localSettings, setLocalSettings] = useState(settings); // Local copy of settings
   const [isUpiModalOpen, setIsUpiModalOpen] = useState(false); // State to manage UPI modal visibility
 
@@ -53,6 +56,12 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
     onClose();
   };
 
+  const handleUpiDetailsSubmit = (address, name) => {
+    LocalStorageUtils.setItem(KEYS.UPI_ADDRESS,address)
+    LocalStorageUtils.setItem(KEYS.UPI_NAME,name)
+    toast.success('UPI details saved successfully!'); // Toast notification
+    setIsUpiModalOpen(false); // Close the modal
+};
   return (
     <Modal
       isOpen={isOpen}
@@ -239,7 +248,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
       <UpiDetailsModal
         isOpen={isUpiModalOpen}
         onClose={() => setIsUpiModalOpen(false)}
-        handleUpiDetailsSubmit={handleUpiDetailsSubmit}
+        onSubmit={handleUpiDetailsSubmit}
         isDarkMode={isDarkMode}
       />
 

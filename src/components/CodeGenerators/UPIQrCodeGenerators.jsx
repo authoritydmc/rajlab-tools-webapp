@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../themeContext';
 import { toast, Toaster } from 'react-hot-toast';
 import QRCodeDisplay from './QRDisplay';
+import LocalStorageUtils from '../../utils/localStorageUtils';
+import { KEYS } from '../../utils/Constants';
 
 export default function UPIPaymentSettings() {
   const { isDarkMode } = useTheme(); // Use theme context
@@ -22,8 +24,8 @@ export default function UPIPaymentSettings() {
 
   // Effect to automatically retrieve stored UPI address and receiver's name from localStorage
   useEffect(() => {
-    const storedUpi = localStorage.getItem('upiAddress');
-    const storedName = localStorage.getItem('upiName');
+    const storedUpi = LocalStorageUtils.getItem(KEYS.UPI_ADDRESS);
+    const storedName = LocalStorageUtils.getItem(KEYS.UPI_NAME);
 
     if (storedUpi) setUpi(storedUpi);
     if (storedName) setName(storedName);
@@ -55,7 +57,7 @@ export default function UPIPaymentSettings() {
 
     // Store valid UPI address in localStorage
     if (validateUpiAddress(value)) {
-      localStorage.setItem('upiAddress', value);
+      LocalStorageUtils.setItem(KEYS.UPI_ADDRESS,value);
     }
   };
 
@@ -65,7 +67,8 @@ export default function UPIPaymentSettings() {
     setName(value);
 
     // Store name in localStorage
-    localStorage.setItem('upiName', value);
+    LocalStorageUtils.setItem(KEYS.UPI_NAME,value);
+
   };
 
   return (

@@ -59,7 +59,7 @@ export default function PrintRateCalculator() {
     // State for UPI details
     const [upiAddress, setUpiAddress] = useState(LocalStorageUtils.getItem(KEYS.UPI_ADDRESS) || ''); // UPI address
     const [upiName, setUpiName] = useState( LocalStorageUtils.getItem(KEYS.UPI_NAME)  || ''); // UPI name
-    const [showQrCode, setShowQrCode] = useState(!!(LocalStorageUtils.getItem(KEYS.UPI_NAME)&& LocalStorageUtils.getItem(KEYS.UPI_ADDRESS))); // Show QR code if UPI details are present
+    const [showQrCode, setShowQrCode] = useState(!!( LocalStorageUtils.getItem(KEYS.UPI_ADDRESS))); // Show QR code if UPI details are present
 
 
     // Effect to update actualNumPagesUsed based on numPages and printType
@@ -107,8 +107,7 @@ export default function PrintRateCalculator() {
         };
     }, []);
 
-    // Function to handle UPI address and name inputs
-    // Function to handle UPI details submission
+
     const handleUpiDetailsSubmit = (address, name) => {
         setUpiAddress(address);
         setUpiName(name);
@@ -119,13 +118,30 @@ export default function PrintRateCalculator() {
         setIsUpiModalOpen(false); // Close the modal
     };
     // Function to generate the UPI link for the QR code
-    const generateUpiLink = (rates) => {
-        if (!upiAddress || !upiName) {
-            console.log("UPI details not available")
-            // handleUpiDetails(); // Prompt for UPI details if not set
-        }
-        return `upi://pay?pa=${upiAddress}&pn=${upiName}&am=${rates.customerTotal}&cu=INR`; // Generate UPI link
-    };
+const generateUpiLink = (rates) => {
+    // Check if UPI address and name are available
+    if (!upiAddress || !upiName) {
+        console.log("UPI details not available");
+        // Uncomment the following line if you want to prompt for UPI details when not set
+        // handleUpiDetails(); 
+    }
+
+    // Generate a transaction note (tn) based on the payment details
+    const transactionNote = generateTransactionNote(rates);
+
+    // Generate the UPI link using the provided UPI address, name, total amount, and transaction note
+    return `upi://pay?pa=${upiAddress}&pn=${upiName}&am=${rates.customerTotal}&cu=INR&mam=${rates.customerTotal}&tn=${transactionNote}`; 
+};
+
+// Function to generate a transaction note based on rates
+const generateTransactionNote = (rates) => {
+    // Destructure necessary properties from rates for better readability
+
+
+    // Create a descriptive transaction note
+    return `Print: ${printType}_${printMode}_${numPages} NoPage`;
+};
+
 
     // Function to toggle the visibility of the QR code
     const toggleQrCode = () => {
@@ -331,7 +347,7 @@ export default function PrintRateCalculator() {
             </div>
 
             {/* Settings Modal */}
-            <PrintRateSettingsModal isOpen={isSettingsOpen} onClose={closeSettings} settings={settings} setSettings={setSettings} isDarkMode={isDarkMode} handleUpiDetailsSubmit={handleUpiDetailsSubmit} />
+            <PrintRateSettingsModal isOpen={isSettingsOpen} onClose={closeSettings} settings={settings} setSettings={setSettings} isDarkMode={isDarkMode} />
         
                 {/* UPI Details Modal */}
                 <UpiDetailsModal 
