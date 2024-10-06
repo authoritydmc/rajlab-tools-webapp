@@ -3,14 +3,10 @@ import toast from 'react-hot-toast';
 import { KEYS } from '../../utils/constants';
 import LocalStorageUtils from '../../utils/localStorageUtils';
 import { IoIosCloseCircle } from 'react-icons/io';
+import CurrencySelector from '../common/currencySelector';
+import Card from '../common/card';
 
-// Define a reusable Card component for better structure
-const Card = ({ title, children, isDarkMode }) => (
-  <div className={`rounded-lg shadow-md p-4 mb-4 ${isDarkMode ? 'bg-gray-800' : 'bg-green-150'}`}>
-    <h3 className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>{title}</h3>
-    {children}
-  </div>
-);
+
 
 const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDarkMode, setIsUpiModalOpen, defaultSettings }) => {
   const [localSettings, setLocalSettings] = useState(settings); // Local copy of settings
@@ -23,8 +19,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
     const topLevelFields = ['currencyUnit', 'showInternalCost']; // Add other top-level fields if any
 
     if (topLevelFields.includes(section)) {
-      console.log("updating name "+name)
-      console.log(`Selected val: ${value}`);
+
       // Directly update the top-level field
       setLocalSettings((prev) => ({
         ...prev,
@@ -271,23 +266,11 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               <span className={`${isDarkMode ? 'text-white' : 'text-black'}`}>Show Internal Cost</span>
             </label>
           </Card>
-
-          {/* Currency Unit Selector */}
-          <Card title="Currency" isDarkMode={isDarkMode}>
-            <label className="block mb-2">Currency Unit:</label>
-            <select
-              name="currencyUnit"
-              value={localSettings.currencyUnit}
-              onChange={(e) => handleSettingChange({ target: { name: undefined ,value:e.target.value} }, 'currencyUnit')}
-              className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'}`}
-            >
-              <option value="₹">Indian Rupee (₹)</option>
-              <option value="$">US Dollar ($)</option>
-              <option value="€">Euro (€)</option>
-              <option value="£">British Pound (£)</option>
-              {/* Add more currencies as needed */}
-            </select>
-          </Card>
+<CurrencySelector 
+  localSettings={localSettings} 
+  handleSettingChange={handleSettingChange} 
+  isDarkMode={isDarkMode} 
+/>
 
           {/* UPI Details Button */}
           <Card title="Manage UPI" isDarkMode={isDarkMode}>
