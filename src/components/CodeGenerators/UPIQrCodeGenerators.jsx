@@ -20,9 +20,8 @@ export default function UPIPaymentSettings() {
     return upiPattern.test(upiAddress);
   };
 
-  // Effect to automatically generate the UPI link and update QR code data
+  // Effect to automatically retrieve stored UPI address and receiver's name from localStorage
   useEffect(() => {
-    // Retrieve stored UPI address and receiver's name from localStorage
     const storedUpi = localStorage.getItem('upiAddress');
     const storedName = localStorage.getItem('receiverName');
 
@@ -151,6 +150,9 @@ export default function UPIPaymentSettings() {
           data={qrData}
           size={parseInt(size)}
           errorCorrectionLevel={errorCorrectionLevel}
+          shareTitle="UPI QR"
+          shareText={`Paying ${name}${amount ? ` ₹${amount}` : ''}`} // Conditional sharing text
+          headerText='UPI QR code'
         />
       )}
     </div>

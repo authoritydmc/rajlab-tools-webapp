@@ -4,7 +4,15 @@ import { FaClipboard, FaDownload, FaShareAlt } from 'react-icons/fa'; // Import 
 import { toast } from 'react-hot-toast'; // For showing toast notifications
 import { useTheme } from '../../themeContext'; // Use theme context
 
-export default function QRCodeDisplay({ data, size, errorCorrectionLevel }) {
+export default function QRCodeDisplay({ 
+  data, 
+  size, 
+  errorCorrectionLevel, 
+  shareTitle = 'My QR Code', // Default title for sharing
+  shareText = 'Here is my QR Code.', // Default text for sharing
+  showHeader = true ,// Control to show or hide header
+  headerText="Generated QR Code"
+}) {
   const { isDarkMode } = useTheme(); // Get the theme mode
   const qrRef = useRef(null); // Reference to the QRCodeCanvas
 
@@ -45,8 +53,8 @@ export default function QRCodeDisplay({ data, size, errorCorrectionLevel }) {
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
-            title: 'My QR Code',
-            text: 'Here is my QR Code.',
+            title: shareTitle,
+            text: shareText,
           });
           toast.success('QR Code shared successfully!');
         } else {
@@ -62,70 +70,78 @@ export default function QRCodeDisplay({ data, size, errorCorrectionLevel }) {
   return (
     <div
       className={`max-w-2xl mx-auto mt-8 p-6 shadow-lg rounded-md ${
-        isDarkMode ? 'bg-gray-800 text-white border-gray-700' : 'bg-white text-gray-900 border-gray-300'
+        isDarkMode ? 'bg-gray-800 text-white border-gray-700' : 'bg-green-50 text-gray-900 border-gray-300'
       } text-center`}
     >
-      <h2 className="text-xl font-bold mb-4">Your QR Code</h2>
-      
-      {/* QR Code Canvas */}
-      <div
-        className="flex justify-center mb-4 p-4 rounded-md"
-        style={{
-          backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
-        }}
-        ref={qrRef} // Attach the ref to this div
-      >
-        <QRCodeCanvas
-          value={data}
-          size={size}
-          level={errorCorrectionLevel} // Set error correction level
-          includeMargin={true} // Add some margin around the QR code
-          bgColor={isDarkMode ? '#1f2937' : '#ffffff'} // Set background color for QR code based on theme
-          fgColor={isDarkMode ? '#ffffff' : '#000000'} // Set foreground color for QR code (QR code itself)
-        />
-      </div>
+      {/* Conditionally render header */}
+      {showHeader && <h2 className="text-2xl font-bold mb-4">{headerText}</h2>}
 
-      {/* Action Buttons */}
-      <div className="flex justify-center gap-4">
-        {/* Copy Button */}
-        <button
-          onClick={handleCopyToClipboard}
-          className={`flex items-center p-2 rounded-md ${
-            isDarkMode
-              ? 'bg-green-600 text-white hover:bg-green-700'
-              : 'bg-green-500 text-white hover:bg-green-600'
-          } transition-colors duration-300`}
-          title="Copy QR Code Data"
-        >
-          <FaClipboard className="mr-2" /> Copy
-        </button>
+      {/* Display instruction if no data */}
+      {!data ? (
+        <p className="text-gray-500">Please input the data; the QR code will auto-generate and refresh.</p>
+      ) : (
+        <>
+          {/* QR Code Canvas */}
+          <div
+            className="flex justify-center mb-4 p-4 rounded-md"
+            style={{
+              backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+            }}
+            ref={qrRef} // Attach the ref to this div
+          >
+            <QRCodeCanvas
+              value={data}
+              size={size}
+              level={errorCorrectionLevel} // Set error correction level
+              includeMargin={true} // Add some margin around the QR code
+              bgColor={isDarkMode ? '#1f2937' : '#ffffff'} // Set background color for QR code based on theme
+              fgColor={isDarkMode ? '#ffffff' : '#000000'} // Set foreground color for QR code (QR code itself)
+            />
+          </div>
 
-        {/* Download Button */}
-        <button
-          onClick={handleDownload}
-          className={`flex items-center p-2 rounded-md ${
-            isDarkMode
-              ? 'bg-blue-600 text-white hover:bg-blue-700'
-              : 'bg-blue-500 text-white hover:bg-blue-600'
-          } transition-colors duration-300`}
-          title="Download QR Code"
-        >
-          <FaDownload className="mr-2" /> Download
-        </button>
+          {/* Action Buttons */}
+          <div className="flex justify-center gap-4">
+            {/* Copy Button */}
+            <button
+              onClick={handleCopyToClipboard}
+              className={`flex items-center p-2 rounded-md ${
+                isDarkMode
+                  ? 'bg-green-600 text-white hover:bg-green-700'
+                  : 'bg-green-500 text-white hover:bg-green-600'
+              } transition-colors duration-300`}
+              title="Copy QR Code Data"
+            >
+              <FaClipboard className="mr-2" /> Copy
+            </button>
 
-        {/* Share Button */}
-        <button
-          onClick={handleShare}
-          className={`flex items-center p-2 rounded-md ${
-            isDarkMode
-              ? 'bg-purple-600 text-white hover:bg-purple-700'
-              : 'bg-purple-500 text-white hover:bg-purple-600'
-          } transition-colors duration-300`}
-          title="Share QR Code"
-        >
-          <FaShareAlt className="mr-2" /> Share
-        </button>
-      </div>
+            {/* Download Button */}
+            <button
+              onClick={handleDownload}
+              className={`flex items-center p-2 rounded-md ${
+                isDarkMode
+                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                  : 'bg-blue-500 text-white hover:bg-blue-600'
+              } transition-colors duration-300`}
+              title="Download QR Code"
+            >
+              <FaDownload className="mr-2" /> Download
+            </button>
+
+            {/* Share Button */}
+            <button
+              onClick={handleShare}
+              className={`flex items-center p-2 rounded-md ${
+                isDarkMode
+                  ? 'bg-purple-600 text-white hover:bg-purple-700'
+                  : 'bg-purple-500 text-white hover:bg-purple-600'
+              } transition-colors duration-300`}
+              title="Share QR Code"
+            >
+              <FaShareAlt className="mr-2" /> Share
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
