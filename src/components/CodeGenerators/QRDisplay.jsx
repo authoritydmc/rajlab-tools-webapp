@@ -1,19 +1,19 @@
 import React, { useRef } from 'react';
-import { QRCodeCanvas } from 'qrcode.react'; // Use the QRCodeCanvas from the qrcode.react library
-import { FaClipboard, FaDownload, FaShareAlt } from 'react-icons/fa'; // Import additional icons
-import { toast } from 'react-hot-toast'; // For showing toast notifications
-import { useTheme } from '../../themeContext'; // Use theme context
+import { QRCodeCanvas } from 'qrcode.react';
+import { FaClipboard, FaDownload, FaShareAlt, FaPrint } from 'react-icons/fa';
+import { toast } from 'react-hot-toast';
+import { useTheme } from '../../themeContext';
 
-export default function QRCodeDisplay({ 
-  data, 
-  size, 
-  errorCorrectionLevel, 
-  shareTitle = 'My QR Code', // Default title for sharing
-  shareText = 'Here is my QR Code.', // Default text for sharing
-  showHeader = true ,// Control to show or hide header
-  headerText="Generated QR Code"
+export default function QRCodeDisplay({
+  data,
+  size,
+  errorCorrectionLevel,
+  shareTitle = 'QR Code',
+  shareText = '',
+  showHeader = true,
+  headerText = "Generated QR Code"
 }) {
-  const { isDarkMode } = useTheme(); // Get the theme mode
+  const { isDarkMode } = useTheme();
   const qrRef = useRef(null); // Reference to the QRCodeCanvas
 
   // Function to copy QR code data to clipboard
@@ -67,6 +67,37 @@ export default function QRCodeDisplay({
     }
   };
 
+  // Function to print the QR code
+  const handlePrint = () => {
+    const canvas = qrRef.current.querySelector('canvas'); // Reference to the QR code canvas
+    if (canvas) {
+      const printWindow = window.open('', '_blank'); // Open a new window for printing
+      printWindow.document.write('<html><head><title>Print QR Code</title>');
+      printWindow.document.write('<style>body { text-align: center; font-family: Arial, sans-serif; }</style>'); // Add styles for print
+      printWindow.document.write('</head><body>');
+      printWindow.document.write('<h2>' + shareTitle + '</h2>'); // Print header
+      printWindow.document.write('<img src="' + canvas.toDataURL() + '" />'); // Print QR Code
+      printWindow.document.write('<p>' + shareText + '</p>'); // Print share text
+  
+      // Adding a footer
+      const currentUrl = window.location.href; // Get current URL
+      printWindow.document.write('<footer style="margin-top: 20px; font-size: 12px; color: gray;">'); // Footer styling
+      printWindow.document.write('Printed from: <a href="' + currentUrl + '">' + currentUrl + '</a>'); // Print footer
+      printWindow.document.write('</footer>');
+      printWindow.document.write('</body></html>');
+      printWindow.document.close(); // Close the document for writing
+      printWindow.focus(); // Focus the new window
+  
+      printWindow.print(); // Trigger print dialog
+      // Optionally, you can close the print window after a timeout
+      // setTimeout(() => printWindow.close(), 5000); // Close the window after 5 seconds
+    } else {
+      toast.error('Failed to find QR Code for printing.'); // Error message if no canvas is found
+    }
+  };
+  
+  
+
   return (
     <div
       className={`max-w-2xl mx-auto mt-8 p-6 shadow-lg rounded-md ${
@@ -97,7 +128,7 @@ export default function QRCodeDisplay({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-2 md:gap-4">
             {/* Copy Button */}
             <button
               onClick={handleCopyToClipboard}
@@ -135,6 +166,19 @@ export default function QRCodeDisplay({
               title="Share QR Code"
             >
               <FaShareAlt className="mr-2" /> Share
+            </button>
+
+            {/* Print Button */}
+            <button
+              onClick={handlePrint}
+              className={`flex items-center p-2 rounded-md ${
+                isDarkMode
+                  ? 'bg-yellow-600 text-white hover:bg-yellow-700'
+                  : 'bg-yellow-500 text-white hover:bg-yellow-600'
+              } transition-colors duration-300`}
+              title="Print QR Code"
+            >
+              <FaPrint className="mr-2" /> Print
             </button>
           </div>
         </>

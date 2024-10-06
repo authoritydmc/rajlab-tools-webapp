@@ -151,7 +151,7 @@ export default function UPIPaymentSettings() {
           size={parseInt(size)}
           errorCorrectionLevel={errorCorrectionLevel}
           shareTitle="UPI QR"
-          shareText={`Paying ${name}${amount ? ` ₹${amount}` : ''}`} // Conditional sharing text
+          shareText={`Paying ${name} (${upi}) ${amount ? ` ₹${amount}` : ''}`} // Conditional sharing text
           headerText='UPI QR code'
         />
       )}
