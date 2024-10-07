@@ -36,12 +36,12 @@ export default function PrintRateCalculator() {
                 doubleSided: 1.0, // Profit per page for 2-Sided Color
             },
         },
-        discount:{
-            minPages:100,
-            percentage:5
+        discount: {
+            minPages: 100,
+            percentage: 5
         },
         showInternalCost: false, // Toggle for internal cost section
-        currencyUnit: '', 
+        currencyUnit: '',
     };
 
     useEffect(() => {
@@ -56,7 +56,7 @@ export default function PrintRateCalculator() {
                 return '₹';
             }
         };
-    
+
         // Function to detect user's currency
         const detectCurrency = async () => {
             if (navigator.geolocation) {
@@ -90,10 +90,10 @@ export default function PrintRateCalculator() {
                 }));
             }
         };
-    if(settings.currencyUnit==="")
-        detectCurrency();
+        if (settings.currencyUnit === "")
+            detectCurrency();
     }, []); // Run once on mount
-    
+
 
     // State to hold settings with deep merge
     const [settings, setSettings] = useState(() => {
@@ -117,8 +117,8 @@ export default function PrintRateCalculator() {
     const [isUpiModalOpen, setIsUpiModalOpen] = useState(false);
     // State for UPI details
     const [upiAddress, setUpiAddress] = useState(LocalStorageUtils.getItem(KEYS.UPI_ADDRESS) || ''); // UPI address
-    const [upiName, setUpiName] = useState( LocalStorageUtils.getItem(KEYS.UPI_NAME)  || ''); // UPI name
-    const [showQrCode, setShowQrCode] = useState(!!( LocalStorageUtils.getItem(KEYS.UPI_ADDRESS))); // Show QR code if UPI details are present
+    const [upiName, setUpiName] = useState(LocalStorageUtils.getItem(KEYS.UPI_NAME) || ''); // UPI name
+    const [showQrCode, setShowQrCode] = useState(!!(LocalStorageUtils.getItem(KEYS.UPI_ADDRESS))); // Show QR code if UPI details are present
 
 
     // Effect to update actualNumPagesUsed based on numPages and printType
@@ -169,36 +169,36 @@ export default function PrintRateCalculator() {
     const handleUpiDetailsSubmit = (address, name) => {
         setUpiAddress(address);
         setUpiName(name);
-        LocalStorageUtils.setItem(KEYS.UPI_ADDRESS,address)
-        LocalStorageUtils.setItem(KEYS.UPI_NAME,name)
+        LocalStorageUtils.setItem(KEYS.UPI_ADDRESS, address)
+        LocalStorageUtils.setItem(KEYS.UPI_NAME, name)
         toast.success('UPI details saved successfully!'); // Toast notification
         setShowQrCode(true); // Show QR code after saving details
         setIsUpiModalOpen(false); // Close the modal
     };
     // Function to generate the UPI link for the QR code
-const generateUpiLink = (rates) => {
-    // Check if UPI address and name are available
-    if (!upiAddress ) {
-        console.log("UPI details not available");
-        // Uncomment the following line if you want to prompt for UPI details when not set
-        // handleUpiDetails(); 
-    }
+    const generateUpiLink = (rates) => {
+        // Check if UPI address and name are available
+        if (!upiAddress) {
+            console.log("UPI details not available");
+            // Uncomment the following line if you want to prompt for UPI details when not set
+            // handleUpiDetails(); 
+        }
 
-    // Generate a transaction note (tn) based on the payment details
-    const transactionNote = generateTransactionNote(rates);
+        // Generate a transaction note (tn) based on the payment details
+        const transactionNote = generateTransactionNote(rates);
 
-    // Generate the UPI link using the provided UPI address, name, total amount, and transaction note
-    return `upi://pay?pa=${upiAddress}&pn=${upiName}&am=${rates.customerTotal}&cu=INR&mam=${rates.customerTotal}&tn=${transactionNote}`; 
-};
+        // Generate the UPI link using the provided UPI address, name, total amount, and transaction note
+        return `upi://pay?pa=${upiAddress}&pn=${upiName}&am=${rates.customerTotal}&cu=INR&mam=${rates.customerTotal}&tn=${transactionNote}`;
+    };
 
-// Function to generate a transaction note based on rates
-const generateTransactionNote = (rates) => {
-    // Destructure necessary properties from rates for better readability
+    // Function to generate a transaction note based on rates
+    const generateTransactionNote = (rates) => {
+        // Destructure necessary properties from rates for better readability
 
 
-    // Create a descriptive transaction note
-    return `Print: ${printType === '1-Sided'?"1S":"2S"}_${printMode === 'Black & White'?"BW":"CLR"}_${numPages}NoP`;
-};
+        // Create a descriptive transaction note
+        return `Print: ${printType === '1-Sided' ? "1S" : "2S"}_${printMode === 'Black & White' ? "BW" : "CLR"}_${numPages}NoP`;
+    };
 
 
 
@@ -224,36 +224,39 @@ const generateTransactionNote = (rates) => {
             totalInkCost: 0,
             totalPageCost: 0,
             profitPerPrint: 0,
-            discountApplied:0 ,
-            customerTotalWithoutDiscount:0// Set to 0 as we don't calculate profit when no pages are input
+            discountApplied: 0,
+            customerTotalWithoutDiscount: 0// Set to 0 as we don't calculate profit when no pages are input
         };
 
         // Calculate cost per print and ink cost per page based on print mode
         const pageCostPerPrint = settings.pageCost.cost / settings.pageCost.pages; // Cost per print
+        const blackInkCost=settings.blackInk.cost;
+        const colorInkCost=(settings.colorInk.cost+blackInkCost);
+        console.log("Color Ink Pre val "+colorInkCost)
         let inkCostPerPage = printMode === 'Black & White'
-            ? settings.blackInk.cost / settings.blackInk.yield // Ink cost per page for Black & White
-            : settings.colorInk.cost / settings.colorInk.yield; // Ink cost per page for Color
+            ? blackInkCost /settings.blackInk.yield// Ink cost per page for Black & White
+            :colorInkCost / settings.colorInk.yield; // Ink cost per page for Color
 
         // Determine profit per print based on print type and mode
         const profitPerPrint = printMode === 'Black & White'
             ? (printType === '1-Sided' ? settings.profit.blackAndWhite.singleSided : numPages > 1 ? settings.profit.blackAndWhite.doubleSided : settings.profit.blackAndWhite.singleSided)
             : (printType === '1-Sided' ? settings.profit.color.singleSided : numPages > 1 ? settings.profit.color.doubleSided : settings.profit.color.singleSided);
 
-        const shouldDiscountApplied= parseInt(numPages) >= parseInt(settings.discount.minPages) 
+        const shouldDiscountApplied = parseInt(numPages) >= parseInt(settings.discount.minPages)
         // console.log("Should discount be applied ",shouldDiscountApplied)
         // Calculate internal costs
         const totalPageCost = actualNumPagesUsed * pageCostPerPrint; // Total page cost
         const totalInkCost = parseFloat(inkCostPerPage) * numPages; // Total ink cost for actual pages used
         const totalProfit = numPages * parseFloat(profitPerPrint); // Total profit for the number of pages
-        const discountApplied= shouldDiscountApplied ? totalProfit*((parseFloat(settings.discount.percentage))/100): 0.0;
+        const discountApplied = shouldDiscountApplied ? totalProfit * ((parseFloat(settings.discount.percentage)) / 100) : 0.0;
         // console.log("discount applied ",discountApplied)
         const internalCost = totalPageCost + totalInkCost; // Internal cost
         const customerTotalWithoutDiscount = internalCost + totalProfit; // Total cost for the number of pages
-        const customerTotal=customerTotalWithoutDiscount-discountApplied;
+        const customerTotal = customerTotalWithoutDiscount - discountApplied;
         const customerCostPerPage = customerTotal / numPages;
-        
+
         //calculate bulk discount
-        
+
         return {
             customerTotalWithoutDiscount: customerTotalWithoutDiscount.toFixed(2), // Total cost formatted to 2 decimal places
 
@@ -266,7 +269,7 @@ const generateTransactionNote = (rates) => {
             totalPageCost: totalPageCost.toFixed(2), // Total page cost formatted to 2 decimal places
             profitPerPrint: parseFloat(profitPerPrint).toFixed(2), // Profit per print formatted to 2 decimal places
             customerCostPerPage: customerCostPerPage.toFixed(2),
-            discountApplied:discountApplied.toFixed(2)
+            discountApplied: discountApplied.toFixed(2)
         };
     };
 
@@ -311,7 +314,7 @@ const generateTransactionNote = (rates) => {
                         <option value="Black & White">Black & White</option>
                         <option value="Color">Color</option>
                     </select>
-                </div>  
+                </div>
                 <div className="mb-6">
                     <label className="block mb-2">Print Type / Page:</label>
                     <select
@@ -324,9 +327,9 @@ const generateTransactionNote = (rates) => {
                     </select>
                 </div>
 
-            
 
- 
+
+
 
                 {/* Display Costs */}
                 <div className={`p-4 border rounded-md ${isDarkMode ? 'bg-gray-800 text-white border-gray-700' : 'bg-green-50 text-gray-900 border-gray-300'}`}>
@@ -341,27 +344,27 @@ const generateTransactionNote = (rates) => {
                     </p>
                     <p>Total {actualNumPagesUsed} pages will be used to print</p>
                     {settings.currencyUnit === "₹" && (
-    showQrCode ? (
-        <QRCodeDisplay
-            data={generateUpiLink(rates)} // Generate UPI link
-            size={200} // Example size
-            errorCorrectionLevel="H" // Example error correction level
-            shareTitle={`UPI Payment QR`} // Sharing title
-            shareText={`Paying ${upiName} (${upiAddress}) ${rates.customerTotal ? ` ${settings.currencyUnit}${rates.customerTotal}` : ''}`} // Conditional sharing text
-            headerText={`UPI Payment of ${settings.currencyUnit}${rates.customerTotal} to ${upiName} (${upiAddress})`} // Header text
-            visibleButtons= {{ copy: false, download: false, share: true, print: false }}
-        />
-    ) : (
-        <button 
-            onClick={() => setIsUpiModalOpen(true)} // Open modal for UPI details
-            className="p-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300"
-        >
-            Generate Payment QR
-        </button>
-    )
-)}
+                        showQrCode ? (
+                            <QRCodeDisplay
+                                data={generateUpiLink(rates)} // Generate UPI link
+                                size={200} // Example size
+                                errorCorrectionLevel="H" // Example error correction level
+                                shareTitle={`UPI Payment QR`} // Sharing title
+                                shareText={`Paying ${upiName} (${upiAddress}) ${rates.customerTotal ? ` ${settings.currencyUnit}${rates.customerTotal}` : ''}`} // Conditional sharing text
+                                headerText={`UPI Payment of ${settings.currencyUnit}${rates.customerTotal} to ${upiName} (${upiAddress})`} // Header text
+                                visibleButtons={{ copy: false, download: false, share: true, print: false }}
+                            />
+                        ) : (
+                            <button
+                                onClick={() => setIsUpiModalOpen(true)} // Open modal for UPI details
+                                className="p-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300"
+                            >
+                                Generate Payment QR
+                            </button>
+                        )
+                    )}
 
-             
+
                     {settings.showInternalCost && ( // Conditional rendering
                         <>
                             <h3 className="mt-5 text-lg font-semibold mb-2">Detailed Internal Cost Breakdown:</h3>
@@ -390,18 +393,18 @@ const generateTransactionNote = (rates) => {
                                         <td className="border px-4 py-2 font-bold text-green-500">+ Profit:</td>
                                         <td className="border px-4 py-2 font-bold text-green-500">{settings.currencyUnit}{rates.profitPerPrint} * {numPages} (No of pages printed) = {settings.currencyUnit}{rates.totalProfit}</td>
                                     </tr>
-                                    { parseInt(numPages) >= parseInt(settings.discount.minPages) &&
-                                    <>
-                                    <tr className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                                        <td className="border px-4 py-2 font-bold text-yellow-500">Total Before Discount:</td>
-                                        <td className="border px-4 py-2 font-bold text-yellow-500">{settings.currencyUnit}{rates.customerTotalWithoutDiscount} [ {settings.currencyUnit}{(rates.customerTotalWithoutDiscount/numPages).toFixed(2)} / Page ]</td>
-                                        
-                                    </tr>
-                                    <tr className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                                        <td className="border px-4 py-2 font-bold text-red-500">- Bulk Discount :</td>
-                                        <td className="border px-4 py-2 font-bold text-red-500">{settings.currencyUnit}{rates.totalProfit}(Profit) * {settings.discount.percentage}% = {settings.currencyUnit}{rates.discountApplied}</td>
-                                    </tr>
-                                    </>}
+                                    {parseInt(numPages) >= parseInt(settings.discount.minPages) &&
+                                        <>
+                                            <tr className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                                <td className="border px-4 py-2 font-bold text-yellow-500">Total Before Discount:</td>
+                                                <td className="border px-4 py-2 font-bold text-yellow-500">{settings.currencyUnit}{rates.customerTotalWithoutDiscount} [ {settings.currencyUnit}{(rates.customerTotalWithoutDiscount / numPages).toFixed(2)} / Page ]</td>
+
+                                            </tr>
+                                            <tr className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                                <td className="border px-4 py-2 font-bold text-red-500">- Bulk Discount :</td>
+                                                <td className="border px-4 py-2 font-bold text-red-500">{settings.currencyUnit}{rates.totalProfit}(Profit) * {settings.discount.percentage}% = {settings.currencyUnit}{rates.discountApplied}</td>
+                                            </tr>
+                                        </>}
                                     <tr className={`${isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-900'}`}>
                                         <td className="border px-4 py-2 font-bold text-yellow-500">Final Customer Rate:</td>
                                         <td className="border px-4 py-2 font-bold text-yellow-500">{settings.currencyUnit}{rates.customerTotal} [ {settings.currencyUnit}{rates.customerCostPerPage} / Page ]</td>
@@ -414,14 +417,14 @@ const generateTransactionNote = (rates) => {
             </div>
 
             {/* Settings Modal */}
-            <PrintRateSettingsModal isOpen={isSettingsOpen} onClose={closeSettings} settings={settings} setSettings={setSettings} isDarkMode={isDarkMode} setIsUpiModalOpen={setIsUpiModalOpen}defaultSettings={defaultSettings} />
-        
-                {/* UPI Details Modal */}
-                <UpiDetailsModal 
-                    isOpen={isUpiModalOpen} 
-                    onClose={() => setIsUpiModalOpen(false)} 
-                    onSubmit={handleUpiDetailsSubmit} 
-                />
+            <PrintRateSettingsModal isOpen={isSettingsOpen} onClose={closeSettings} settings={settings} setSettings={setSettings} isDarkMode={isDarkMode} setIsUpiModalOpen={setIsUpiModalOpen} defaultSettings={defaultSettings} />
+
+            {/* UPI Details Modal */}
+            <UpiDetailsModal
+                isOpen={isUpiModalOpen}
+                onClose={() => setIsUpiModalOpen(false)}
+                onSubmit={handleUpiDetailsSubmit}
+            />
         </div>
     );
 }
