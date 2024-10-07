@@ -10,7 +10,7 @@ function MainLayout() {
     <div className={`flex flex-col min-h-screen ${isDarkMode ? "bg-gray-900 text-white" : "bg-green-50 text-gray-900"} transition-colors duration-300`}>
       {/* Header Section */}
       <header
-        className={`flex items-center justify-between p-4 sticky top-0 z-10 shadow-md backdrop-filter backdrop-blur-md ${
+        className={`flex items-center justify-between p-2 sticky top-0 z-10 shadow-md backdrop-filter backdrop-blur-md ${
           isDarkMode ? "bg-gray-800 bg-opacity-70 border-b border-gray-700" : "bg-green-100 bg-opacity-60 border-b border-gray-300 shadow-lg"
         }`}
       >
