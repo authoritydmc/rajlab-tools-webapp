@@ -232,7 +232,7 @@ export default function PrintRateCalculator() {
         const pageCostPerPrint = settings.pageCost.cost / settings.pageCost.pages; // Cost per print
         const blackInkCost=settings.blackInk.cost;
         const colorInkCost=(settings.colorInk.cost+blackInkCost);
-        console.log("Color Ink Pre val "+colorInkCost)
+        // console.log("Color Ink Pre val "+colorInkCost)
         let inkCostPerPage = printMode === 'Black & White'
             ? blackInkCost /settings.blackInk.yield// Ink cost per page for Black & White
             :colorInkCost / settings.colorInk.yield; // Ink cost per page for Color
