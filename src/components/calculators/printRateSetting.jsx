@@ -13,6 +13,7 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
 
   useEffect(()=>{
 
+    defaultSettings.currencyUnit="₹"
     if (settings.currencyUnit != null && settings.currencyUnit === "") {
       localSettings.currencyUnit="₹"
     }
@@ -77,7 +78,9 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
 
     // If the user confirmed, proceed to clear the settings
     if (isConfirmed) {
+      defaultSettings.currencyUnit="₹"
       setLocalSettings(defaultSettings); // Reset to original settings
+       localSettings.currencyUnit="₹"
       LocalStorageUtils.removeItem(KEYS.PRINT_RATE_SETTINGS); // Remove settings from local storage
       toast.success('Settings cleared!'); // Show success toast
     } else {
