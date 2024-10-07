@@ -56,7 +56,7 @@ const CurrencySelector = ({ localSettings, handleSettingChange, isDarkMode }) =>
     <label className="block mb-2">Currency Unit:</label>
     <select
       name="currencyUnit"
-      value={localSettings.currencyUnit !="" ? localSettings.currencyUnit :"₹"}
+      value={localSettings.currencyUnit}
       onChange={(e) => handleSettingChange({ target: { name: undefined ,value:e.target.value} }, 'currencyUnit')}
       className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-900 border-gray-300'}`}
     >

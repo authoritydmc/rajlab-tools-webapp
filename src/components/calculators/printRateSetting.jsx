@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { KEYS } from '../../utils/constants';
 import LocalStorageUtils from '../../utils/localStorageUtils';
@@ -11,6 +11,12 @@ import Card from '../common/card';
 const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDarkMode, setIsUpiModalOpen, defaultSettings }) => {
   const [localSettings, setLocalSettings] = useState(settings); // Local copy of settings
 
+  useEffect(()=>{
+
+    if (settings.currencyUnit != null && settings.currencyUnit === "") {
+      localSettings.currencyUnit="₹"
+    }
+},[])
   // Function to handle setting changes
   const handleSettingChange = (e, section, subSection) => {
     const { name, value } = e.target;
@@ -266,11 +272,11 @@ const PrintRateSettingsModal = ({ isOpen, onClose, settings, setSettings, isDark
               <span className={`${isDarkMode ? 'text-white' : 'text-black'}`}>Show Internal Cost</span>
             </label>
           </Card>
-<CurrencySelector 
-  localSettings={localSettings} 
-  handleSettingChange={handleSettingChange} 
-  isDarkMode={isDarkMode} 
-/>
+          <CurrencySelector
+            localSettings={localSettings}
+            handleSettingChange={handleSettingChange}
+            isDarkMode={isDarkMode}
+          />
 
           {/* UPI Details Button */}
           <Card title="Manage UPI" isDarkMode={isDarkMode}>
