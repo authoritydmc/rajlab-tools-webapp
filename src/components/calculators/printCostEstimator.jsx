@@ -361,6 +361,8 @@ export default function PrintRateCalculator() {
                                 headerText={`UPI Payment of ${settings.currencyUnit}${rates.customerTotal} to ${upiName} (${upiAddress})`} // Header text
                                 visibleButtons={{ copy: false, download: false, share: true, print: false }}
                             />
+
+                            
                         ) : (
                             <button
                                 onClick={() => setIsUpiModalOpen(true)} // Open modal for UPI details
