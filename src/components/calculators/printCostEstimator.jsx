@@ -14,22 +14,24 @@ export default function PrintRateCalculator() {
 
     // Default cost settings
     const defaultSettings = {
+        version:241009,
+        electricity:0.072,
         pageCost: {
             cost: 335, // ₹
             pages: 500, // pages
         },
         blackInk: {
             cost: 570, // ₹ per bottle
-            yield: 6600, // pages per bottle
+            yield: 4800, // pages per bottle
         },
         colorInk: {
             cost: 1260, // ₹ per bottle
-            yield: 4500, // pages per bottle
+            yield: 1000, // pages per bottle
         },
         profit: {
             blackAndWhite: {
-                singleSided: 0.74, // Profit per page for 1-Sided Black & White
-                doubleSided: 0.581, // Profit per page for 2-Sided Black & White
+                singleSided: 0.71, // Profit per page for 1-Sided Black & White
+                doubleSided: 0.545, // Profit per page for 2-Sided Black & White
             },
             color: {
                 singleSided: 1.5, // Profit per page for 1-Sided Color
@@ -37,10 +39,10 @@ export default function PrintRateCalculator() {
             },
         },
         discount: {
-            minPages: 100,
-            percentage: 5
+            minPages: 150,
+            percentage: 2
         },
-        showInternalCost: false, // Toggle for internal cost section
+        showInternalCost: true, // Toggle for internal cost section
         currencyUnit: '',
     };
 
@@ -99,13 +101,16 @@ export default function PrintRateCalculator() {
     const [settings, setSettings] = useState(() => {
         const savedSettings = JSON.parse(localStorage.getItem('printRateSettings'));
         if (savedSettings) {
+        
+            
             // Deep merge defaultSettings with savedSettings
+
             return deepMerge(JSON.parse(JSON.stringify(defaultSettings)), savedSettings);
         }
         return defaultSettings;
     });
     // State for calculator inputs
-    const [numPages, setNumPages] = useState('2'); // Input number of pages
+    const [numPages, setNumPages] = useState('10'); // Input number of pages
     const [printType, setPrintType] = useState('1-Sided'); // Input print type
     const [printMode, setPrintMode] = useState('Black & White'); // Input print mode
 
@@ -236,7 +241,7 @@ export default function PrintRateCalculator() {
         let inkCostPerPage = printMode === 'Black & White'
             ? blackInkCost /settings.blackInk.yield// Ink cost per page for Black & White
             :colorInkCost / settings.colorInk.yield; // Ink cost per page for Color
-
+        inkCostPerPage=Math.round(inkCostPerPage*100)/100
         // Determine profit per print based on print type and mode
         const profitPerPrint = printMode === 'Black & White'
             ? (printType === '1-Sided' ? settings.profit.blackAndWhite.singleSided : numPages > 1 ? settings.profit.blackAndWhite.doubleSided : settings.profit.blackAndWhite.singleSided)
@@ -245,21 +250,23 @@ export default function PrintRateCalculator() {
         const shouldDiscountApplied = parseInt(numPages) >= parseInt(settings.discount.minPages)
         // console.log("Should discount be applied ",shouldDiscountApplied)
         // Calculate internal costs
+        let totalElectricityCost=actualNumPagesUsed*settings.electricity;
         const totalPageCost = actualNumPagesUsed * pageCostPerPrint; // Total page cost
         const totalInkCost = parseFloat(inkCostPerPage) * numPages; // Total ink cost for actual pages used
         const totalProfit = numPages * parseFloat(profitPerPrint); // Total profit for the number of pages
         const discountApplied = shouldDiscountApplied ? totalProfit * ((parseFloat(settings.discount.percentage)) / 100) : 0.0;
         // console.log("discount applied ",discountApplied)
-        const internalCost = totalPageCost + totalInkCost; // Internal cost
+        const internalCost = totalPageCost + totalInkCost+totalElectricityCost; // Internal cost
         const customerTotalWithoutDiscount = internalCost + totalProfit; // Total cost for the number of pages
-        const customerTotal = customerTotalWithoutDiscount - discountApplied;
+        let customerTotal = (customerTotalWithoutDiscount - discountApplied);
         const customerCostPerPage = customerTotal / numPages;
+      
 
         //calculate bulk discount
 
         return {
             customerTotalWithoutDiscount: customerTotalWithoutDiscount.toFixed(2), // Total cost formatted to 2 decimal places
-
+            totalElectricityCost:totalElectricityCost.toFixed(2),
             customerTotal: customerTotal.toFixed(2), // Total cost formatted to 2 decimal places
             internalCost: internalCost.toFixed(2), // Internal cost formatted to 2 decimal places
             totalProfit: totalProfit.toFixed(2), // Total profit formatted to 2 decimal places
@@ -384,13 +391,16 @@ export default function PrintRateCalculator() {
                                         <td className="border px-4 py-2 text-red-500">Ink Cost:</td>
                                         <td className="border px-4 py-2 text-red-500">{settings.currencyUnit}{rates.inkCostPerPage} * {numPages} (No of page side printed) = {settings.currencyUnit}{rates.totalInkCost}</td>
                                     </tr>
-
+                                    <tr>
+                                        <td className="border px-4 py-2 text-red-500">Electricity Cost:</td>
+                                        <td className="border px-4 py-2 text-red-500">{settings.currencyUnit}{settings.electricity} * {actualNumPagesUsed} (No of page side printed) = {settings.currencyUnit}{rates.totalElectricityCost}</td>
+                                    </tr>
                                     <tr>
                                         <td className="border px-4 py-2 font-bold text-red-500">Total Internal Cost:</td>
-                                        <td className="border px-4 py-2 font-bold text-red-500">{settings.currencyUnit}{rates.totalPageCost} + {settings.currencyUnit}{rates.totalInkCost} = {settings.currencyUnit}{rates.internalCost}</td>
+                                        <td className="border px-4 py-2 font-bold text-red-500">{settings.currencyUnit}{rates.totalPageCost} + {settings.currencyUnit}{rates.totalInkCost} +{settings.currencyUnit}{rates.totalElectricityCost}  = {settings.currencyUnit}{rates.internalCost}</td>
                                     </tr>
                                     <tr className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                                        <td className="border px-4 py-2 font-bold text-green-500">+ Profit:</td>
+                                        <td className="border px-4 py-2 font-bold text-green-500">Margin:</td>
                                         <td className="border px-4 py-2 font-bold text-green-500">{settings.currencyUnit}{rates.profitPerPrint} * {numPages} (No of pages printed) = {settings.currencyUnit}{rates.totalProfit}</td>
                                     </tr>
                                     {parseInt(numPages) >= parseInt(settings.discount.minPages) &&
