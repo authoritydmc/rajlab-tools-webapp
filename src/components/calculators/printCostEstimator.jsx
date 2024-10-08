@@ -42,7 +42,7 @@ export default function PrintRateCalculator() {
             minPages: 150,
             percentage: 2
         },
-        showInternalCost: true, // Toggle for internal cost section
+        showInternalCost: false, // Toggle for internal cost section
         currencyUnit: '',
     };
 
