@@ -20,7 +20,7 @@ export default function FfmpegTool() {
   // Load FFmpeg when the component mounts
   useEffect(() => {
     document.title = 'FFMPEG Tool | Rajlabs'; // Set document title
-    alert("This module is WIP !! Proceed with")
+    alert("This module is WIP !! Proceed with caution")
     loadFFmpeg();
   }, []);
 

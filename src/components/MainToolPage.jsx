@@ -281,14 +281,25 @@ function ToolItem({ tool, isDarkMode }) {
         >
           {getIconByName(tool.iconName)} {/* Dynamically render icon */}
         </span>
-        <Link
-          to={tool.link}
-          className={`flex-1 text-lg font-semibold ${
-            tool.isEnabled ? 'text-blue-600 hover:underline' : 'text-gray-400'
-          } ${isDarkMode ? 'hover:text-blue-400' : 'hover:text-blue-800'}`}
-        >
-          {tool.name}
-        </Link>
+        {tool.isEnabled ? (
+  <Link
+    to={tool.link}
+    className={`flex-1 text-lg font-semibold text-blue-600 hover:underline ${
+      isDarkMode ? 'hover:text-blue-400' : 'hover:text-blue-800'
+    }`}
+  >
+    {tool.name}
+  </Link>
+) : (
+  <span
+    className={`flex-1 text-lg font-semibold text-gray-400 ${
+      isDarkMode ? '' : ''
+    }`}
+  >
+    {tool.name} [WIP]
+  </span>
+)}
+
       </div>
       {/* Tool Description with "Show More" */}
       {tool.description && (
