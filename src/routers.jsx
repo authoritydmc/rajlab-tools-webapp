@@ -13,6 +13,7 @@ import PasswordGenerator from './components/passwords/passwordGen';
 import PrintRateCalculator from './components/calculators/printCostEstimator';
 import QRCodeSettings from './components/CodeGenerators/QRSettingMainPage';
 import UPIPaymentSettings from './components/CodeGenerators/UPIQrCodeGenerators';
+import FfmpegTool from './components/media-utils/video-convertor';
 
 export const router = createBrowserRouter([
     {
@@ -70,6 +71,10 @@ export const router = createBrowserRouter([
         {
           path:"upi-code-generator",
           element:<UPIPaymentSettings/>
+        },
+        {
+          path:"video-converter",
+          element:<FfmpegTool/>
         }
       ],
     },

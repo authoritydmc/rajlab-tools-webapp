@@ -103,6 +103,20 @@
     }
     
   ]
-}
+},
+{
+  "title": "Multimedia Utilities",
+  "iconName": "FaVideo",
+  "tools": [
+    {
+      "name": "Video Converter",
+      "link": "/video-converter",
+      "iconName": "FaFileVideo",
+      "isEnabled": true,
+      "description": "Convert videos between different formats (e.g., MP4, AVI, MOV) quickly and efficiently using FFMPEG WASM. Customize resolution, bitrate, and other settings to suit your needs."
+    }
+  ]
 
+}
 ]
+
