@@ -14,7 +14,7 @@ export default function MainToolListPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const savedViewMode = localStorage.getItem('viewMode') || 'list';
+    const savedViewMode = localStorage.getItem('viewMode') || 'category';
     setViewMode(savedViewMode);
 
     const fetchData = async () => {
