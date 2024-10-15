@@ -108,6 +108,14 @@
       "isEnabled": true,
       "description": "Easily generate WhatsApp QR codes to send messages to any number without saving it in your contacts. Just enter the phone number (with country code) and optional message to create a QR code. Customize the size, color, and error correction level, and download or share the generated QR code for quick communication."
     }
+    ,
+    {
+      "name": "WhatsApp QR Code Generator",
+      "link": "/whatsapp-code-generator",
+      "iconName": "FaWhatsapp",
+      "isEnabled": true,
+      "description": "Easily generate WhatsApp QR codes to send messages to any number without saving it in your contacts. Just enter the phone number (with country code) and optional message to create a QR code. Customize the size, color, and error correction level, and download or share the generated QR code for quick communication."
+    }
     
   ]
 },
