@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../themeContext';
 import { toast, Toaster } from 'react-hot-toast';
-import QRCodeDisplay from './QRDisplay';
 import LocalStorageUtils from '../../utils/localStorageUtils';
 import { KEYS } from '../../utils/constants';
+import QRCodeDisplay from './QRDisplay';
 export default function UPIPaymentSettings() {
   const { isDarkMode } = useTheme(); // Use theme context
   const [upi, setUpi] = useState(''); // UPI address
