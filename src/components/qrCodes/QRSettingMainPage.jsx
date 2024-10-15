@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../themeContext';
 import { toast, Toaster } from 'react-hot-toast';
 import QRCodeDisplay from './QRDisplay';
-import { data } from 'autoprefixer';
+
 
 export default function QRCodeSettings() {
   const { isDarkMode } = useTheme(); // Use theme context
@@ -10,6 +10,14 @@ export default function QRCodeSettings() {
   const [size, setSize] = useState(256); // Default QR code size
   const [errorCorrectionLevel, setErrorCorrectionLevel] = useState('M'); // Default error correction level
 
+
+  useEffect(() => {
+    document.title = 'QR Code Generator | Rajlabs';
+
+    return () => {
+      document.title = 'Utilities || Rajlabs';
+    };
+  }, []);
 
   return (
     <div className={`min-h-screen p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'} transition-colors duration-300`}>

@@ -30,6 +30,15 @@ export default function UPIPaymentSettings() {
     if (storedName) setName(storedName);
   }, []);
 
+  
+  useEffect(() => {
+    document.title = 'UPI QR Code Generator | Rajlabs';
+
+    return () => {
+      document.title = 'Utilities || Rajlabs';
+    };
+  }, []);
+
   // Effect to automatically generate the UPI link and update QR code data
   useEffect(() => {
     // Only set the QR code data if UPI address is valid and name is provided

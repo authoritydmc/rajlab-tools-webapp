@@ -42,6 +42,15 @@ export default function WhatsAppQr() {
     }
   };
 
+  
+  useEffect(() => {
+    document.title = 'WhatsApp QR Code Generator | Rajlabs';
+
+    return () => {
+      document.title = 'Utilities || Rajlabs';
+    };
+  }, []);
+
   // Handle country code input and validate it
   const handleCountryCodeChange = (e) => {
     const value = e.target.value;
