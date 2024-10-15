@@ -221,10 +221,10 @@ function ListViewGrid({ tools, isDarkMode, handleCardClick }) {
       {tools.map((tool, toolIndex) => (
         <div
           key={toolIndex}
-          onClick={() => handleCardClick(tool.link)}
-          className={`shadow-md rounded-lg overflow-hidden border card-hover-border card-hover-grow cursor-pointer ${
-            isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-green-150'
-          }`}
+          onClick={() => tool.isEnabled && handleCardClick(tool.link)}
+          className={`shadow-md rounded-lg overflow-hidden border card-hover-border card-hover-grow cursor-pointer 
+             ${tool.isEnabled ? (isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-green-150')
+               : 'bg-gray-300 opacity-70 cursor-not-allowed'}`}
         >
           <div className={`p-6 flex flex-col items-center space-y-4`}>
             <span className={`text-2xl ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>

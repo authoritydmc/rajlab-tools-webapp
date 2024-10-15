@@ -10,16 +10,16 @@ function MainLayout() {
     <div className={`flex flex-col min-h-screen ${isDarkMode ? "bg-gray-900 text-white" : "bg-green-50 text-gray-900"} transition-colors duration-300`}>
       {/* Header Section */}
       <header
-        className={`flex items-center justify-between p-2 sticky top-0 z-10 shadow-md backdrop-filter backdrop-blur-md ${
+        className={`flex items-center justify-between p-1 sticky top-0 z-10 shadow-md backdrop-filter backdrop-blur-md ${
           isDarkMode ? "bg-gray-800 bg-opacity-70 border-b border-gray-700" : "bg-green-100 bg-opacity-60 border-b border-gray-300 shadow-lg"
         }`}
       >
         {/* Logo takes full height and aligned with flex-grow */}
-        <Link to="/" className="h-full flex items-center">
+        <Link to="https://rajlabs.in" className="h-full flex items-center">
           <img
             src={!isDarkMode ? "/logo_raj_dark.png" : "/logo_raj_light.png"}
             alt="Logo"
-            className="h-full object-contain w-auto max-h-16" // Logo takes full height of the header
+            className="h-full object-contain w-auto  max-h-12 lg:max-h-14 " // Logo takes full height of the header
           />
         </Link>
 
@@ -28,7 +28,7 @@ function MainLayout() {
           to="/"
           className={`flex-1 text-xl sm:text-2xl md:text-3xl font-bold text-center headerFont sliding-effect mx-4`}
         >
-          Rajlab Utilities
+          Rajlabs Utilities
         </Link>
 
         {/* Home Icon Link */}
@@ -62,7 +62,7 @@ function MainLayout() {
 
       {/* Footer Section */}
       <footer
-        className={`flex flex-col items-center p-4 sm:p-6 lg:p-8 ${
+        className={`flex flex-col items-center p-3 sm:p-5 lg:p-4 ${
           isDarkMode ? "bg-gray-800 text-gray-400" : "bg-green-150 text-gray-700"
         }`}
       >
