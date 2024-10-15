@@ -86,6 +86,7 @@ export default function WhatsAppQr() {
                   type="text"
                   value={phoneNumber}
                   onChange={handlePhoneChange}
+autofocus 
                   placeholder="Enter phone number"
                   className={`w-full p-2 border rounded-md ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-50 text-gray-900 border-gray-300'}`}
                 />
