@@ -84,8 +84,8 @@
   }
 ,
 {
-  "title": "Misc",
-  "iconName": "FaCog",
+  "title": "Qr Codes",
+  "iconName": "FaQrcode",
   "tools": [
     {
       "name": "QR Code Generator",
@@ -100,6 +100,14 @@
       "iconName": "FaRupeeSign",
       "isEnabled": true,
       "description": "Quickly generate QR codes for UPI payments. Enter the UPI address, receiver's name, and optional amount to create a customizable QR code. Adjust the size, color, and error correction level to suit your needs, and easily download or share the generated QR code."
+    }
+    ,
+    {
+      "name": "WhatsApp QR Code Generator",
+      "link": "/whatsapp-code-generator",
+      "iconName": "FaWhatsapp",
+      "isEnabled": true,
+      "description": "Easily generate WhatsApp QR codes to send messages to any number without saving it in your contacts. Just enter the phone number (with country code) and optional message to create a QR code. Customize the size, color, and error correction level, and download or share the generated QR code for quick communication."
     }
     
   ]
