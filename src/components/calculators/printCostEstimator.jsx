@@ -5,7 +5,7 @@ import { useTheme } from '../../themeContext';
 import PrintRateSettingsModal from './printRateSetting';
 import { fetchDescriptionByLink } from '../../utils/metaUtils';
 import UpiDetailsModal from '../../utils/UPIDetailsModal';
-import QRCodeDisplay from '../CodeGenerators/QRDisplay';
+import QRCodeDisplay from '../qrCodes/QRDisplay';
 import { KEYS } from '../../utils/constants';
 import LocalStorageUtils from '../../utils/localStorageUtils';
 import { deepMerge } from '../../utils/deepMerge';
