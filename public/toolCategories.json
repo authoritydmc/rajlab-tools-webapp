@@ -113,6 +113,104 @@
   ]
 },
 {
+  "title": "JSON Utilities",
+  "iconName": "FaCode", 
+  "tools": [
+    {
+      "name": "JSON Validator & Formatter",
+      "link": "/json-validator-formatter",
+      "iconName": "FaCheckCircle", 
+      "isEnabled": true,
+      "description": "Validate JSON syntax and format it for readability (pretty-print) or minify it for size reduction."
+    },
+    {
+      "name": "JavaScript Object String to JSON Converter",
+      "link": "/js-to-json",
+      "iconName": "FaCode", 
+      "isEnabled": true,
+      "description": "Convert JavaScript objects into JSON format for easy data interchange and storage."
+    },
+    {
+      "name": "JSON to JavaScript Object Converter",
+      "link": "/json-to-js",
+      "iconName": "FaCode", 
+      "isEnabled": true,
+      "description": "Convert JSON data into JavaScript objects for easy manipulation and access."
+    },
+    {
+      "name": "JSON Beautifier",
+      "link": "/json-beautifier",
+      "iconName": "FaMagic", 
+      "isEnabled": true,
+      "description": "Beautify and format JSON data for better readability and understanding. This tool helps you visualize complex JSON structures with indentation and color coding."
+    },
+    {
+      "name": "JSON Viewer",
+      "link": "/json-viewer",
+      "iconName": "FaEye",
+      "isEnabled": true,
+      "description": "View and navigate through JSON data structures in a user-friendly format. This tool allows you to expand and collapse nested objects and arrays for better readability."
+    },
+    {
+      "name": "JSON Diff Checker",
+      "link": "/json-diff-checker",
+      "iconName": "FaBalanceScale", 
+      "isEnabled": true,
+      "description": "Compare two JSON files or strings to identify differences and similarities. This tool highlights changes, additions, and deletions in the JSON data."
+    },
+    {
+      "name": "JSON to CSV Converter",
+      "link": "/json-to-csv",
+      "iconName": "FaFileCsv", 
+      "isEnabled": true,
+      "description": "Convert JSON data structures into CSV format for easier data manipulation and analysis."
+    },
+    {
+      "name": "CSV to JSON Converter",
+      "link": "/csv-to-json",
+      "iconName": "FaFileCsv", 
+      "isEnabled": true,
+      "description": "Convert CSV data into JSON format for better compatibility with web applications and APIs."
+    },
+    {
+      "name": "JSON to XML Converter",
+      "link": "/json-to-xml",
+      "iconName": "FaFileCode", 
+      "isEnabled": true,
+      "description": "Convert JSON data structures into XML format for better compatibility with legacy systems."
+    },
+    {
+      "name": "XML to JSON Converter",
+      "link": "/xml-to-json",
+      "iconName": "FaFileCode", 
+      "isEnabled": true,
+      "description": "Convert XML data structures into JSON format for easier manipulation and analysis."
+    },
+    {
+      "name": "JSON to YAML Converter",
+      "link": "/json-to-yaml",
+      "iconName": "FaExchangeAlt", 
+      "isEnabled": true,
+      "description": "Convert JSON data structures into the equivalent YAML format."
+    },
+    {
+      "name": "YAML to JSON Converter",
+      "link": "/yaml-to-json",
+      "iconName": "FaExchangeAlt", 
+      "isEnabled": true,
+      "description": "Convert YAML data structures into the equivalent JSON format."
+    },
+    {
+      "name": "JWT Decoder",
+      "link": "/jwt-decoder",
+      "iconName": "FaKey",
+      "isEnabled": true,
+      "description": "Decode, inspect, and validate JSON Web Tokens (JWT) just like jwt.io. View header, payload, and signature, check token validity, and see claims in a readable format. Supports secret/key verification and highlights token expiration, issuer, audience, and other claims for easy debugging and analysis."
+    }
+  ]
+}
+,
+{
   "title": "Multimedia Utilities",
   "iconName": "FaVideo",
   "tools": [

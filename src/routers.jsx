@@ -15,6 +15,7 @@ import QRCodeSettings from './components/qrCodes/QRSettingMainPage';
 import UPIPaymentSettings from './components/qrCodes/UPIQrCodeGenerators';
 import FfmpegTool from './components/media-utils/video-convertor';
 import WhatsAppQr from './components/qrCodes/whatsAppQR';
+import JwtDecoder from './components/json/JwtDecoder';
 
 export const router = createBrowserRouter([
     {
@@ -81,6 +82,10 @@ export const router = createBrowserRouter([
         {
           path:"whatsapp-qr-code",
           element:<WhatsAppQr/>
+        },
+        {
+          path: "jwt-decoder",
+          element: <JwtDecoder />,
         }
       ],
     },
