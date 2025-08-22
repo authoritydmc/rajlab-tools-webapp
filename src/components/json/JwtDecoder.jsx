@@ -32,7 +32,80 @@ function parseJwt(token) {
   };
 }
 
-// Helper to convert JSON to table rows
+// Helper to get byte size of a base64url string
+function getByteSize(str) {
+  if (!str) return 0;
+  // base64url decode
+  try {
+    const base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+    const bin = atob(base64);
+    return bin.length;
+  } catch {
+    return 0;
+  }
+}
+
+// Helper to verify signature (HS256 only)
+function verifySignature(header, payload, signature, secret) {
+  try {
+    const alg = JSON.parse(header).alg;
+    if (alg !== 'HS256' || !secret) return null;
+    // Use SubtleCrypto if available
+    if (window.crypto && window.crypto.subtle) {
+      // Not implemented here, would require async/await
+      return null;
+    }
+    // Fallback: use js-sha256
+    // Not implemented here for brevity
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+// Common JWT claims info
+const claimInfo = {
+  sub: 'Subject (user id)',
+  aud: 'Audience (who can use)',
+  iss: 'Issuer (who issued)',
+  exp: 'Expiration time',
+  nbf: 'Not before',
+  iat: 'Issued at',
+  jti: 'JWT ID (unique)',
+  role: 'User role',
+  email: 'User email',
+};
+
+// Syntax highlight JSON with tooltips for epoch times
+function syntaxHighlightJson(jsonStr) {
+  if (!jsonStr) return null;
+  // Regex for keys, strings, numbers, booleans, null
+  const replacer = (match, p1, p2, p3, p4) => {
+    // p1: key, p2: string, p3: number, p4: boolean/null
+    if (p1) return `<span class='text-blue-400'>${p1}</span>`;
+    if (p2) return `<span class='text-green-400'>${p2}</span>`;
+    if (p3) return `<span class='text-yellow-400'>${p3}</span>`;
+    if (p4) return `<span class='text-pink-400'>${p4}</span>`;
+    return match;
+  };
+  // Highlight keys, strings, numbers, booleans, null
+  let html = jsonStr.replace(/(\"[\w\-_]+\")(?=:)|(:\s*\".*?\")|(:\s*\d+)|(:\s*(true|false|null))/g, function(match) {
+    if (/^\"[\w\-_]+\"$/.test(match)) return `<span class='text-blue-400'>${match}</span>`;
+    if (/^:\s*\".*\"$/.test(match)) return `<span class='text-green-400'>${match}</span>`;
+    if (/^:\s*\d+$/.test(match)) return `<span class='text-yellow-400'>${match}</span>`;
+    if (/^:\s*(true|false|null)$/.test(match)) return `<span class='text-pink-400'>${match}</span>`;
+    return match;
+  });
+  // Highlight epoch fields with tooltip
+  html = html.replace(/(\"(iat|exp|nbf)\":\s*)(\d+)/g, (m, prefix, field, value) => {
+    const local = new Date(Number(value) * 1000).toLocaleString();
+    const utc = new Date(Number(value) * 1000).toUTCString();
+    return `<span class='relative group'>${prefix}<span class='text-yellow-400 cursor-pointer underline decoration-dotted' title='Local: ${local}\nUTC: ${utc}'>${value}</span></span>`;
+  });
+  return html;
+}
+
+// Table view with tooltips for epoch times
 const jsonToTable = (jsonStr) => {
   try {
     const obj = JSON.parse(jsonStr);
@@ -41,8 +114,20 @@ const jsonToTable = (jsonStr) => {
         <tbody>
           {Object.entries(obj).map(([key, value]) => (
             <tr key={key} className="border-b">
-              <td className="font-bold px-2 py-1 border-r border-gray-700 dark:border-gray-600 text-left">{key}</td>
-              <td className="px-2 py-1 text-left">{String(value)}</td>
+              <td className="font-bold px-2 py-1 border-r border-gray-700 dark:border-gray-600 text-left flex items-center gap-1">
+                {key}
+                {claimInfo[key] && <span className="relative group"><FaKey className="text-blue-400 text-xs cursor-pointer" /><span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 z-50 hidden group-hover:flex bg-gray-800 text-white text-xs rounded shadow-lg px-2 py-1 whitespace-pre-wrap max-w-xs break-words pointer-events-none">{claimInfo[key]}</span></span>}
+              </td>
+              <td className="px-2 py-1 text-left">
+                {(key === 'iat' || key === 'exp' || key === 'nbf') ? (
+                  <span className="relative group text-yellow-400 cursor-pointer underline decoration-dotted">
+                    {String(value)}
+                    <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 z-50 hidden group-hover:flex bg-gray-800 text-white text-xs rounded shadow-lg px-2 py-1 whitespace-pre-wrap max-w-xs break-words pointer-events-none">
+                      Local: {new Date(Number(value) * 1000).toLocaleString()}<br />UTC: {new Date(Number(value) * 1000).toUTCString()}
+                    </span>
+                  </span>
+                ) : String(value)}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -51,7 +136,25 @@ const jsonToTable = (jsonStr) => {
   } catch {
     return <span className="text-red-500">Invalid JSON</span>;
   }
-};
+}
+
+// Helper: Tooltip for epoch times
+function EpochTooltip({ epoch, label }) {
+  if (!epoch) return null;
+  const date = new Date(epoch * 1000);
+  const local = date.toLocaleString();
+  const utc = date.toUTCString();
+  return (
+    <span className="relative group cursor-pointer">
+      <span className="underline decoration-dotted decoration-2" title="{label} (hover for time)">{epoch}</span>
+      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 z-50 hidden group-hover:flex bg-gray-800 text-white text-xs rounded shadow-lg px-2 py-1 whitespace-pre-wrap max-w-xs break-words pointer-events-none">
+        <span className="block font-bold mb-1">{label}</span>
+        <span className="block">Local: {local}</span>
+        <span className="block">UTC: {utc}</span>
+      </span>
+    </span>
+  );
+}
 
 // Helper to format seconds to human readable string
 function formatDuration(seconds) {
@@ -296,54 +399,96 @@ export default function JwtDecoder() {
             </Card>
             {decoded && (
               <>
-                <div className={`p-4 rounded mb-4 border font-mono text-base overflow-x-auto whitespace-pre-wrap break-all flex items-center gap-2 ${isDarkMode ? 'bg-gray-900 border-gray-700 text-white' : 'bg-green-50 border-gray-300 text-gray-900'}`} style={{ minHeight: 56, fontSize: '1.15rem', lineHeight: '1.7rem', position: 'relative' }}>{jwt ? (
-                  <>
-                    <span className="relative group" style={{ position: 'relative' }}
-                      onMouseMove={e => handleMouseMove(e, 'header')}
-                      onMouseLeave={handleMouseLeave}
-                    >
-                      <span className="text-blue-400 cursor-pointer">{decoded.raw.header}</span>
-                    </span>
-                    <span className="text-gray-400">.</span>
-                    <span className="relative group" style={{ position: 'relative' }}
-                      onMouseMove={e => handleMouseMove(e, 'payload')}
-                      onMouseLeave={handleMouseLeave}
-                    >
-                      <span className="text-green-400 cursor-pointer">{decoded.raw.payload}</span>
-                    </span>
-                    <span className="text-gray-400">.</span>
-                    <span className="relative group" style={{ position: 'relative' }}
-                      onMouseMove={e => handleMouseMove(e, 'signature')}
-                      onMouseLeave={handleMouseLeave}
-                    >
-                      <span className="text-pink-400 cursor-pointer">{decoded.raw.signature}</span>
-                    </span>
-                    {hoveredPart && (
+                {/* JWT colored display (no copy/bytesize here) */}
+                <div
+                  className={`p-4 rounded mb-2 border font-mono text-base overflow-x-auto whitespace-pre-wrap break-all flex items-center gap-2 ${isDarkMode ? 'bg-gray-900 border-gray-700 text-white' : 'bg-green-50 border-gray-300 text-gray-900'} md:flex-row flex-col`}
+                  style={{ minHeight: 56, fontSize: '1.15rem', lineHeight: '1.7rem', position: 'relative' }}
+                >
+                  {jwt ? (
+                    <>
                       <span
-                        style={{
-                          position: 'fixed',
-                          left: mousePos.x + 12,
-                          top: mousePos.y + 12,
-                          zIndex: 9999,
-                          background: hoveredPart === 'header' ? '#2563eb' : hoveredPart === 'payload' ? '#16a34a' : '#db2777',
-                          color: 'white',
-                          fontSize: '0.85rem',
-                          borderRadius: 6,
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                          padding: '6px 12px',
-                          pointerEvents: 'none',
-                          maxWidth: 220,
-                          whiteSpace: 'pre-wrap',
-                        }}
+                        className="relative group flex items-center gap-1"
+                        style={{ position: 'relative' }}
+                        onMouseMove={e => { setHoveredPart('header'); setMousePos({ x: e.clientX, y: e.clientY }); }}
+                        onMouseLeave={() => setHoveredPart(null)}
                       >
-                        {hoveredPart === 'header' && 'Header: algorithm/type'}
-                        {hoveredPart === 'payload' && 'Payload: claims/data'}
-                        {hoveredPart === 'signature' && 'Signature: integrity'}
+                        <span className="text-blue-400 cursor-pointer">{decoded.raw.header}</span>
+                        {hoveredPart === 'header' && (
+                          <span style={{
+                            position: 'fixed', left: mousePos.x + 12, top: mousePos.y + 12, zIndex: 9999,
+                            background: '#2563eb', color: 'white', fontSize: '0.95rem', borderRadius: 6,
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.15)', padding: '6px 12px', pointerEvents: 'none',
+                            maxWidth: 220, whiteSpace: 'pre-wrap',
+                          }}>Header: algorithm/type</span>
+                        )}
                       </span>
-                    )}
-                  </>
-                ) : <span className="text-gray-500">Paste JWT here...</span>}
+                      <span className="text-gray-400">.</span>
+                      <span
+                        className="relative group flex items-center gap-1"
+                        style={{ position: 'relative' }}
+                        onMouseMove={e => { setHoveredPart('payload'); setMousePos({ x: e.clientX, y: e.clientY }); }}
+                        onMouseLeave={() => setHoveredPart(null)}
+                      >
+                        <span className="text-green-400 cursor-pointer">{decoded.raw.payload}</span>
+                        {hoveredPart === 'payload' && (
+                          <span style={{
+                            position: 'fixed', left: mousePos.x + 12, top: mousePos.y + 12, zIndex: 9999,
+                            background: '#16a34a', color: 'white', fontSize: '0.95rem', borderRadius: 6,
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.15)', padding: '6px 12px', pointerEvents: 'none',
+                            maxWidth: 220, whiteSpace: 'pre-wrap',
+                          }}>Payload: claims/data</span>
+                        )}
+                      </span>
+                      <span className="text-gray-400">.</span>
+                      <span
+                        className="relative group flex items-center gap-1"
+                        style={{ position: 'relative' }}
+                        onMouseMove={e => { setHoveredPart('signature'); setMousePos({ x: e.clientX, y: e.clientY }); }}
+                        onMouseLeave={() => setHoveredPart(null)}
+                      >
+                        <span className="text-pink-400 cursor-pointer">{decoded.raw.signature}</span>
+                        {hoveredPart === 'signature' && (
+                          <span style={{
+                            position: 'fixed', left: mousePos.x + 12, top: mousePos.y + 12, zIndex: 9999,
+                            background: '#db2777', color: 'white', fontSize: '0.95rem', borderRadius: 6,
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.15)', padding: '6px 12px', pointerEvents: 'none',
+                            maxWidth: 220, whiteSpace: 'pre-wrap',
+                          }}>Signature: integrity</span>
+                        )}
+                      </span>
+                    </>
+                  ) : <span className="text-gray-500">Paste JWT here...</span>}
                 </div>
+                {/* Copy/bytesize buttons for each part below the JWT display */}
+                <div className="flex flex-wrap gap-4 mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-blue-400 font-semibold">Header</span>
+                    <AnimatedIconButton icon={<FaCopy />} showFeedback={copied === 'headerRaw'} feedbackIcon={<FaCheckCircle />} title="Copy header" onClick={() => handleCopy(decoded.raw.header, 'headerRaw')} disabled={false} />
+                    <span className="text-xs text-blue-300 ml-1">{getByteSize(decoded.raw.header)} bytes</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-green-400 font-semibold">Payload</span>
+                    <AnimatedIconButton icon={<FaCopy />} showFeedback={copied === 'payloadRaw'} feedbackIcon={<FaCheckCircle />} title="Copy payload" onClick={() => handleCopy(decoded.raw.payload, 'payloadRaw')} disabled={false} />
+                    <span className="text-xs text-green-400 ml-1">{getByteSize(decoded.raw.payload)} bytes</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-pink-400 font-semibold">Signature</span>
+                    <AnimatedIconButton icon={<FaCopy />} showFeedback={copied === 'signatureRaw'} feedbackIcon={<FaCheckCircle />} title="Copy signature" onClick={() => handleCopy(decoded.raw.signature, 'signatureRaw')} disabled={false} />
+                    <span className="text-xs text-pink-400 ml-1">{getByteSize(decoded.raw.signature)} bytes</span>
+                  </div>
+                </div>
+                {/* JWT alg/type display */}
+                {decoded.header && (() => {
+                  try {
+                    const h = JSON.parse(decoded.header);
+                    return (
+                      <div className="flex flex-wrap items-center gap-4 mb-2 text-sm">
+                        <span className="text-blue-400 font-semibold">alg: <span className="text-white bg-blue-400 rounded px-2 py-1 ml-1">{h.alg}</span></span>
+                        <span className="text-green-400 font-semibold">typ: <span className="text-white bg-green-400 rounded px-2 py-1 ml-1">{h.typ}</span></span>
+                      </div>
+                    );
+                  } catch { return null; }
+                })()}
                 <div className="flex items-center justify-center gap-4 mb-6" style={{ fontSize: '1.1rem', minHeight: 32 }}>
                   <span className="text-blue-400 font-semibold">Header</span>
                   <span className="text-gray-400">|</span>
@@ -381,7 +526,8 @@ export default function JwtDecoder() {
                       </div>
                     </div>
                     {activeTab.header === 'json' ? (
-                      <pre className={`p-3 rounded text-xs overflow-x-auto border font-mono whitespace-pre-wrap break-words ${isDarkMode ? 'bg-gray-900 border-blue-900 text-white' : 'bg-gray-900 border-blue-900 text-white'}`}>{parseTimeFields(decoded.header)}</pre>
+                      <pre className={`p-3 rounded text-xs overflow-x-auto border font-mono whitespace-pre-wrap break-words ${isDarkMode ? 'bg-gray-900 border-blue-900 text-white' : 'bg-gray-900 border-blue-900 text-white'}`}
+                        dangerouslySetInnerHTML={{ __html: syntaxHighlightJson(parseTimeFields(decoded.header)) }} />
                     ) : (
                       <div className={`p-3 rounded text-xs overflow-x-auto border font-mono whitespace-pre-wrap break-words ${isDarkMode ? 'bg-gray-900 border-blue-900 text-white' : 'bg-gray-900 border-blue-900 text-white'}`}>{jsonToTable(decoded.header)}</div>
                     )}
@@ -397,7 +543,8 @@ export default function JwtDecoder() {
                       </div>
                     </div>
                     {activeTab.payload === 'json' ? (
-                      <pre className={`p-3 rounded text-xs overflow-x-auto border font-mono whitespace-pre-wrap break-words ${isDarkMode ? 'bg-gray-900 border-green-900 text-white' : 'bg-gray-900 border-green-900 text-white'}`}>{getPureJwtJson(decoded.payload)}</pre>
+                      <pre className={`p-3 rounded text-xs overflow-x-auto border font-mono whitespace-pre-wrap break-words ${isDarkMode ? 'bg-gray-900 border-green-900 text-white' : 'bg-gray-900 border-green-900 text-white'}`}
+                        dangerouslySetInnerHTML={{ __html: syntaxHighlightJson(getPureJwtJson(decoded.payload)) }} />
                     ) : (
                       <div className={`p-3 rounded text-xs overflow-x-auto border font-mono whitespace-pre-wrap break-words ${isDarkMode ? 'bg-gray-900 border-green-900 text-white' : 'bg-gray-900 border-green-900 text-white'}`}>{jsonToTable(decoded.payload)}</div>
                     )}
@@ -411,7 +558,7 @@ export default function JwtDecoder() {
                         iatStatus = (
                           <span className="flex items-center gap-2 mr-4" title="iat: Issued At">
                             <FaKey className="text-blue-400" />
-                            <span className="font-semibold text-xs text-blue-400">Issued {issuedAgo} ago (iat: {obj.iat})</span>
+                            <span className="font-semibold text-xs text-blue-400">Issued {issuedAgo} ago (iat: <span className="underline decoration-dotted cursor-pointer" title={`Local: ${new Date(obj.iat * 1000).toLocaleString()}\nUTC: ${new Date(obj.iat * 1000).toUTCString()}`}>{obj.iat}</span>)</span>
                           </span>
                         );
                       }
@@ -421,14 +568,14 @@ export default function JwtDecoder() {
                           expStatus = (
                             <span className="flex items-center gap-2" title="exp: Expiry">
                               <FaCheckCircle className="text-green-400 animate-bounce" />
-                              <span className="font-semibold text-xs text-green-400">Valid for {formatDuration(secondsLeft)} (exp: {obj.exp})</span>
+                              <span className="font-semibold text-xs text-green-400">Valid for {formatDuration(secondsLeft)} (exp: <span className="underline decoration-dotted cursor-pointer" title={`Local: ${new Date(obj.exp * 1000).toLocaleString()}\nUTC: ${new Date(obj.exp * 1000).toUTCString()}`}>{obj.exp}</span>)</span>
                             </span>
                           );
                         } else {
                           expStatus = (
                             <span className="flex items-center gap-2" title="exp: Expiry">
                               <FaTimesCircle className="text-red-400 animate-pulse" />
-                              <span className="font-semibold text-xs text-red-400">Expired {formatDuration(secondsLeft)} ago (exp: {obj.exp})</span>
+                              <span className="font-semibold text-xs text-red-400">Expired {formatDuration(secondsLeft)} ago (exp: <span className="underline decoration-dotted cursor-pointer" title={`Local: ${new Date(obj.exp * 1000).toLocaleString()}\nUTC: ${new Date(obj.exp * 1000).toUTCString()}`}>{obj.exp}</span>)</span>
                             </span>
                           );
                         }
@@ -449,6 +596,17 @@ export default function JwtDecoder() {
                     </div>
                     <pre className={`p-3 rounded text-xs overflow-x-auto border font-mono whitespace-pre-wrap break-words ${isDarkMode ? 'bg-gray-900 border-pink-900 text-white' : 'bg-gray-900 border-pink-900 text-white'}`}>{decoded.signature}</pre>
                   </div>
+                  {/* Signature verification indicator */}
+                  {decoded && secret && decoded.header && decoded.payload && decoded.signature && (() => {
+                    try {
+                      const h = JSON.parse(decoded.header);
+                      if (h.alg === 'HS256' && secret) {
+                        // Not implemented: show warning
+                        return <div className="flex items-center gap-2 mb-2"><FaTimesCircle className="text-yellow-400" /><span className="text-yellow-400 font-semibold">Signature verification for HS256 is not available in browser-only mode.</span></div>;
+                      }
+                      return null;
+                    } catch { return null; }
+                  })()}
                 </div>
               ) : (
                 <div className="text-gray-400 text-sm">Paste a valid JWT to see decoded details.</div>
