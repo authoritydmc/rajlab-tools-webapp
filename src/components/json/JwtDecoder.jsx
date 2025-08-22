@@ -76,6 +76,19 @@ const claimInfo = {
   email: 'User email',
 };
 
+// Helper: Format epoch to human readable string
+function formatEpoch(epoch) {
+  if (!epoch) return '';
+  const date = new Date(epoch * 1000);
+  // Use Intl.DateTimeFormat for better formatting
+  const local = new Intl.DateTimeFormat(undefined, {
+    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit',
+    hour12: false,
+  }).format(date);
+  const utc = date.toUTCString();
+  return { local, utc };
+}
+
 // Syntax highlight JSON with tooltips for epoch times
 function syntaxHighlightJson(jsonStr) {
   if (!jsonStr) return null;
@@ -98,8 +111,7 @@ function syntaxHighlightJson(jsonStr) {
   });
   // Highlight epoch fields with tooltip
   html = html.replace(/(\"(iat|exp|nbf)\":\s*)(\d+)/g, (m, prefix, field, value) => {
-    const local = new Date(Number(value) * 1000).toLocaleString();
-    const utc = new Date(Number(value) * 1000).toUTCString();
+    const { local, utc } = formatEpoch(Number(value));
     return `<span class='relative group'>${prefix}<span class='text-yellow-400 cursor-pointer underline decoration-dotted' title='Local: ${local}\nUTC: ${utc}'>${value}</span></span>`;
   });
   return html;
@@ -123,7 +135,7 @@ const jsonToTable = (jsonStr) => {
                   <span className="relative group text-yellow-400 cursor-pointer underline decoration-dotted">
                     {String(value)}
                     <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 z-50 hidden group-hover:flex bg-gray-800 text-white text-xs rounded shadow-lg px-2 py-1 whitespace-pre-wrap max-w-xs break-words pointer-events-none">
-                      Local: {new Date(Number(value) * 1000).toLocaleString()}<br />UTC: {new Date(Number(value) * 1000).toUTCString()}
+                      Local: {formatEpoch(Number(value)).local}<br />UTC: {formatEpoch(Number(value)).utc}
                     </span>
                   </span>
                 ) : String(value)}
@@ -141,12 +153,10 @@ const jsonToTable = (jsonStr) => {
 // Helper: Tooltip for epoch times
 function EpochTooltip({ epoch, label }) {
   if (!epoch) return null;
-  const date = new Date(epoch * 1000);
-  const local = date.toLocaleString();
-  const utc = date.toUTCString();
+  const { local, utc } = formatEpoch(epoch);
   return (
     <span className="relative group cursor-pointer">
-      <span className="underline decoration-dotted decoration-2" title="{label} (hover for time)">{epoch}</span>
+      <span className="underline decoration-dotted decoration-2 text-yellow-400" title={`${label} (hover for time)`}>{epoch}</span>
       <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 z-50 hidden group-hover:flex bg-gray-800 text-white text-xs rounded shadow-lg px-2 py-1 whitespace-pre-wrap max-w-xs break-words pointer-events-none">
         <span className="block font-bold mb-1">{label}</span>
         <span className="block">Local: {local}</span>
@@ -428,8 +438,9 @@ export default function JwtDecoder() {
                         style={{ position: 'relative' }}
                         onMouseMove={e => { setHoveredPart('header'); setMousePos({ x: e.clientX, y: e.clientY }); }}
                         onMouseLeave={() => setHoveredPart(null)}
+                        onClick={() => handleCopy(decoded.raw.header, 'header')}
                       >
-                        <span className="text-blue-400 cursor-pointer">{decoded.raw.header}</span>
+                        <span className={`text-blue-400 cursor-pointer ${copied === 'header' ? 'bg-blue-500/30 rounded px-1 animate-pulse' : ''}`}>{decoded.raw.header}</span>
                         {hoveredPart === 'header' && (
                           <span style={{
                             position: 'fixed', left: mousePos.x + 12, top: mousePos.y + 12, zIndex: 9999,
@@ -438,6 +449,9 @@ export default function JwtDecoder() {
                             maxWidth: 220, whiteSpace: 'pre-wrap',
                           }}>Header: algorithm/type</span>
                         )}
+                        {copied === 'header' && (
+                          <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-blue-400 text-xs font-semibold animate-bounce">Copied!</span>
+                        )}
                       </span>
                       <span className="text-gray-400">.</span>
                       <span
@@ -445,8 +459,9 @@ export default function JwtDecoder() {
                         style={{ position: 'relative' }}
                         onMouseMove={e => { setHoveredPart('payload'); setMousePos({ x: e.clientX, y: e.clientY }); }}
                         onMouseLeave={() => setHoveredPart(null)}
+                        onClick={() => handleCopy(decoded.raw.payload, 'payload')}
                       >
-                        <span className="text-green-400 cursor-pointer">{decoded.raw.payload}</span>
+                        <span className={`text-green-400 cursor-pointer ${copied === 'payload' ? 'bg-green-500/30 rounded px-1 animate-pulse' : ''}`}>{decoded.raw.payload}</span>
                         {hoveredPart === 'payload' && (
                           <span style={{
                             position: 'fixed', left: mousePos.x + 12, top: mousePos.y + 12, zIndex: 9999,
@@ -455,6 +470,9 @@ export default function JwtDecoder() {
                             maxWidth: 220, whiteSpace: 'pre-wrap',
                           }}>Payload: claims/data</span>
                         )}
+                        {copied === 'payload' && (
+                          <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-green-400 text-xs font-semibold animate-bounce">Copied!</span>
+                        )}
                       </span>
                       <span className="text-gray-400">.</span>
                       <span
@@ -462,8 +480,9 @@ export default function JwtDecoder() {
                         style={{ position: 'relative' }}
                         onMouseMove={e => { setHoveredPart('signature'); setMousePos({ x: e.clientX, y: e.clientY }); }}
                         onMouseLeave={() => setHoveredPart(null)}
+                        onClick={() => handleCopy(decoded.raw.signature, 'signature')}
                       >
-                        <span className="text-pink-400 cursor-pointer">{decoded.raw.signature}</span>
+                        <span className={`text-pink-400 cursor-pointer ${copied === 'signature' ? 'bg-pink-500/30 rounded px-1 animate-pulse' : ''}`}>{decoded.raw.signature}</span>
                         {hoveredPart === 'signature' && (
                           <span style={{
                             position: 'fixed', left: mousePos.x + 12, top: mousePos.y + 12, zIndex: 9999,
@@ -471,6 +490,9 @@ export default function JwtDecoder() {
                             boxShadow: '0 2px 8px rgba(0,0,0,0.15)', padding: '6px 12px', pointerEvents: 'none',
                             maxWidth: 220, whiteSpace: 'pre-wrap',
                           }}>Signature: integrity</span>
+                        )}
+                        {copied === 'signature' && (
+                          <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-pink-400 text-xs font-semibold animate-bounce">Copied!</span>
                         )}
                       </span>
                     </>
@@ -574,30 +596,42 @@ export default function JwtDecoder() {
                     {decoded && decoded.payload && (() => {
                       const obj = JSON.parse(decoded.payload);
                       const now = Math.floor(Date.now() / 1000);
-                      let iatStatus = null, expStatus = null;
+                      let iatStatus = null, expStatus = null, nbfStatus = null;
                       if (obj.iat) {
                         const issuedAgo = formatDuration(now - obj.iat);
+                        const { local, utc } = formatEpoch(obj.iat);
                         iatStatus = (
                           <span className="flex items-center gap-2 mr-4" title="iat: Issued At">
                             <FaKey className="text-blue-400" />
-                            <span className="font-semibold text-xs text-blue-400">Issued {issuedAgo} ago (iat: <span className="underline decoration-dotted cursor-pointer" title={`Local: ${new Date(obj.iat * 1000).toLocaleString()}\nUTC: ${new Date(obj.iat * 1000).toUTCString()}`}>{obj.iat}</span>)</span>
+                            <span className="font-semibold text-xs text-blue-400">Issued {issuedAgo} ago (iat: <span className="underline decoration-dotted cursor-pointer text-yellow-400" title={`Local: ${local}\nUTC: ${utc}`}>{obj.iat}</span>)</span>
+                          </span>
+                        );
+                      }
+                      if (obj.nbf) {
+                        const notBefore = formatDuration(obj.nbf - now);
+                        const { local, utc } = formatEpoch(obj.nbf);
+                        nbfStatus = (
+                          <span className="flex items-center gap-2 mr-4" title="nbf: Not Before">
+                            <FaKey className="text-yellow-400" />
+                            <span className="font-semibold text-xs text-yellow-400">Not valid for {notBefore} (nbf: <span className="underline decoration-dotted cursor-pointer text-yellow-400" title={`Local: ${local}\nUTC: ${utc}`}>{obj.nbf}</span>)</span>
                           </span>
                         );
                       }
                       if (obj.exp) {
                         const secondsLeft = obj.exp - now;
+                        const { local, utc } = formatEpoch(obj.exp);
                         if (secondsLeft > 0) {
                           expStatus = (
                             <span className="flex items-center gap-2" title="exp: Expiry">
                               <FaCheckCircle className="text-green-400 animate-bounce" />
-                              <span className="font-semibold text-xs text-green-400">Valid for {formatDuration(secondsLeft)} (exp: <span className="underline decoration-dotted cursor-pointer" title={`Local: ${new Date(obj.exp * 1000).toLocaleString()}\nUTC: ${new Date(obj.exp * 1000).toUTCString()}`}>{obj.exp}</span>)</span>
+                              <span className="font-semibold text-xs text-green-400">Valid for {formatDuration(secondsLeft)} (exp: <span className="underline decoration-dotted cursor-pointer text-yellow-400" title={`Local: ${local}\nUTC: ${utc}`}>{obj.exp}</span>)</span>
                             </span>
                           );
                         } else {
                           expStatus = (
                             <span className="flex items-center gap-2" title="exp: Expiry">
                               <FaTimesCircle className="text-red-400 animate-pulse" />
-                              <span className="font-semibold text-xs text-red-400">Expired {formatDuration(secondsLeft)} ago (exp: <span className="underline decoration-dotted cursor-pointer" title={`Local: ${new Date(obj.exp * 1000).toLocaleString()}\nUTC: ${new Date(obj.exp * 1000).toUTCString()}`}>{obj.exp}</span>)</span>
+                              <span className="font-semibold text-xs text-red-400">Expired {formatDuration(secondsLeft)} ago (exp: <span className="underline decoration-dotted cursor-pointer text-yellow-400" title={`Local: ${local}\nUTC: ${utc}`}>{obj.exp}</span>)</span>
                             </span>
                           );
                         }
@@ -605,6 +639,7 @@ export default function JwtDecoder() {
                       return (
                         <div className="flex flex-wrap gap-4 mt-2">
                           {iatStatus}
+                          {nbfStatus}
                           {expStatus}
                         </div>
                       );
