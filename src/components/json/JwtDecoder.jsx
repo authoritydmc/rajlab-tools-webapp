@@ -315,6 +315,23 @@ export default function JwtDecoder() {
     return () => clearInterval(timer);
   }, [decoded]);
 
+  useEffect(() => {
+    // Auto-paste JWT from clipboard on page load
+    async function tryPasteJwtFromClipboard() {
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          const text = await navigator.clipboard.readText();
+          if (text && text.split('.').length === 3 && text.length > 10) {
+            setJwt(text);
+          }
+        } catch {
+          // Ignore clipboard errors
+        }
+      }
+    }
+    tryPasteJwtFromClipboard();
+  }, []);
+
   const handleCopy = (text, label) => {
     navigator.clipboard.writeText(text);
     setCopied(label);
@@ -459,24 +476,37 @@ export default function JwtDecoder() {
                     </>
                   ) : <span className="text-gray-500">Paste JWT here...</span>}
                 </div>
-                {/* Copy/bytesize buttons for each part below the JWT display */}
-                <div className="flex flex-wrap gap-4 mb-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-blue-400 font-semibold">Header</span>
-                    <AnimatedIconButton icon={<FaCopy />} showFeedback={copied === 'headerRaw'} feedbackIcon={<FaCheckCircle />} title="Copy header" onClick={() => handleCopy(decoded.raw.header, 'headerRaw')} disabled={false} />
-                    <span className="text-xs text-blue-300 ml-1">{getByteSize(decoded.raw.header)} bytes</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-green-400 font-semibold">Payload</span>
-                    <AnimatedIconButton icon={<FaCopy />} showFeedback={copied === 'payloadRaw'} feedbackIcon={<FaCheckCircle />} title="Copy payload" onClick={() => handleCopy(decoded.raw.payload, 'payloadRaw')} disabled={false} />
-                    <span className="text-xs text-green-400 ml-1">{getByteSize(decoded.raw.payload)} bytes</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-pink-400 font-semibold">Signature</span>
-                    <AnimatedIconButton icon={<FaCopy />} showFeedback={copied === 'signatureRaw'} feedbackIcon={<FaCheckCircle />} title="Copy signature" onClick={() => handleCopy(decoded.raw.signature, 'signatureRaw')} disabled={false} />
-                    <span className="text-xs text-pink-400 ml-1">{getByteSize(decoded.raw.signature)} bytes</span>
-                  </div>
+                   <div className="flex items-center justify-center gap-4 mb-6" style={{ fontSize: '1.1rem', minHeight: 32 }}>
+                  <span className="text-blue-400 font-semibold">Header</span>
+                  <span className="text-gray-400">|</span>
+                  <span className="text-green-400 font-semibold">Payload</span>
+                  <span className="text-gray-400">|</span>
+                  <span className="text-pink-400 font-semibold">Signature</span>
+                  <span className="text-sm text-gray-500 ml-2">Each part is base64url encoded and separated by dots.</span>
                 </div>
+                {/* Copy/bytesize buttons for each part below the JWT display - now as a table */}
+                <table className="w-full mb-4 text-sm rounded overflow-hidden border border-gray-700 dark:border-gray-600">
+                  <thead>
+                    <tr className="bg-gray-900 dark:bg-gray-800">
+                      <th className="py-2 px-3 text-left">Part</th>
+                      <th className="py-2 px-3 text-left">Bytes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="py-2 px-3 font-semibold text-blue-400">Header</td>
+                      <td className="py-2 px-3 text-xs text-blue-300">{getByteSize(decoded.raw.header)} bytes</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-3 font-semibold text-green-400">Payload</td>
+                      <td className="py-2 px-3 text-xs text-green-400">{getByteSize(decoded.raw.payload)} bytes</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-3 font-semibold text-pink-400">Signature</td>
+                      <td className="py-2 px-3 text-xs text-pink-400">{getByteSize(decoded.raw.signature)} bytes</td>
+                    </tr>
+                  </tbody>
+                </table>
                 {/* JWT alg/type display */}
                 {decoded.header && (() => {
                   try {
@@ -489,14 +519,6 @@ export default function JwtDecoder() {
                     );
                   } catch { return null; }
                 })()}
-                <div className="flex items-center justify-center gap-4 mb-6" style={{ fontSize: '1.1rem', minHeight: 32 }}>
-                  <span className="text-blue-400 font-semibold">Header</span>
-                  <span className="text-gray-400">|</span>
-                  <span className="text-green-400 font-semibold">Payload</span>
-                  <span className="text-gray-400">|</span>
-                  <span className="text-pink-400 font-semibold">Signature</span>
-                  <span className="text-sm text-gray-500 ml-2">Each part is base64url encoded and separated by dots.</span>
-                </div>
               </>
             )}
           </div>
@@ -597,14 +619,21 @@ export default function JwtDecoder() {
                     <pre className={`p-3 rounded text-xs overflow-x-auto border font-mono whitespace-pre-wrap break-words ${isDarkMode ? 'bg-gray-900 border-pink-900 text-white' : 'bg-gray-900 border-pink-900 text-white'}`}>{decoded.signature}</pre>
                   </div>
                   {/* Signature verification indicator */}
-                  {decoded && secret && decoded.header && decoded.payload && decoded.signature && (() => {
+                  {decoded && decoded.header && decoded.payload && (() => {
                     try {
-                      const h = JSON.parse(decoded.header);
-                      if (h.alg === 'HS256' && secret) {
-                        // Not implemented: show warning
-                        return <div className="flex items-center gap-2 mb-2"><FaTimesCircle className="text-yellow-400" /><span className="text-yellow-400 font-semibold">Signature verification for HS256 is not available in browser-only mode.</span></div>;
-                      }
-                      return null;
+                      const headerObj = JSON.parse(decoded.header);
+                      const payloadObj = JSON.parse(decoded.payload);
+                      const signatureValid = verifySignature(decoded.header, decoded.payload, decoded.signature, secret);
+                      if (signatureValid === null) return null;
+                      return (
+                        <div className="flex items-center gap-2 mt-2">
+                          {signatureValid ? (
+                            <span className="flex items-center gap-1 text-green-500"><FaCheckCircle /> <span className="font-semibold">Signature valid</span></span>
+                          ) : (
+                            <span className="flex items-center gap-1 text-red-500"><FaTimesCircle /> <span className="font-semibold">Signature invalid</span></span>
+                          )}
+                        </div>
+                      );
                     } catch { return null; }
                   })()}
                 </div>
