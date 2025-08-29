@@ -24,6 +24,9 @@ export default function QRCodeDisplay({
     toast.success('QR Code data copied to clipboard!');
   };
 
+
+  
+
   // Function to download the QR code as an image
   const handleDownload = () => {
     const canvas = qrRef.current.querySelector('canvas');
