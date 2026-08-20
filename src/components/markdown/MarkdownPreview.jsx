@@ -61,7 +61,7 @@ export default function MarkdownPreview() {
   return (
     <ToolPageLayout title="Markdown Preview" icon={<FaMarkdown />} siblings={siblings} currentPath="/markdown-preview" breadcrumb={[{label: 'Text Utilities', path: '/format-text'}]}>
       <Toaster />
-      <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}>
+      <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
         <div className="flex gap-2 justify-end mb-4">
           <button onClick={handleCopy} className={`p-2 rounded-md transition-colors duration-300 ${isDarkMode ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-green-500 text-white hover:bg-green-600'}`}><FaClipboard className="inline mr-1" />Copy HTML</button>
           <button onClick={handleClear} className={`p-2 rounded-md transition-colors duration-300 ${isDarkMode ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-red-500 text-white hover:bg-red-600'}`}><FaTrash className="inline mr-1" />Clear</button>

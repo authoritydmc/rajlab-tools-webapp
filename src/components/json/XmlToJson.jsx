@@ -53,7 +53,7 @@ export default function XmlToJson() {
   return (
     <ToolPageLayout title="XML to JSON" icon={<FaFileCode />} siblings={siblings} currentPath="/xml-to-json" breadcrumb={[{label: 'JSON Utilities', path: '/json-viewer'}]}>
       <Toaster />
-      <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}>
+      <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
         <div className="mb-4">
           <label className="block font-bold mb-2">XML Input</label>
           <textarea

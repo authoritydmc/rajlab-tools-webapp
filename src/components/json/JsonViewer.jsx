@@ -280,7 +280,7 @@ export default function JsonViewer() {
       <div className={`min-h-screen p-4 lg:p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'} transition-colors duration-300`}>
         
         <Toaster />
-        <div className={`w-full mx-auto p-4 lg:p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'} border`}>
+        <div className={`w-full mx-auto p-4 lg:p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
           
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Left Column: Input */}

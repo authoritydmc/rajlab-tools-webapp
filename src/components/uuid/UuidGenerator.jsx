@@ -51,7 +51,7 @@ export default function UuidGenerator() {
     <ToolPageLayout title="UUID Generator" icon={<FaRandom />} breadcrumb={[{label: 'Developer Tools', path: '/regex-tester'}]} siblings={siblings} currentPath="/uuid-generator">
       <div className="w-full">
 <Toaster />
-      <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}>
+      <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
         <div className="flex flex-wrap gap-4 mb-4 items-end">
           <div>
             <label className="block font-bold mb-2">Count</label>

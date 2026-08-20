@@ -433,7 +433,7 @@ export default function JwtDecoder() {
   return (
     <ToolPageLayout title="JWT Decoder" icon={<FaKey />} breadcrumb={[{label: 'Encryption & Encoding Utilities', path: '/base64-encoder-decoder'}]} siblings={siblings} currentPath="/jwt-decoder">
       <div className="w-full">
-<div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}>
+<div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           <div>
             <Card title={<span className="flex items-center gap-2">JSON WEB TOKEN (JWT)

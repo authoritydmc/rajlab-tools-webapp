@@ -31,7 +31,7 @@ export default function ToolPageLayout({ title, icon, breadcrumb = [], siblings 
   const hasSiblings = siblings.length > 0;
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-mesh-dark text-slate-100' : 'bg-mesh-light text-slate-900'}`}>
+    <div className="w-full flex flex-col flex-1">
       {/* Breadcrumb Bar */}
       <div className={`sticky top-14 sm:top-16 z-40 border-b transition-colors duration-300 ${
         isDarkMode ? 'glass-dark border-white/[0.04]' : 'glass-light border-slate-200/60'

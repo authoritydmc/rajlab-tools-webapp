@@ -129,7 +129,7 @@ export default function Changelog() {
               <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Recent improvements, fixes, and feature additions.</p>
             </div>
           </div>
-          <div className={`hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border ${isDarkMode ? 'bg-gray-800 border-gray-700 text-gray-300' : 'bg-white border-gray-200 text-gray-600'}`}>
+          <div className={`hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl text-gray-300' : 'bg-white border-gray-200 text-gray-600'}`}>
             <MdHistory size={18} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} /> 
             {entries.length} releases
           </div>
@@ -147,7 +147,7 @@ export default function Changelog() {
             {entries.map((entry, entryIndex) => (
               <section
                 key={entryIndex}
-                className={`rounded-3xl border overflow-hidden shadow-sm ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}
+                className={`rounded-3xl border overflow-hidden shadow-sm ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 backdrop-blur-xl border-gray-200'}`}
               >
                 <div className={`px-6 py-5 border-b ${isDarkMode ? 'bg-gray-800/80 border-gray-700' : 'bg-gray-50 border-gray-100'}`}>
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

@@ -122,22 +122,41 @@
 }
 
 /* ── Bento card interactions ────────────────────────────── */
-.bento-tool {
-  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-  transform-origin: center center;
+.bento-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-auto-flow: dense;
+  gap: 0.75rem;
 }
-.bento-tool:hover {
-  transform: scale(0.95);
-  z-index: 10;
+@media (min-width: 640px) {
+  .bento-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) {
+  .bento-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 1280px) {
+  .bento-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (min-width: 1536px) {
+  .bento-grid { grid-template-columns: repeat(5, 1fr); }
 }
 
-.cat-card {
-  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+.bento-cell {
+  min-height: 0;
 }
-.cat-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.2);
+.bento-cell > div {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
+.bento-cell > div:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.15);
+}
+
+/* Custom scrollbar for overflow cards */
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.2); border-radius: 2px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(148,163,184,0.35); }
 
 /* ── Star button ────────────────────────────────────────── */
 .star-btn {

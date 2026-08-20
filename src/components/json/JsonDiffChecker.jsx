@@ -66,7 +66,7 @@ export default function JsonDiffChecker() {
   return (
     <ToolPageLayout title="JSON Diff Checker" icon={<FaBalanceScale />} siblings={siblings} currentPath="/json-diff-checker" breadcrumb={[{label: 'JSON Utilities', path: '/json-viewer'}]}>
       <Toaster />
-      <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}>
+      <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block font-bold mb-2">JSON A (Original)</label>

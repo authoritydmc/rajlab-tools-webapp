@@ -57,7 +57,7 @@ export default function Base64ToImagePreviewGenerator() {
 
       <div
         className={`w-full mx-auto p-6 shadow-lg rounded-md ${
-          isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'
+          isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'
         } border`}
       >
         {/* Base64 Input Section */}

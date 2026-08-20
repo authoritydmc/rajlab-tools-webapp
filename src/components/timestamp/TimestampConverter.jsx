@@ -164,7 +164,7 @@ export default function TimestampConverter() {
       siblings={siblings} 
       currentPath="/timestamp-converter"
     >
-      <div className={`max-w-[1600px] w-full mx-auto p-4 sm:p-6 lg:p-8 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'} border`}>
+      <div className={`max-w-[1600px] w-full mx-auto p-4 sm:p-6 lg:p-8 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
         
         {/* Live Current Time Dashboard */}
         <div className={`mb-8 p-5 rounded-xl border-l-4 shadow-sm ${isDarkMode ? 'bg-gray-900 border-gray-700 border-l-blue-500' : 'bg-blue-50 border-gray-200 border-l-blue-500'}`}>
@@ -172,25 +172,25 @@ export default function TimestampConverter() {
             <h3 className="font-bold text-blue-500 flex items-center gap-2"><FaClock className="animate-pulse"/> Live Current Time</h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-            <div className={`p-3 rounded-md ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+            <div className={`p-3 rounded-md ${isDarkMode ? 'bg-slate-900/60 backdrop-blur-xl' : 'bg-white/60 backdrop-blur-xl'}`}>
               <div className="text-gray-500 text-xs uppercase tracking-wide font-semibold mb-1">Unix Epoch (sec)</div>
               <div className="font-mono text-blue-400 font-bold flex justify-between items-center">
                 {Math.floor(now.getTime() / 1000)}
                 <button onClick={() => copyToClipboard(Math.floor(now.getTime() / 1000))} className="text-gray-400 hover:text-blue-400"><FaClipboard/></button>
               </div>
             </div>
-            <div className={`p-3 rounded-md ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+            <div className={`p-3 rounded-md ${isDarkMode ? 'bg-slate-900/60 backdrop-blur-xl' : 'bg-white/60 backdrop-blur-xl'}`}>
               <div className="text-gray-500 text-xs uppercase tracking-wide font-semibold mb-1">Unix Epoch (ms)</div>
               <div className="font-mono text-yellow-400 font-bold flex justify-between items-center">
                 {now.getTime()}
                 <button onClick={() => copyToClipboard(now.getTime())} className="text-gray-400 hover:text-yellow-400"><FaClipboard/></button>
               </div>
             </div>
-            <div className={`p-3 rounded-md ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+            <div className={`p-3 rounded-md ${isDarkMode ? 'bg-slate-900/60 backdrop-blur-xl' : 'bg-white/60 backdrop-blur-xl'}`}>
               <div className="text-gray-500 text-xs uppercase tracking-wide font-semibold mb-1">Local Time</div>
               <div className={`font-mono font-bold truncate ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>{now.toLocaleString()}</div>
             </div>
-            <div className={`p-3 rounded-md ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+            <div className={`p-3 rounded-md ${isDarkMode ? 'bg-slate-900/60 backdrop-blur-xl' : 'bg-white/60 backdrop-blur-xl'}`}>
               <div className="text-gray-500 text-xs uppercase tracking-wide font-semibold mb-1">UTC Time</div>
               <div className={`font-mono font-bold truncate ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`}>{now.toISOString()}</div>
             </div>

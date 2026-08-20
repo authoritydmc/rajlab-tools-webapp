@@ -93,7 +93,7 @@ export default function ColorPicker() {
   return (
     <ToolPageLayout title="Color Picker & Converter" icon={<FaPalette />} siblings={siblings} currentPath="/color-picker" breadcrumb={[{label: 'Design Utilities', path: '/color-picker'}]}>
       <Toaster />
-      <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}>
+      <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
         {/* Color Preview */}
         <div className="mb-6">
           <div className="w-full h-32 rounded-lg border-2 border-gray-600" style={{ backgroundColor: hex }} />

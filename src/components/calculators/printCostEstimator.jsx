@@ -292,7 +292,7 @@ export default function PrintRateCalculator() {
 
             
 
-            <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}>
+            <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
                 <div className="flex justify-between items-center mb-6">
                     <div className="flex-grow"></div> {/* This div takes up all available space to push the button to the right */}
                     <button
@@ -343,7 +343,7 @@ export default function PrintRateCalculator() {
 
 
                 {/* Display Costs */}
-                <div className={`p-4 border rounded-md ${isDarkMode ? 'bg-gray-800 text-white border-gray-700' : 'bg-green-50 text-gray-900 border-gray-300'}`}>
+                <div className={`p-4 border rounded-md ${isDarkMode ? 'bg-slate-900/40 text-white border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 text-slate-900 border-slate-200/50 backdrop-blur-xl'}`}>
                     <h2 className="text-xl font-semibold mb-2">Estimated Costs:</h2>
                     {/* Updated the class to include a larger text size */}
                     <p className="text-md">

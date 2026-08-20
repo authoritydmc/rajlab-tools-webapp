@@ -166,7 +166,7 @@ useEffect(() => {
         <Toaster /> {/* Toast container */}
   
         <div
-          className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'} border`}
+          className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}
         >
         {/* Options Section */}
         <div className="mb-6">

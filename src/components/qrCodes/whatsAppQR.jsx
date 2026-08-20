@@ -69,7 +69,7 @@ export default function WhatsAppQr() {
       
 
       <div className="w-full mx-auto">
-        <div className={`flex flex-col lg:flex-row lg:space-x-8 p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'} border`}>
+        <div className={`flex flex-col lg:flex-row lg:space-x-8 p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
           {/* Form Section */}
           <div className="flex-1">
             {/* Country Code and Phone Number Inputs */}

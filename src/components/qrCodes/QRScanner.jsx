@@ -132,7 +132,7 @@ export default function QRScanner() {
       <div className="w-full">
 <Toaster />
 
-      <div className={`w-full mx-auto p-6 shadow-lg rounded-md border ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'}`}>
+      <div className={`w-full mx-auto p-6 shadow-lg rounded-md border ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'}`}>
         <p className="mb-6 text-center text-gray-500">
           Upload an image or <strong className="text-blue-500">Ctrl+V / Cmd+V</strong> to paste an image of a QR code from your clipboard.
         </p>
