@@ -6,7 +6,7 @@ import { useFavorites } from '../favoritesContext';
 import { playHoverSound, playClickSound, playFavSound } from '../utils/sounds';
 import { useDirectionSound } from '../hooks/useDirectionSound';
 import HoverPreview from './common/HoverPreview';
-import { HiMiniMagnifyingGlass, HiStar } from 'react-icons/hi2';
+import { HiMiniMagnifyingGlass, HiStar, HiChevronUp, HiChevronDown } from 'react-icons/hi2';
 import { FaStar } from 'react-icons/fa';
 
 const CATEGORY_STYLE = {
@@ -100,15 +100,15 @@ const breakpointColumnsObj = {
   640: 1
 };
 
+import { useCategorySorting } from '../hooks/useCategorySorting';
+
 export default function MainToolListPage() {
-  const [toolCategories, setToolCategories] = useState(toolCategoriesData);
   const [searchQuery, setSearchQuery] = useState('');
   const { isDarkMode } = useTheme();
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
+  const { sortMode, setSortMode, sortedCategories, trackClick, moveCategory } = useCategorySorting(toolCategoriesData);
 
-  // Removed useEffect fetch to optimize load time
-
-  const filteredCategories = useMemo(() => toolCategories
+  const filteredCategories = useMemo(() => sortedCategories
     .map(c => ({
       ...c,
       tools: c.tools.filter(t =>
@@ -117,14 +117,14 @@ export default function MainToolListPage() {
       )
     }))
     .filter(c => c.tools.length > 0),
-    [toolCategories, searchQuery]
+    [sortedCategories, searchQuery]
   );
 
   const allTools = useMemo(() => {
     const m = {};
-    toolCategories.forEach(c => c.tools.forEach(t => { m[t.link] = t; }));
+    toolCategoriesData.forEach(c => c.tools.forEach(t => { m[t.link] = t; }));
     return m;
-  }, [toolCategories]);
+  }, []);
 
   const favoriteTools = useMemo(() =>
     favorites.map(l => allTools[l]).filter(Boolean),
@@ -191,6 +191,26 @@ export default function MainToolListPage() {
           </div>
         )}
 
+        <div className="flex items-center justify-between mb-4 px-2">
+          <h3 className={`text-sm font-semibold uppercase tracking-wider ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>All Tools</h3>
+          <div className="flex items-center gap-2">
+            <span className={`text-xs font-medium ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Sort:</span>
+            <select
+              value={sortMode}
+              onChange={(e) => setSortMode(e.target.value)}
+              className={`text-sm rounded-lg px-2 py-1 border outline-none cursor-pointer transition-colors ${
+                isDarkMode 
+                  ? 'bg-slate-900/50 border-slate-700/50 text-slate-300 hover:bg-slate-800' 
+                  : 'bg-white/50 border-slate-200 text-slate-600 hover:bg-white'
+              }`}
+            >
+              <option value="default">Default</option>
+              <option value="usage">Most Used</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+        </div>
+
         {/* Masonry Grid of Categories */}
         <Masonry
           breakpointCols={breakpointColumnsObj}
@@ -211,6 +231,8 @@ export default function MainToolListPage() {
                   isDarkMode={isDarkMode}
                   isFavorite={isFavorite}
                   onFav={handleFav}
+                  moveCategory={moveCategory}
+                  trackClick={trackClick}
                 />
               </div>
             );
@@ -229,9 +251,9 @@ export default function MainToolListPage() {
   );
 }
 
-function CategoryCard({ category, style, isDarkMode, isFavorite, onFav }) {
+function CategoryCard({ category, style, isDarkMode, isFavorite, onFav, moveCategory, trackClick }) {
   return (
-    <div className={`rounded-3xl border overflow-hidden transition-all duration-300 shadow-sm hover:shadow-lg ${
+    <div className={`group/card rounded-3xl border overflow-hidden transition-all duration-300 shadow-sm hover:shadow-lg ${
       isDarkMode ? style.dark + ' border-slate-700/50' : style.light + ' border-slate-200'
     }`}>
       {/* Header */}
@@ -248,6 +270,13 @@ function CategoryCard({ category, style, isDarkMode, isFavorite, onFav }) {
         }`}>
           {category.title}
         </h2>
+        
+        {/* Reorder Controls (Visible on hover) */}
+        <div className={`hidden sm:flex items-center gap-1 opacity-0 group-hover/card:opacity-100 transition-opacity duration-200 mr-2 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+          <button onClick={() => moveCategory(category.title, 'up')} className="p-1.5 rounded-md hover:bg-slate-500/20 active:scale-95 transition-all" title="Move Up/Left"><HiChevronUp size={16} /></button>
+          <button onClick={() => moveCategory(category.title, 'down')} className="p-1.5 rounded-md hover:bg-slate-500/20 active:scale-95 transition-all" title="Move Down/Right"><HiChevronDown size={16} /></button>
+        </div>
+
         <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0 ${
           isDarkMode ? style.accent : style.accent
         }`}>
@@ -261,10 +290,12 @@ function CategoryCard({ category, style, isDarkMode, isFavorite, onFav }) {
           <ToolCard
             key={tool.link}
             tool={tool}
+            categoryTitle={category.title}
             isDarkMode={isDarkMode}
             isFav={isFavorite(tool.link)}
             onFav={onFav}
             style={style}
+            trackClick={trackClick}
           />
         ))}
       </div>
@@ -281,7 +312,7 @@ const HOVER_EFFECTS = [
 ];
 
 /*  Individual Tool Card (Seamless List Item)  */
-function ToolCard({ tool, isDarkMode, isFav, onFav, style, favAccent }) {
+function ToolCard({ tool, categoryTitle, isDarkMode, isFav, onFav, style, favAccent, trackClick }) {
   const dirSound = useDirectionSound();
 
   if (!tool.isEnabled) return null;
@@ -303,7 +334,10 @@ function ToolCard({ tool, isDarkMode, isFav, onFav, style, favAccent }) {
           playHoverSound();
         }}
         onMouseMove={dirSound.onMouseMove}
-        onClick={() => playClickSound()}
+        onClick={() => {
+          playClickSound();
+          if (trackClick && categoryTitle) trackClick(categoryTitle);
+        }}
       >
         <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.15] group-hover:rotate-3 ${
           favAccent
