@@ -219,10 +219,9 @@ export default function MainToolListPage() {
   );
 }
 
-/*  Category Bento Card  */
 function CategoryCard({ category, style, isDarkMode, isFavorite, onFav }) {
   return (
-    <div className={`h-full rounded-3xl border overflow-hidden transition-all duration-300 shadow-sm hover:shadow-lg ${
+    <div className={`rounded-3xl border overflow-hidden transition-all duration-300 shadow-sm hover:shadow-lg ${
       isDarkMode ? style.dark + ' border-slate-700/50' : style.light + ' border-slate-200'
     }`}>
       {/* Header */}
@@ -263,17 +262,28 @@ function CategoryCard({ category, style, isDarkMode, isFavorite, onFav }) {
   );
 }
 
+const HOVER_EFFECTS = [
+  'hover:-translate-y-1',
+  'hover:scale-[1.02]',
+  'hover:rotate-1 hover:scale-[1.01]',
+  'hover:-rotate-1 hover:scale-[1.01]',
+  'hover:translate-x-1 hover:-translate-y-0.5',
+];
+
 /*  Individual Tool Card (Modern Horizontal Bento)  */
 function ToolCard({ tool, isDarkMode, isFav, onFav, style, favAccent }) {
   const dirSound = useDirectionSound();
 
   if (!tool.isEnabled) return null;
 
+  const hash = tool.name.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+  const hoverEffect = HOVER_EFFECTS[hash % HOVER_EFFECTS.length];
+
   return (
     <HoverPreview tool={tool} enabled={tool.description}>
       <Link
         to={tool.link}
-        className={`group relative flex items-center gap-4 p-4 sm:p-5 rounded-2xl transition-all duration-300 no-underline border shadow-sm hover:shadow-md ${
+        className={`group relative flex items-center gap-4 p-4 sm:p-5 rounded-2xl transition-all duration-300 no-underline border shadow-sm hover:shadow-md ${hoverEffect} ${
           isDarkMode
             ? 'bg-slate-900/50 border-slate-700/50 hover:bg-slate-800/80 hover:border-slate-600'
             : 'bg-white border-slate-200/60 hover:bg-slate-50 hover:border-slate-300'
