@@ -243,6 +243,16 @@
   transform: scale(0.95);
 }
 
+/* ── Flip clock ─────────────────────────────────────────── */
+@keyframes flipDown {
+  0%   { transform: rotateX(0deg); }
+  100% { transform: rotateX(-90deg); }
+}
+@keyframes flipUp {
+  0%   { transform: rotateX(90deg); }
+  100% { transform: rotateX(0deg); }
+}
+
 /* ── Breadcrumb responsive ──────────────────────────────── */
 .breadcrumb-bar {
   font-size: clamp(0.7rem, 1.5vw, 0.8rem);

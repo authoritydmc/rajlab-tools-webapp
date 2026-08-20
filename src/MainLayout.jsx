@@ -3,6 +3,7 @@ import { Link, Outlet } from 'react-router-dom';
 import { FaGithub, FaHeart } from 'react-icons/fa';
 import { HiHome, HiSun, HiMoon } from 'react-icons/hi2';
 import SoundToggle from './components/common/SoundToggle';
+import FlipClock from './components/common/FlipClock';
 
 function MainLayout() {
   const { isDarkMode, toggleDarkMode } = useTheme();
@@ -28,6 +29,11 @@ function MainLayout() {
                 Rajlabs Utilities
               </span>
             </Link>
+
+            {/* Flip Clock */}
+            <div className="hidden md:flex items-center mr-2">
+              <FlipClock />
+            </div>
 
             {/* Actions */}
             <div className="flex items-center gap-1.5 sm:gap-2">
@@ -95,7 +101,7 @@ function MainLayout() {
               Developer tools & utilities - all client-side, no data sent to servers.
               {' '}&bull;{' '}
               <Link to="/changelog" className="hover:underline transition-colors">
-                v2.1.0 Changelog
+                Changelog
               </Link>
             </p>
           </div>
