@@ -92,7 +92,11 @@ function MainLayout() {
               </a>
             </p>
             <p className={`text-xs sm:text-sm ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-              Developer tools & utilities — all client-side, no data sent to servers.
+              Developer tools & utilities - all client-side, no data sent to servers.
+              {' '}&bull;{' '}
+              <Link to="/changelog" className="hover:underline transition-colors">
+                v2.0.0 Changelog
+              </Link>
             </p>
           </div>
         </div>
