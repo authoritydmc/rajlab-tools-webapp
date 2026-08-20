@@ -184,48 +184,24 @@ export default function MainToolListPage() {
           </div>
         )}
 
-        {/*  Modern Sectioned Grid  */}
-        <div className="space-y-12 sm:space-y-16">
+        {/*  Bento Grid of Categories  */}
+        <div className="bento-grid">
           {filteredCategories.map((category, catIdx) => {
             const style = CATEGORY_STYLE[category.title] || CATEGORY_STYLE['Text Utilities'];
+            const span = getBentoSpan(category.tools.length);
             return (
               <div
                 key={catIdx}
-                className="animate-fade-in-up"
+                className={`bento-cell animate-fade-in-up ${span}`}
                 style={{ animationDelay: `${catIdx * 40}ms` }}
               >
-                {/* Category Header */}
-                <div className="flex items-center gap-3 mb-5 px-2">
-                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-lg sm:text-xl shadow-sm ${
-                    isDarkMode ? style.iconDark : style.iconLight
-                  }`}>
-                    {getIconByName(category.iconName)}
-                  </div>
-                  <div>
-                    <h2 className={`text-lg sm:text-xl md:text-2xl font-bold tracking-tight ${
-                      isDarkMode ? 'text-slate-100' : 'text-slate-800'
-                    }`}>
-                      {category.title}
-                    </h2>
-                    <p className={`text-xs sm:text-sm font-medium ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                      {category.tools.length} Tools
-                    </p>
-                  </div>
-                </div>
-
-                {/* Grid of Tools */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-                  {category.tools.map((tool) => (
-                    <ToolCard
-                      key={tool.link}
-                      tool={tool}
-                      isDarkMode={isDarkMode}
-                      isFav={isFavorite(tool.link)}
-                      onFav={handleFav}
-                      style={style}
-                    />
-                  ))}
-                </div>
+                <CategoryCard
+                  category={category}
+                  style={style}
+                  isDarkMode={isDarkMode}
+                  isFavorite={isFavorite}
+                  onFav={handleFav}
+                />
               </div>
             );
           })}
@@ -240,6 +216,50 @@ export default function MainToolListPage() {
         )}
       </div>
     </main>
+  );
+}
+
+/*  Category Bento Card  */
+function CategoryCard({ category, style, isDarkMode, isFavorite, onFav }) {
+  return (
+    <div className={`h-full rounded-3xl border overflow-hidden transition-all duration-300 shadow-sm hover:shadow-lg ${
+      isDarkMode ? style.dark + ' border-slate-700/50' : style.light + ' border-slate-200'
+    }`}>
+      {/* Header */}
+      <div className={`flex items-center gap-3 px-5 py-4 border-b ${
+        isDarkMode ? 'border-white/[0.05] bg-slate-900/40' : 'border-slate-200/60 bg-white/50'
+      }`}>
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 ${
+          isDarkMode ? style.iconDark : style.iconLight
+        }`}>
+          {getIconByName(category.iconName)}
+        </div>
+        <h2 className={`flex-1 text-base sm:text-lg font-bold tracking-tight truncate ${
+          isDarkMode ? 'text-slate-100' : 'text-slate-800'
+        }`}>
+          {category.title}
+        </h2>
+        <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0 ${
+          isDarkMode ? style.accent : style.accent
+        }`}>
+          {category.tools.length} Tools
+        </span>
+      </div>
+
+      {/* Grid of Tools inside Category */}
+      <div className={`p-3 grid gap-3 ${category.tools.length >= 5 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
+        {category.tools.map((tool) => (
+          <ToolCard
+            key={tool.link}
+            tool={tool}
+            isDarkMode={isDarkMode}
+            isFav={isFavorite(tool.link)}
+            onFav={onFav}
+            style={style}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 
