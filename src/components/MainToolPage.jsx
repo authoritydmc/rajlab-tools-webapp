@@ -89,7 +89,7 @@ function getBentoSpan(count) {
 }
 
 import Masonry from 'react-masonry-css';
-import toolCategoriesData from '../../public/toolCategories.json';
+import toolCategoriesData from '../toolCategories.json';
 
 const breakpointColumnsObj = {
   default: 4,

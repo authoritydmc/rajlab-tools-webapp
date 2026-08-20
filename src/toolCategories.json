@@ -1,0 +1,314 @@
+[
+  {
+    "title": "Text Utilities",
+    "iconName": "FaFont",
+    "tools": [
+      {
+        "name": "Sanitize Text",
+        "link": "/sanitize-text",
+        "iconName": "MdCleaningServices",
+        "isEnabled": true,
+        "description": "Removes unwanted characters, formatting, and HTML from text to clean it up."
+      },
+      {
+        "name": "Text Formatter",
+        "link": "/format-text",
+        "iconName": "CgFormatText",
+        "isEnabled": true,
+        "description": "Formats text with lowercase, uppercase, reverse, etc."
+      },
+      {
+        "name": "Lorem Ipsum Generator",
+        "link": "/lorem-ipsum",
+        "iconName": "FaParagraph",
+        "isEnabled": true,
+        "description": "Generate placeholder text in paragraphs, sentences, or words for mockups and designs."
+      },
+      {
+        "name": "Markdown Preview",
+        "link": "/markdown-preview",
+        "iconName": "FaMarkdown",
+        "isEnabled": true,
+        "description": "Live markdown editor with instant HTML preview. Supports headings, lists, code blocks, tables, and more."
+      }
+    ]
+  },
+  {
+    "title": "PDF Tools",
+    "iconName": "FaFilePdf",
+    "tools": [
+      {
+        "name": "Merge PDF",
+        "link": "/merge-pdf",
+        "iconName": "FaObjectGroup",
+        "isEnabled": true,
+        "description": "Combine multiple PDFs into a single document. Select your files and merge them in seconds directly in your browser."
+      },
+      {
+        "name": "Split PDF",
+        "link": "/split-pdf",
+        "iconName": "FaCut",
+        "isEnabled": true,
+        "description": "Extract specific pages or page ranges from a PDF file quickly and securely."
+      },
+      {
+        "name": "Unlock PDF",
+        "link": "/unlock-pdf",
+        "iconName": "FaUnlockAlt",
+        "isEnabled": true,
+        "description": "Remove password protection from a PDF file. You must know the password to unlock it."
+      }
+    ]
+  },
+  {
+    "title": "Calculators",
+    "iconName": "FaCalculator",
+    "tools": [
+      {
+        "name": "Print Cost Estimator",
+        "link": "/print-cost-estimator",
+        "iconName": "ImPrinter",
+        "isEnabled": true,
+        "description": "Calculate printing costs based on pages, print type, and mode. Supports multiple currencies."
+      }
+    ]
+  },
+  {
+    "title": "Encryption & Encoding Utilities",
+    "iconName": "FaLock",
+    "tools": [
+      {
+        "name": "Base 64 Encoder/Decoder",
+        "link": "/base64-encoder-decoder",
+        "iconName": "AiOutlineFieldString",
+        "isEnabled": true,
+        "description": "Encodes or decodes text into or from Base64 format, commonly used in data transmission."
+      },
+      {
+        "name": "Password Generator",
+        "link": "/password-generator",
+        "iconName": "FaKey",
+        "isEnabled": true,
+        "description": "Generate strong, random passwords with customizable length and character types."
+      },
+      {
+        "name": "JWT Decoder",
+        "link": "/jwt-decoder",
+        "iconName": "FaKey",
+        "isEnabled": true,
+        "description": "Decode, inspect, and validate JSON Web Tokens (JWT). View header, payload, and signature with expiration countdown."
+      },
+      {
+        "name": "BCrypt Hashing",
+        "link": "/bcrypt-hashing",
+        "iconName": "FaHashtag",
+        "isEnabled": true,
+        "description": "Generates secure hashed passwords using the BCrypt hashing algorithm."
+      },
+      {
+        "name": "Hash Generator",
+        "link": "/hash-generator",
+        "iconName": "FaFingerprint",
+        "isEnabled": true,
+        "description": "Generate MD5, SHA-1, SHA-256, SHA-384, and SHA-512 hashes from any text input."
+      },
+      {
+        "name": "Image to Base64 String Converter",
+        "link": "/image-to-base64",
+        "iconName": "FaImage",
+        "isEnabled": true,
+        "description": "Converts images to Base64 encoded strings for easy embedding and transmission."
+      },
+      {
+        "name": "Base64 to Image Preview Generator",
+        "link": "/base64-to-image",
+        "iconName": "FaImage",
+        "isEnabled": true,
+        "description": "Generates a preview of an image from a Base64 encoded string."
+      },
+      {
+        "name": "URL Encoder/Decoder",
+        "link": "/url-encoder-decoder",
+        "iconName": "FaLink",
+        "isEnabled": true,
+        "description": "Encodes or decodes URLs for safe transmission and readability."
+      }
+    ]
+  },
+  {
+    "title": "QR Codes",
+    "iconName": "FaQrcode",
+    "tools": [
+      {
+        "name": "QR Code Generator",
+        "link": "/qr-code-generator",
+        "iconName": "FaQrcode",
+        "isEnabled": true,
+        "description": "Generate customizable QR codes for URLs, text, or contact information with size and color options."
+      },
+      {
+        "name": "UPI QR Code Generator",
+        "link": "/upi-code-generator",
+        "iconName": "FaRupeeSign",
+        "isEnabled": true,
+        "description": "Generate QR codes for UPI payments with receiver details and amount."
+      },
+      {
+        "name": "WhatsApp QR Code Generator",
+        "link": "/whatsapp-qr-code",
+        "iconName": "FaWhatsapp",
+        "isEnabled": true,
+        "description": "Generate WhatsApp QR codes to send messages to any number without saving it in contacts."
+      },
+      {
+        "name": "QR Code Scanner",
+        "link": "/qr-scanner",
+        "iconName": "FaSearchPlus",
+        "isEnabled": true,
+        "description": "Scan and extract data from any QR code image. Simply paste or upload an image."
+      }
+    ]
+  },
+  {
+    "title": "JSON Utilities",
+    "iconName": "FaCode",
+    "tools": [
+      {
+        "name": "JSON Viewer",
+        "link": "/json-viewer",
+        "iconName": "FaEye",
+        "isEnabled": true,
+        "description": "View and navigate through JSON data structures with collapsible tree view."
+      },
+      {
+        "name": "JSON Diff Checker",
+        "link": "/json-diff-checker",
+        "iconName": "FaBalanceScale",
+        "isEnabled": true,
+        "description": "Compare two JSON objects to identify additions, removals, and changes."
+      },
+      {
+        "name": "JSON to CSV Converter",
+        "link": "/json-to-csv",
+        "iconName": "FaFileCsv",
+        "isEnabled": true,
+        "description": "Convert JSON data structures into CSV format for data manipulation and analysis."
+      },
+      {
+        "name": "CSV to JSON Converter",
+        "link": "/csv-to-json",
+        "iconName": "FaFileCsv",
+        "isEnabled": true,
+        "description": "Convert CSV data into JSON format for web applications and APIs."
+      },
+      {
+        "name": "JSON to XML Converter",
+        "link": "/json-to-xml",
+        "iconName": "FaFileCode",
+        "isEnabled": true,
+        "description": "Convert JSON data structures into XML format for legacy system compatibility."
+      },
+      {
+        "name": "XML to JSON Converter",
+        "link": "/xml-to-json",
+        "iconName": "FaFileCode",
+        "isEnabled": true,
+        "description": "Convert XML data structures into JSON format for easier manipulation."
+      },
+      {
+        "name": "JSON to YAML Converter",
+        "link": "/json-to-yaml",
+        "iconName": "FaExchangeAlt",
+        "isEnabled": true,
+        "description": "Convert JSON data structures into YAML format."
+      },
+      {
+        "name": "YAML to JSON Converter",
+        "link": "/yaml-to-json",
+        "iconName": "FaExchangeAlt",
+        "isEnabled": true,
+        "description": "Convert YAML data structures into JSON format."
+      }
+    ]
+  },
+  {
+    "title": "Developer Tools",
+    "iconName": "FaLaptopCode",
+    "tools": [
+      {
+        "name": "Regex Tester",
+        "link": "/regex-tester",
+        "iconName": "FaSearch",
+        "isEnabled": true,
+        "description": "Test regular expressions with live matching, group captures, and highlighted matches."
+      },
+      {
+        "name": "UUID Generator",
+        "link": "/uuid-generator",
+        "iconName": "FaRandom",
+        "isEnabled": true,
+        "description": "Generate UUID v4 identifiers with options for uppercase, no dashes, and bulk generation."
+      },
+      {
+        "name": "Timestamp Converter",
+        "link": "/timestamp-converter",
+        "iconName": "FaClock",
+        "isEnabled": true,
+        "description": "Convert between Unix timestamps and human-readable dates with live current time display."
+      },
+      {
+        "name": "CSS Unit Converter",
+        "link": "/css-unit-converter",
+        "iconName": "FaRulerCombined",
+        "isEnabled": true,
+        "description": "Convert between CSS units: px, rem, em, %, vw, vh, pt with customizable viewport."
+      }
+    ]
+  },
+  {
+    "title": "Excel Tools",
+    "iconName": "FaFileExcel",
+    "tools": [
+      {
+        "name": "Unlock Excel Sheet",
+        "link": "/unlock-excel",
+        "iconName": "FaUnlockAlt",
+        "isEnabled": true,
+        "description": "Instantly remove Sheet Protection and Workbook Protection passwords from .xlsx files."
+      }
+    ]
+  },
+  {
+    "title": "Design Utilities",
+    "iconName": "FaPalette",
+    "tools": [
+      {
+        "name": "Color Picker & Converter",
+        "link": "/color-picker",
+        "iconName": "FaPalette",
+        "isEnabled": true,
+        "description": "Pick colors and convert between HEX, RGB, and HSL formats with preset color palette."
+      }
+    ]
+  },
+  {
+    "title": "Multimedia Utilities",
+    "iconName": "FaVideo",
+    "tools": [
+      {
+        "name": "Video Converter",
+        "link": "/video-converter",
+        "iconName": "FaFileVideo",
+        "isEnabled": true,
+        "description": "Convert videos between formats (MP4, AVI, MOV, MKV, etc.) using FFmpeg WASM."
+      },
+      {
+        "name": "Image Compressor",
+        "link": "/image-compressor",
+        "iconName": "FaCompressAlt",
+        "isEnabled": true,
+        "description": "Compress images client-side with adjustable quality, max dimensions, and size limits."
+      }
+    ]
+  }
+]
