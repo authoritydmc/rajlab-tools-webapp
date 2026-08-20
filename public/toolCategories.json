@@ -266,6 +266,19 @@
     ]
   },
   {
+    "title": "Excel Tools",
+    "iconName": "FaFileExcel",
+    "tools": [
+      {
+        "name": "Unlock Excel Sheet",
+        "link": "/unlock-excel",
+        "iconName": "FaUnlockAlt",
+        "isEnabled": true,
+        "description": "Instantly remove Sheet Protection and Workbook Protection passwords from .xlsx files."
+      }
+    ]
+  },
+  {
     "title": "Design Utilities",
     "iconName": "FaPalette",
     "tools": [
@@ -295,19 +308,6 @@
         "iconName": "FaCompressAlt",
         "isEnabled": true,
         "description": "Compress images client-side with adjustable quality, max dimensions, and size limits."
-      }
-    ]
-  },
-  {
-    "title": "Excel Tools",
-    "iconName": "FaFileExcel",
-    "tools": [
-      {
-        "name": "Unlock Excel Sheet",
-        "link": "/unlock-excel",
-        "iconName": "FaUnlockAlt",
-        "isEnabled": true,
-        "description": "Instantly remove Sheet Protection and Workbook Protection passwords from .xlsx files."
       }
     ]
   }
