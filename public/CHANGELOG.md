@@ -2,6 +2,21 @@
 
 All notable changes to Rajlab Tools Webapp will be documented in this file.
 
+## [2.0.0] - 2026-08-21
+### Added
+- **Global Error Boundaries**: Introduced graceful error handling across the app with auto-refresh and quick-copy stack traces.
+- **Breadcrumb Navigation**: Added intelligent dropdowns inside tool pages to easily jump between related tools.
+- **Hover Animations**: Added subtle, dynamic randomized hover animations across all tool cards.
+
+### Changed
+- **Major UI Overhaul**: Completely redesigned the homepage to use a true Masonry layout, eliminating empty gaps and utilizing full screen real estate.
+- **Glassmorphism Redesign**: Removed heavy borders and double-box effects in favor of clean, seamless frosted-glass lists and dynamic background meshes.
+- **Responsive Ultrawide Support**: All 40 tools have been migrated away from narrow column layouts to utilize full screen width.
+- **Performance**: Changed category data loading strategy to synchronous imports for instant initial renders.
+- **Tool Reordering**: Repositioned PDF Tools and Excel Tools for improved discoverability.
+
+
+
 ## [1.4.0] - 2026-02-01
 ### Changed
 - **Tool Categories:** Updated tool categories and disabled features that are not yet implemented.
