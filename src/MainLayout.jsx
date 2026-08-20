@@ -95,7 +95,7 @@ function MainLayout() {
               Developer tools & utilities - all client-side, no data sent to servers.
               {' '}&bull;{' '}
               <Link to="/changelog" className="hover:underline transition-colors">
-                v2.0.0 Changelog
+                v2.1.0 Changelog
               </Link>
             </p>
           </div>
