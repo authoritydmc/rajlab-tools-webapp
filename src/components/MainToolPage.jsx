@@ -89,6 +89,7 @@ function getBentoSpan(count) {
 }
 
 import Masonry from 'react-masonry-css';
+import toolCategoriesData from '../../public/toolCategories.json';
 
 const breakpointColumnsObj = {
   default: 4,
@@ -100,17 +101,12 @@ const breakpointColumnsObj = {
 };
 
 export default function MainToolListPage() {
-  const [toolCategories, setToolCategories] = useState([]);
+  const [toolCategories, setToolCategories] = useState(toolCategoriesData);
   const [searchQuery, setSearchQuery] = useState('');
   const { isDarkMode } = useTheme();
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
 
-  useEffect(() => {
-    fetch('/toolCategories.json')
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(setToolCategories)
-      .catch(console.error);
-  }, []);
+  // Removed useEffect fetch to optimize load time
 
   const filteredCategories = useMemo(() => toolCategories
     .map(c => ({
@@ -260,7 +256,7 @@ function CategoryCard({ category, style, isDarkMode, isFavorite, onFav }) {
       </div>
 
       {/* Grid of Tools inside Category */}
-      <div className="p-3 flex flex-col gap-3">
+      <div className="p-2 flex flex-col">
         {category.tools.map((tool) => (
           <ToolCard
             key={tool.link}
@@ -284,7 +280,7 @@ const HOVER_EFFECTS = [
   'hover:translate-x-1 hover:-translate-y-0.5',
 ];
 
-/*  Individual Tool Card (Modern Horizontal Bento)  */
+/*  Individual Tool Card (Seamless List Item)  */
 function ToolCard({ tool, isDarkMode, isFav, onFav, style, favAccent }) {
   const dirSound = useDirectionSound();
 
@@ -297,10 +293,10 @@ function ToolCard({ tool, isDarkMode, isFav, onFav, style, favAccent }) {
     <HoverPreview tool={tool} enabled={tool.description}>
       <Link
         to={tool.link}
-        className={`group relative flex items-center gap-4 p-4 sm:p-5 rounded-2xl transition-all duration-300 no-underline border shadow-sm hover:shadow-md ${hoverEffect} ${
+        className={`group relative flex items-center gap-4 p-3 sm:p-4 rounded-2xl transition-all duration-300 no-underline ${hoverEffect} ${
           isDarkMode
-            ? 'bg-slate-900/50 border-slate-700/50 hover:bg-slate-800/80 hover:border-slate-600'
-            : 'bg-white border-slate-200/60 hover:bg-slate-50 hover:border-slate-300'
+            ? 'hover:bg-white/[0.06]'
+            : 'hover:bg-slate-900/[0.04]'
         }`}
         onMouseEnter={(e) => {
           dirSound.onMouseEnter(e);

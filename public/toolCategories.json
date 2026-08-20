@@ -34,6 +34,33 @@
     ]
   },
   {
+    "title": "PDF Tools",
+    "iconName": "FaFilePdf",
+    "tools": [
+      {
+        "name": "Merge PDF",
+        "link": "/merge-pdf",
+        "iconName": "FaObjectGroup",
+        "isEnabled": true,
+        "description": "Combine multiple PDFs into a single document. Select your files and merge them in seconds directly in your browser."
+      },
+      {
+        "name": "Split PDF",
+        "link": "/split-pdf",
+        "iconName": "FaCut",
+        "isEnabled": true,
+        "description": "Extract specific pages or page ranges from a PDF file quickly and securely."
+      },
+      {
+        "name": "Unlock PDF",
+        "link": "/unlock-pdf",
+        "iconName": "FaUnlockAlt",
+        "isEnabled": true,
+        "description": "Remove password protection from a PDF file. You must know the password to unlock it."
+      }
+    ]
+  },
+  {
     "title": "Calculators",
     "iconName": "FaCalculator",
     "tools": [
@@ -268,33 +295,6 @@
         "iconName": "FaCompressAlt",
         "isEnabled": true,
         "description": "Compress images client-side with adjustable quality, max dimensions, and size limits."
-      }
-    ]
-  },
-  {
-    "title": "PDF Tools",
-    "iconName": "FaFilePdf",
-    "tools": [
-      {
-        "name": "Merge PDF",
-        "link": "/merge-pdf",
-        "iconName": "FaObjectGroup",
-        "isEnabled": true,
-        "description": "Combine multiple PDFs into a single document. Select your files and merge them in seconds directly in your browser."
-      },
-      {
-        "name": "Split PDF",
-        "link": "/split-pdf",
-        "iconName": "FaCut",
-        "isEnabled": true,
-        "description": "Extract specific pages or page ranges from a PDF file quickly and securely."
-      },
-      {
-        "name": "Unlock PDF",
-        "link": "/unlock-pdf",
-        "iconName": "FaUnlockAlt",
-        "isEnabled": true,
-        "description": "Remove password protection from a PDF file. You must know the password to unlock it."
       }
     ]
   },
