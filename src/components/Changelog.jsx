@@ -16,7 +16,7 @@ const SECTION_META = {
 
 function parseChangelog(markdown) {
   const entries = [];
-  const versionRegex = /^## \[([^\]]+)\](?: - (.+))?$/m;
+  const versionRegex = /^## \[([^\]]+)\](?: [-–—] (.+))?$/m;
   const sectionsMap = { added: [], fixed: [], changed: [], performance: [], tests: [] };
 
   let lastVersion = null;
