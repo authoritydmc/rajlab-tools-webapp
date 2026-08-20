@@ -2,18 +2,27 @@
 
 All notable changes to Rajlab Tools Webapp will be documented in this file.
 
-## [2.0.0] - 2026-08-21
+## [2.1.0] - 2026-08-21
 ### Added
-- **Global Error Boundaries**: Introduced graceful error handling across the app with auto-refresh and quick-copy stack traces.
+- **Dynamic Sorting**: Added auto-sorting by most used tools and custom category reordering based on local storage.
+- **Changelog Link**: Added a direct link to the changelog in the footer for better visibility.
+- **Hover Animations**: Added dynamic, random hover effects to tool cards to improve interactivity.
+- **Global Error Handling**: Introduced graceful error boundaries across the application with auto-refresh and quick-copy stack traces.
 - **Breadcrumb Navigation**: Added intelligent dropdowns inside tool pages to easily jump between related tools.
-- **Hover Animations**: Added subtle, dynamic randomized hover animations across all tool cards.
 
 ### Changed
-- **Major UI Overhaul**: Completely redesigned the homepage to use a true Masonry layout, eliminating empty gaps and utilizing full screen real estate.
-- **Glassmorphism Redesign**: Removed heavy borders and double-box effects in favor of clean, seamless frosted-glass lists and dynamic background meshes.
-- **Responsive Ultrawide Support**: All 40 tools have been migrated away from narrow column layouts to utilize full screen width.
-- **Performance**: Changed category data loading strategy to synchronous imports for instant initial renders.
-- **Tool Reordering**: Repositioned PDF Tools and Excel Tools for improved discoverability.
+- **Masonry Layout**: Migrated the homepage tool grid to a true masonry layout to eliminate empty vertical gaps.
+- **Bento Grid**: Restored the category bento grid while keeping modern wide tool cards.
+- **Responsive Ultrawide Support**: Standardized all 40+ tool pages to a responsive, full-width layout.
+- **UI Simplification**: Removed the double card visual effect for a cleaner, seamless list design inside categories.
+- **Category Reordering**: Repositioned PDF Tools to the top and Excel Tools under Developer Tools for better discoverability.
+- **Performance**: Switched category data loading to synchronous imports for instant initial renders.
+- **SEO**: Updated and regenerated sitemaps.
+
+### Fixed
+- **Transparent Backgrounds**: Made tool backgrounds transparent to allow the animated mesh gradient to shine through properly.
+- **Mesh Background**: Fixed the mesh background attachment so the animated gradient stays consistently visible on long pages.
+- **Grid Stretching**: Stopped grid items from artificially stretching vertically in the masonry layout.
 
 
 
