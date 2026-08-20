@@ -88,6 +88,17 @@ function getBentoSpan(count) {
   return 'col-span-1 row-span-1';
 }
 
+import Masonry from 'react-masonry-css';
+
+const breakpointColumnsObj = {
+  default: 4,
+  1536: 4,
+  1280: 3,
+  1024: 2,
+  768: 2,
+  640: 1
+};
+
 export default function MainToolListPage() {
   const [toolCategories, setToolCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -141,7 +152,7 @@ export default function MainToolListPage() {
             <span className={isDarkMode ? 'text-white' : 'text-slate-900'}>Utilities</span>
           </h1>
           <p className={`text-sm sm:text-base md:text-lg lg:text-xl max-w-2xl mx-auto mb-6 sm:mb-8 animate-fade-in-up ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`} style={{ animationDelay: '100ms' }}>
-            Developer tools & utilities — all client-side, no data sent to servers.
+            Developer tools & utilities - all client-side, no data sent to servers.
           </p>
           <div className="max-w-lg sm:max-w-xl lg:max-w-2xl mx-auto relative animate-fade-in-up" style={{ animationDelay: '200ms' }}>
             <HiMiniMagnifyingGlass className={`absolute left-4 top-1/2 -translate-y-1/2 text-lg ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`} />
@@ -162,7 +173,7 @@ export default function MainToolListPage() {
 
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
 
-        {/* ── Favorites ── */}
+        {/* Favorites */}
         {favoriteTools.length > 0 && !searchQuery && (
           <div className="mb-6 sm:mb-8 animate-fade-in-up">
             <div className="flex items-center gap-2.5 mb-4 px-1">
@@ -184,15 +195,18 @@ export default function MainToolListPage() {
           </div>
         )}
 
-        {/*  Bento Grid of Categories  */}
-        <div className="bento-grid">
+        {/* Masonry Grid of Categories */}
+        <Masonry
+          breakpointCols={breakpointColumnsObj}
+          className="flex w-auto gap-4"
+          columnClassName="bg-clip-padding flex flex-col gap-4"
+        >
           {filteredCategories.map((category, catIdx) => {
             const style = CATEGORY_STYLE[category.title] || CATEGORY_STYLE['Text Utilities'];
-            const span = getBentoSpan(category.tools.length);
             return (
               <div
                 key={catIdx}
-                className={`bento-cell animate-fade-in-up ${span}`}
+                className={`animate-fade-in-up`}
                 style={{ animationDelay: `${catIdx * 40}ms` }}
               >
                 <CategoryCard
@@ -205,7 +219,7 @@ export default function MainToolListPage() {
               </div>
             );
           })}
-        </div>
+        </Masonry>
 
         {filteredCategories.length === 0 && searchQuery && (
           <div className="text-center py-20">
@@ -246,7 +260,7 @@ function CategoryCard({ category, style, isDarkMode, isFavorite, onFav }) {
       </div>
 
       {/* Grid of Tools inside Category */}
-      <div className={`p-3 grid gap-3 ${category.tools.length >= 5 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
+      <div className="p-3 flex flex-col gap-3">
         {category.tools.map((tool) => (
           <ToolCard
             key={tool.link}
