@@ -100,7 +100,7 @@ export default function QRCodeDisplay({
 
   return (
     <div
-      className={`max-w-2xl mx-auto mt-8 p-6 shadow-lg rounded-md ${
+      className={`w-full mx-auto mt-8 p-6 shadow-lg rounded-md ${
         isDarkMode ? 'bg-gray-800 text-white border-gray-700' : 'bg-green-50 text-gray-900 border-gray-300'
       } text-center`}
     >

@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
 import { FaClipboard, FaTrash } from 'react-icons/fa';
+import { MdCleaningServices } from 'react-icons/md';
 import { PiSelectionAllFill } from 'react-icons/pi';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
 import { useEffect } from 'react';
 import { logFirebaseEvent } from '../../firebaseConfig';
+import ToolPageLayout from '../common/ToolPageLayout';
+import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 export default function SanitizeText() {
   const { isDarkMode } = useTheme(); // Access theme context
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
+  const siblings = useCategorySiblings('/sanitize-text');
 
   useEffect(() => {
     logFirebaseEvent('Sanitize  Page loaded', {
@@ -16,13 +20,9 @@ export default function SanitizeText() {
       page_path: "/sanitize-text",
     });
     document.title = 'Sanitize Text Tool | Rajlabs';
-
-    // Cleanup function to reset the title when the component is unmounted or route changes
-    return () => {
+  return () => {
       document.title = 'Utilities || Rajlabs'; // Default title
     };
-
-   
   }, []); 
   
   // Function to sanitize text by removing non-word characters
@@ -55,16 +55,12 @@ export default function SanitizeText() {
   };
 
   return (
-    <div
-      className={`min-h-screen p-8 ${
-        isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'
-      } transition-colors duration-300`}
-    >
-      <h1 className="text-3xl font-bold mb-8 text-center">Sanitize Text Utility</h1>
-      <Toaster /> {/* Toast container */}
+    <ToolPageLayout title="Sanitize Text" icon={<MdCleaningServices />} breadcrumb={[{label: 'Text Utilities', path: '/format-text'}]} siblings={siblings} currentPath="/sanitize-text">
+      <div className="w-full">
+<Toaster /> {/* Toast container */}
 
       <div
-        className={`max-w-2xl mx-auto p-6 shadow-lg rounded-md ${
+        className={`w-full mx-auto p-6 shadow-lg rounded-md ${
           isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'
         } border`}
       >
@@ -137,5 +133,7 @@ export default function SanitizeText() {
         </div>
       </div>
     </div>
+    </ToolPageLayout>
+
   );
 }

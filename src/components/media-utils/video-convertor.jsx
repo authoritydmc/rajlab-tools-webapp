@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { FaFileVideo } from 'react-icons/fa';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext'; // Custom hook for theme context
 import { FFmpeg } from '@ffmpeg/ffmpeg'; // Import fetchFile function
 import { toBlobURL, fetchFile } from "@ffmpeg/util";
 import Log from '../common/logView'; // Import the Log component
-import { FaSalesforce } from 'react-icons/fa';
+import ToolPageLayout from '../common/ToolPageLayout';
+import { useCategorySiblings } from '../../hooks/useCategorySiblings';
+
 
 export default function FfmpegTool() {
   const { isDarkMode } = useTheme(); // Access theme context
@@ -19,8 +22,7 @@ export default function FfmpegTool() {
   const fileInputRef = useRef(null); // Ref for file input
   // Load FFmpeg when the component mounts
   useEffect(() => {
-    document.title = 'FFMPEG Tool | Rajlabs'; // Set document title
-    alert("This module is WIP !! Proceed with caution")
+    document.title = 'FFMPEG Tool | Rajlabs';
     loadFFmpeg();
   }, []);
 
@@ -157,14 +159,13 @@ export default function FfmpegTool() {
     }
   };
 
+  const siblings = useCategorySiblings('/video-converter');
   return (
-    <div
-      className={`min-h-screen p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'} transition-colors duration-300`}
-    >
-      <h1 className="text-3xl font-bold mb-8 text-center">FFMPEG Video Converter</h1>
-      <Toaster /> {/* Toast container */}
+    <ToolPageLayout title="Video Converter" icon={<FaFileVideo />} breadcrumb={[{label: 'Multimedia Utilities', path: '/video-converter'}]} siblings={siblings} currentPath="/video-converter">
+      <div className="w-full">
+<Toaster /> {/* Toast container */}
 
-      <div className={`max-w-3xl mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}>
+      <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}>
         {/* Input Section */}
         <div className="mb-4">
           <label htmlFor="fileInput" className="block mb-2 font-semibold">
@@ -272,5 +273,7 @@ export default function FfmpegTool() {
         </div>
       </div>
     </div>
+    </ToolPageLayout>
+
   );
 }

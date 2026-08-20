@@ -1,11 +1,14 @@
-import {  RouterProvider } from 'react-router-dom';
-
+import { RouterProvider } from 'react-router-dom';
 import { ThemeProvider } from './themeContext';
+import { FavoritesProvider } from './favoritesContext';
 import { router } from './routers';
+
 function App() {
   return (
     <ThemeProvider>
-      <RouterProvider router={router} />
+      <FavoritesProvider>
+        <RouterProvider router={router} />
+      </FavoritesProvider>
     </ThemeProvider>
   );
 }

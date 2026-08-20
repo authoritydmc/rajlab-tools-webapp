@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { FaKey, FaCopy, FaTrash, FaCheckCircle, FaTimesCircle, FaTable } from "react-icons/fa";
 import { useTheme } from "../../themeContext";
 import Card from "../common/card";
+import ToolPageLayout from '../common/ToolPageLayout';
+import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 
 function base64UrlDecode(str) {
   try {
@@ -45,19 +47,23 @@ function getByteSize(str) {
   }
 }
 
-// Helper to verify signature (HS256 only)
-function verifySignature(header, payload, signature, secret) {
+// Helper to verify signature using Web Crypto API (HS256 only)
+async function verifySignature(header, payload, signature, secret) {
   try {
     const alg = JSON.parse(header).alg;
     if (alg !== 'HS256' || !secret) return null;
-    // Use SubtleCrypto if available
-    if (window.crypto && window.crypto.subtle) {
-      // Not implemented here, would require async/await
-      return null;
-    }
-    // Fallback: use js-sha256
-    // Not implemented here for brevity
-    return null;
+    if (!window.crypto || !window.crypto.subtle) return null;
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(secret);
+    const key = await crypto.subtle.importKey(
+      'raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']
+    );
+    const dataToVerify = encoder.encode(`${payload}`);
+    const signatureBytes = Uint8Array.from(
+      signature.replace(/-/g, '+').replace(/_/g, '/'), c => c.charCodeAt(0)
+    );
+    const isValid = await crypto.subtle.verify('HMAC', key, signatureBytes, dataToVerify);
+    return isValid;
   } catch {
     return null;
   }
@@ -121,20 +127,20 @@ function syntaxHighlightJson(jsonStr) {
 const jsonToTable = (jsonStr) => {
   try {
     const obj = JSON.parse(jsonStr);
-    return (
+  return (
       <table className="min-w-full text-xs border-collapse">
         <tbody>
           {Object.entries(obj).map(([key, value]) => (
             <tr key={key} className="border-b">
               <td className="font-bold px-2 py-1 border-r border-gray-700 dark:border-gray-600 text-left flex items-center gap-1">
                 {key}
-                {claimInfo[key] && <span className="relative group"><FaKey className="text-blue-400 text-xs cursor-pointer" /><span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 z-50 hidden group-hover:flex bg-gray-800 text-white text-xs rounded shadow-lg px-2 py-1 whitespace-pre-wrap max-w-xs break-words pointer-events-none">{claimInfo[key]}</span></span>}
+                {claimInfo[key] && <span className="relative group"><FaKey className="text-blue-400 text-xs cursor-pointer" /><span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 z-50 hidden group-hover:flex bg-gray-800 text-white text-xs rounded shadow-lg px-2 py-1 whitespace-pre-wrap w-full break-words pointer-events-none">{claimInfo[key]}</span></span>}
               </td>
               <td className="px-2 py-1 text-left">
                 {(key === 'iat' || key === 'exp' || key === 'nbf') ? (
                   <span className="relative group text-yellow-400 cursor-pointer underline decoration-dotted">
                     {String(value)}
-                    <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 z-50 hidden group-hover:flex bg-gray-800 text-white text-xs rounded shadow-lg px-2 py-1 whitespace-pre-wrap max-w-xs break-words pointer-events-none">
+                    <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 z-50 hidden group-hover:flex bg-gray-800 text-white text-xs rounded shadow-lg px-2 py-1 whitespace-pre-wrap w-full break-words pointer-events-none">
                       Local: {formatEpoch(Number(value)).local}<br />UTC: {formatEpoch(Number(value)).utc}
                     </span>
                   </span>
@@ -157,7 +163,7 @@ function EpochTooltip({ epoch, label }) {
   return (
     <span className="relative group cursor-pointer">
       <span className="underline decoration-dotted decoration-2 text-yellow-400" title={`${label} (hover for time)`}>{epoch}</span>
-      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 z-50 hidden group-hover:flex bg-gray-800 text-white text-xs rounded shadow-lg px-2 py-1 whitespace-pre-wrap max-w-xs break-words pointer-events-none">
+      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 z-50 hidden group-hover:flex bg-gray-800 text-white text-xs rounded shadow-lg px-2 py-1 whitespace-pre-wrap w-full break-words pointer-events-none">
         <span className="block font-bold mb-1">{label}</span>
         <span className="block">Local: {local}</span>
         <span className="block">UTC: {utc}</span>
@@ -285,6 +291,8 @@ export default function JwtDecoder() {
   const [activeTab, setActiveTab] = useState({ header: "json", payload: "json" });
   const [hoveredPart, setHoveredPart] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [signatureStatus, setSignatureStatus] = useState(null);
+  const siblings = useCategorySiblings('/jwt-decoder');
 
   const handleMouseMove = (e, part) => {
     setHoveredPart(part);
@@ -341,6 +349,18 @@ export default function JwtDecoder() {
     }
     tryPasteJwtFromClipboard();
   }, []);
+
+  useEffect(() => {
+    async function checkSignature() {
+      if (decoded && decoded.header && decoded.payload && decoded.signature && secret) {
+        const result = await verifySignature(decoded.header, decoded.payload, decoded.signature, secret);
+        setSignatureStatus(result);
+      } else {
+        setSignatureStatus(null);
+      }
+    }
+    checkSignature();
+  }, [decoded, secret]);
 
   const handleCopy = (text, label) => {
     navigator.clipboard.writeText(text);
@@ -411,9 +431,9 @@ export default function JwtDecoder() {
   };
 
   return (
-    <div className={`min-h-screen p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'} transition-colors duration-300`}>
-      <h1 className={`text-3xl font-bold mb-8 text-center ${isDarkMode ? 'text-blue-300' : 'text-blue-700'}`}> <FaKey className="inline-block mr-2" />JWT Decoder</h1>
-      <div className={`max-w-4xl mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}>
+    <ToolPageLayout title="JWT Decoder" icon={<FaKey />} breadcrumb={[{label: 'Encryption & Encoding Utilities', path: '/base64-encoder-decoder'}]} siblings={siblings} currentPath="/jwt-decoder">
+      <div className="w-full">
+<div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           <div>
             <Card title={<span className="flex items-center gap-2">JSON WEB TOKEN (JWT)
@@ -654,23 +674,15 @@ export default function JwtDecoder() {
                     <pre className={`p-3 rounded text-xs overflow-x-auto border font-mono whitespace-pre-wrap break-words ${isDarkMode ? 'bg-gray-900 border-pink-900 text-white' : 'bg-gray-900 border-pink-900 text-white'}`}>{decoded.signature}</pre>
                   </div>
                   {/* Signature verification indicator */}
-                  {decoded && decoded.header && decoded.payload && (() => {
-                    try {
-                      const headerObj = JSON.parse(decoded.header);
-                      const payloadObj = JSON.parse(decoded.payload);
-                      const signatureValid = verifySignature(decoded.header, decoded.payload, decoded.signature, secret);
-                      if (signatureValid === null) return null;
-                      return (
-                        <div className="flex items-center gap-2 mt-2">
-                          {signatureValid ? (
-                            <span className="flex items-center gap-1 text-green-500"><FaCheckCircle /> <span className="font-semibold">Signature valid</span></span>
-                          ) : (
-                            <span className="flex items-center gap-1 text-red-500"><FaTimesCircle /> <span className="font-semibold">Signature invalid</span></span>
-                          )}
-                        </div>
-                      );
-                    } catch { return null; }
-                  })()}
+                  {signatureStatus !== null && (
+                    <div className="flex items-center gap-2 mt-2">
+                      {signatureStatus ? (
+                        <span className="flex items-center gap-1 text-green-500"><FaCheckCircle /> <span className="font-semibold">Signature valid</span></span>
+                      ) : (
+                        <span className="flex items-center gap-1 text-red-500"><FaTimesCircle /> <span className="font-semibold">Signature invalid</span></span>
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="text-gray-400 text-sm">Paste a valid JWT to see decoded details.</div>
@@ -680,5 +692,7 @@ export default function JwtDecoder() {
         </div>
       </div>
     </div>
+    </ToolPageLayout>
+
   );
 }

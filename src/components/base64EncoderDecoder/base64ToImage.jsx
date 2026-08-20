@@ -1,18 +1,19 @@
 import React, { useState ,useEffect} from 'react';
-import { FaClipboard, FaDownload, FaTrash } from 'react-icons/fa';
+import { FaClipboard, FaDownload, FaTrash, FaImage } from 'react-icons/fa';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
+import ToolPageLayout from '../common/ToolPageLayout';
+import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 
 export default function Base64ToImagePreviewGenerator() {
   const { isDarkMode } = useTheme(); // Access theme context
   const [base64String, setBase64String] = useState('');
   const [imagePreview, setImagePreview] = useState('');
+  const siblings = useCategorySiblings('/base64-to-image');
 
   useEffect(() => {
     document.title = 'Base64 to Image Decoder | Rajlabs';
-
-    // Cleanup function to reset the title when the component is unmounted
-    return () => {
+  return () => {
       document.title = 'Utilities || Rajlabs'; // Reset to the default title when leaving the page
     };
   }, []);
@@ -50,16 +51,12 @@ export default function Base64ToImagePreviewGenerator() {
   };
 
   return (
-    <div
-      className={`min-h-screen p-8 ${
-        isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'
-      } transition-colors duration-300`}
-    >
-      <h1 className="text-3xl font-bold mb-8 text-center">Base64 to Image Preview Generator</h1>
-      <Toaster /> {/* Toast container */}
+    <ToolPageLayout title="Base64 to Image" icon={<FaImage />} breadcrumb={[{label: 'Encryption & Encoding Utilities', path: '/base64-encoder-decoder'}]} siblings={siblings} currentPath="/base64-to-image">
+      <div className="w-full">
+<Toaster /> {/* Toast container */}
 
       <div
-        className={`max-w-3xl mx-auto p-6 shadow-lg rounded-md ${
+        className={`w-full mx-auto p-6 shadow-lg rounded-md ${
           isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'
         } border`}
       >
@@ -122,5 +119,7 @@ export default function Base64ToImagePreviewGenerator() {
         </div>
       </div>
     </div>
+    </ToolPageLayout>
+
   );
 }

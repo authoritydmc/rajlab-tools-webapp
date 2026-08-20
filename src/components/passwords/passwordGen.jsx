@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { FaClipboard, FaTrash } from 'react-icons/fa';
+import { FaClipboard, FaTrash, FaKey } from 'react-icons/fa';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
-import {  fetchDescriptionByLink } from '../../utils/metaUtils';
+import { fetchDescriptionByLink } from '../../utils/metaUtils';
+import ToolPageLayout from '../common/ToolPageLayout';
+import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 
 export default function PasswordGenerator() {
   const { isDarkMode } = useTheme(); // Access theme context
+  const siblings = useCategorySiblings('/password-generator');
 
   // Define default settings
   const initialSettings = {
@@ -152,15 +155,19 @@ useEffect(() => {
   };
 
   return (
-    <div
-      className={`min-h-screen p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'} transition-colors duration-300`}
+    <ToolPageLayout
+      title="Password Generator"
+      icon={<FaKey />}
+      breadcrumb={[{ label: 'Encryption & Encoding Utilities', path: '/base64-encoder-decoder' }]}
+      siblings={siblings}
+      currentPath="/password-generator"
     >
-      <h1 className="text-3xl font-bold mb-8 text-center">Password Generator</h1>
-      <Toaster /> {/* Toast container */}
-
-      <div
-        className={`max-w-2xl mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}
-      >
+      <div className="w-full">
+        <Toaster /> {/* Toast container */}
+  
+        <div
+          className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'} border`}
+        >
         {/* Options Section */}
         <div className="mb-6">
           <label className="block mb-2">Password Length:</label>
@@ -290,6 +297,7 @@ useEffect(() => {
           </ul>
         </div>
       </div>
-    </div>
+      </div>
+    </ToolPageLayout>
   );
 }

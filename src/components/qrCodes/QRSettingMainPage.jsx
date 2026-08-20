@@ -1,22 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../themeContext';
 import { toast, Toaster } from 'react-hot-toast';
+import { FaQrcode } from 'react-icons/fa';
 import QRCodeDisplay from './QRDisplay';
-import { data } from 'autoprefixer';
+import ToolPageLayout from '../common/ToolPageLayout';
+import { useCategorySiblings } from '../../hooks/useCategorySiblings';
+
 
 export default function QRCodeSettings() {
   const { isDarkMode } = useTheme(); // Use theme context
   const [qrData, setQrData] = useState('');
   const [size, setSize] = useState(256); // Default QR code size
   const [errorCorrectionLevel, setErrorCorrectionLevel] = useState('M'); // Default error correction level
-
-
+  const siblings = useCategorySiblings('/qr-code-generator');
   return (
-    <div className={`min-h-screen p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'} transition-colors duration-300`}>
-      <Toaster /> {/* Toast container */}
-      <h1 className="text-3xl font-bold mb-8 text-center">QR Code Generator</h1>
+    <ToolPageLayout title="QR Code Generator" icon={<FaQrcode />} breadcrumb={[{label: 'QR Codes', path: '/qr-code-generator'}]} siblings={siblings} currentPath="/qr-code-generator">
+      <div className="w-full">
+<Toaster /> {/* Toast container */}
+      
 
-      <div className={`max-w-2xl mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}>
+      <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}>
         {/* QR Code Data Input */}
         <div className="mb-4">
           <label className="block font-bold mb-2" htmlFor="qrData">Enter Text or URL</label>
@@ -69,5 +72,7 @@ export default function QRCodeSettings() {
         />
       )}
     </div>
+    </ToolPageLayout>
+
   );
 }

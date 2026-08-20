@@ -2,18 +2,21 @@ import React, { useState ,useEffect} from 'react';
 import { toast, Toaster } from 'react-hot-toast'; // Import react-hot-toast
 import { useTheme } from '../../themeContext';
 import { FaClipboard, FaTrash } from 'react-icons/fa'; // Import your clipboard icon
+import { CgFormatText } from 'react-icons/cg';
 import { PiSelectionAllFill } from 'react-icons/pi';
+import ToolPageLayout from '../common/ToolPageLayout';
+import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 
 export default function TextFormatter() {
   const { isDarkMode } = useTheme(); // Use dark mode from context
   const [inputText, setInputText] = useState("");
   const [outputText, setOutputText] = useState("");
+  const siblings = useCategorySiblings('/format-text');
 
 
   useEffect(() => {
     document.title = 'Text Formatter | Rajlabs';
-
-    return () => {
+  return () => {
       document.title = 'Utilities || Rajlabs';
     };
   }, []);
@@ -83,11 +86,11 @@ export default function TextFormatter() {
   };
 
   return (
-    <div className={`min-h-screen p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'} transition-colors duration-300`}>
-      <h1 className="text-3xl font-bold mb-8 text-center">Text Formatter Utility</h1>
-      <Toaster /> {/* Toast container */}
+    <ToolPageLayout title="Text Formatter" icon={<CgFormatText />} breadcrumb={[{label: 'Text Utilities', path: '/format-text'}]} siblings={siblings} currentPath="/format-text">
+      <div className="w-full">
+<Toaster /> {/* Toast container */}
 
-      <div className={`max-w-2xl mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}>
+      <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}>
         {/* Input Section */}
         <div className="relative mb-8">
           <textarea
@@ -173,5 +176,7 @@ export default function TextFormatter() {
         </div>
       </div>
     </div>
+    </ToolPageLayout>
+
   );
 }

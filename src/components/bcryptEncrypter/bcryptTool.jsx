@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { FaClipboard, FaTrash } from 'react-icons/fa';
+import { FaClipboard, FaTrash, FaHashtag } from 'react-icons/fa';
 import { PiSelectionAllFill } from 'react-icons/pi';
 import { toast, Toaster } from 'react-hot-toast';
 import bcrypt from 'bcryptjs';  // Import bcryptjs
 import { useTheme } from '../../themeContext';
+import ToolPageLayout from '../common/ToolPageLayout';
+import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 
 export default function BcryptTool() {
   const { isDarkMode } = useTheme(); // Access theme context
   const [inputText, setInputText] = useState('');  // Input text state
   const [outputHash, setOutputHash] = useState('');  // Output hash state
   const [saltRounds, setSaltRounds] = useState(10);  // Salt rounds for bcrypt
+  const siblings = useCategorySiblings('/bcrypt-hashing');
 
   useEffect(() => {
     document.title = 'BCrypt Hashing Tool | Rajlabs';
-
-    return () => {
+  return () => {
       document.title = 'Utilities || Rajlabs';
     };
   }, []);
@@ -56,16 +58,12 @@ export default function BcryptTool() {
   };
 
   return (
-    <div
-      className={`min-h-screen p-8 ${
-        isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'
-      } transition-colors duration-300`}
-    >
-      <h1 className="text-3xl font-bold mb-8 text-center">BCrypt Encrypter</h1>
-      <Toaster /> {/* Toast container */}
+    <ToolPageLayout title="BCrypt Hashing" icon={<FaHashtag />} breadcrumb={[{label: 'Encryption & Encoding Utilities', path: '/base64-encoder-decoder'}]} siblings={siblings} currentPath="/bcrypt-hashing">
+      <div className="w-full">
+<Toaster /> {/* Toast container */}
 
       <div
-        className={`max-w-3xl mx-auto p-6 shadow-lg rounded-md ${
+        className={`w-full mx-auto p-6 shadow-lg rounded-md ${
           isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'
         } border`}
       >
@@ -181,5 +179,7 @@ export default function BcryptTool() {
         </div>
       </div>
     </div>
+    </ToolPageLayout>
+
   );
 }

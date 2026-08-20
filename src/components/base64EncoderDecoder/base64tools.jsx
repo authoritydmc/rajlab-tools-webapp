@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { FaClipboard, FaTrash } from 'react-icons/fa';
+import { AiOutlineFieldString } from 'react-icons/ai';
 import { PiSelectionAllFill } from 'react-icons/pi';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
 import { MdSwapVert } from "react-icons/md";
+import ToolPageLayout from '../common/ToolPageLayout';
+import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 export default function Base64Tool() {
   const { isDarkMode } = useTheme(); // Access theme context
   const [inputText, setInputText] = useState('');
@@ -70,41 +73,43 @@ export default function Base64Tool() {
     const temp = inputText;
     setInputText(outputText);
     setOutputText(temp);
+    setIsEncodeMode(!isEncodeMode);
   };
 
+  const siblings = useCategorySiblings('/base64-encoder-decoder');
   return (
-    <div
-      className={`min-h-screen p-8 ${
-        isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'
-      } transition-colors duration-300`}
-    >
-      <h1 className="text-3xl font-bold mb-8 text-center">Base64 Encoder/Decoder</h1>
-      <Toaster /> {/* Toast container */}
+    <ToolPageLayout title="Base64 Encoder/Decoder" icon={<AiOutlineFieldString />} breadcrumb={[{label: 'Encryption & Encoding Utilities', path: '/base64-encoder-decoder'}]} siblings={siblings} currentPath="/base64-encoder-decoder">
+      <div className="w-full">
+<Toaster /> {/* Toast container */}
 
-      {/* Mode Toggle Switch */}
+      {/* Mode Selector */}
       <div className="mb-6 flex justify-center items-center">
-        <label className="mr-4 text-lg font-semibold">
-          Mode:
-        </label>
-        <div 
-          onClick={toggleMode} 
-          className={`w-20 h-10 rounded-full flex items-center cursor-pointer transition-colors duration-300 ${
-            isEncodeMode ? 'bg-blue-500' : 'bg-green-500'
-          }`}
-        >
-          <div
-            className={`w-8 h-8 bg-green-150 rounded-full shadow-md transition-transform duration-300 ${
-              isEncodeMode ? 'translate-x-1' : 'translate-x-10'
+        <div className={`flex rounded-lg p-1 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'}`}>
+          <button
+            onClick={() => { if (!isEncodeMode) toggleMode(); }}
+            className={`px-6 py-2 rounded-md text-base font-medium transition-all duration-300 ${
+              isEncodeMode 
+                ? (isDarkMode ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-blue-600 shadow-sm')
+                : (isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900')
             }`}
-          ></div>
+          >
+            Encode
+          </button>
+          <button
+            onClick={() => { if (isEncodeMode) toggleMode(); }}
+            className={`px-6 py-2 rounded-md text-base font-medium transition-all duration-300 ${
+              !isEncodeMode 
+                ? (isDarkMode ? 'bg-green-600 text-white shadow-sm' : 'bg-white text-green-600 shadow-sm')
+                : (isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900')
+            }`}
+          >
+            Decode
+          </button>
         </div>
-        <span className="ml-4 text-lg">
-          {isEncodeMode ? 'Encode' : 'Decode'}
-        </span>
       </div>
 
       <div
-        className={`max-w-3xl mx-auto p-6 shadow-lg rounded-md ${
+        className={`w-full mx-auto p-6 shadow-lg rounded-md ${
           isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'
         } border`}
       >
@@ -202,5 +207,7 @@ export default function Base64Tool() {
         </div>
       </div>
     </div>
+    </ToolPageLayout>
+
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaCog } from 'react-icons/fa';
+import { ImPrinter } from 'react-icons/im';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
 import PrintRateSettingsModal from './printRateSetting';
@@ -9,8 +10,11 @@ import QRCodeDisplay from '../qrCodes/QRDisplay';
 import { KEYS } from '../../utils/constants';
 import LocalStorageUtils from '../../utils/localStorageUtils';
 import { deepMerge } from '../../utils/deepMerge';
+import ToolPageLayout from '../common/ToolPageLayout';
+import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 export default function PrintRateCalculator() {
     const { isDarkMode } = useTheme(); // Access theme context
+    const siblings = useCategorySiblings('/print-cost-estimator');
 
     // Default cost settings
     const defaultSettings = {
@@ -158,8 +162,7 @@ export default function PrintRateCalculator() {
 
         // Call function with desired key (adjust as needed)
         setMetaDescriptionFromLink('/print-cost-estimator');
-
-        return () => {
+  return () => {
             document.title = 'Utilities || Rajlabs'; // Reset title on unmount
 
             // Optionally, remove the meta description on unmount
@@ -283,12 +286,13 @@ export default function PrintRateCalculator() {
     const rates = calculateRates(); // Calculate all rates and costs
 
     return (
-        <div className={`min-h-screen p-2 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'} transition-colors duration-300 relative`}>
-            <Toaster /> {/* Toast container */}
+    <ToolPageLayout title="Print Cost Estimator" icon={<ImPrinter />} breadcrumb={[{label: 'Calculators', path: '/print-cost-estimator'}]} siblings={siblings} currentPath="/print-cost-estimator">
+      <div className="w-full">
+<Toaster /> {/* Toast container */}
 
-            <h1 className="text-3xl font-bold mb-8 text-center">Print Rate Calculator</h1>
+            
 
-            <div className={`max-w-3xl mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}>
+            <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}>
                 <div className="flex justify-between items-center mb-6">
                     <div className="flex-grow"></div> {/* This div takes up all available space to push the button to the right */}
                     <button
@@ -438,5 +442,7 @@ export default function PrintRateCalculator() {
                 onSubmit={handleUpiDetailsSubmit}
             />
         </div>
+    </ToolPageLayout>
+
     );
 }

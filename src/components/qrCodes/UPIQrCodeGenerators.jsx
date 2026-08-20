@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../themeContext';
 import { toast, Toaster } from 'react-hot-toast';
+import { FaRupeeSign } from 'react-icons/fa';
 import LocalStorageUtils from '../../utils/localStorageUtils';
 import { KEYS } from '../../utils/constants';
 import QRCodeDisplay from './QRDisplay';
+import ToolPageLayout from '../common/ToolPageLayout';
+import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 export default function UPIPaymentSettings() {
   const { isDarkMode } = useTheme(); // Use theme context
   const [upi, setUpi] = useState(''); // UPI address
@@ -70,12 +73,14 @@ export default function UPIPaymentSettings() {
 
   };
 
+  const siblings = useCategorySiblings('/upi-code-generator');
   return (
-    <div className={`min-h-screen p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'} transition-colors duration-300`}>
-      <Toaster /> {/* Toast container */}
-      <h1 className="text-3xl font-bold mb-8 text-center">UPI Payment QR Code Generator</h1>
+    <ToolPageLayout title="UPI QR Code Generator" icon={<FaRupeeSign />} breadcrumb={[{label: 'QR Codes', path: '/qr-code-generator'}]} siblings={siblings} currentPath="/upi-code-generator">
+      <div className="w-full">
+<Toaster /> {/* Toast container */}
+      
 
-      <div className={`max-w-2xl mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}>
+      <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'} border`}>
         {/* UPI Address Input */}
         <div className="mb-4">
           <label className="block font-bold mb-2" htmlFor="upi">Enter UPI Address</label>
@@ -158,5 +163,7 @@ export default function UPIPaymentSettings() {
         />
       )}
     </div>
+    </ToolPageLayout>
+
   );
 }

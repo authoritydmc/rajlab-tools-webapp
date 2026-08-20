@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { FaClipboard, FaTrash } from 'react-icons/fa';
+import { FaClipboard, FaTrash, FaLink } from 'react-icons/fa';
 import { PiSelectionAllFill } from 'react-icons/pi';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
 import { MdSwapVert } from "react-icons/md";
+import ToolPageLayout from '../common/ToolPageLayout';
+import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 export default function URLTool() {
   const { isDarkMode } = useTheme(); // Access theme context
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
   const [isEncodeMode, setIsEncodeMode] = useState(true); // Toggle for Encode/Decode mode
+  const siblings = useCategorySiblings('/url-encoder-decoder');
 
   useEffect(() => {
     // Set the document title for the "URL Encoder/Decoder" tool
     document.title = 'URL Encoder/Decoder | Rajlabs';
-
-    // Cleanup function to reset the title when the component is unmounted
-    return () => {
+  return () => {
       document.title = 'Utilities | Rajlabs'; // Reset to the default title when leaving the page
     };
   }, []);
@@ -77,13 +78,9 @@ export default function URLTool() {
   };
 
   return (
-    <div
-      className={`min-h-screen p-8 ${
-        isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'
-      } transition-colors duration-300`}
-    >
-      <h1 className="text-3xl font-bold mb-8 text-center">URL Encoder/Decoder</h1>
-      <Toaster /> {/* Toast container */}
+    <ToolPageLayout title="URL Encoder/Decoder" icon={<FaLink />} breadcrumb={[{label: 'Encryption & Encoding Utilities', path: '/base64-encoder-decoder'}]} siblings={siblings} currentPath="/url-encoder-decoder">
+      <div className="w-full">
+<Toaster /> {/* Toast container */}
 
       {/* Mode Toggle Switch */}
       <div className="mb-6 flex justify-center items-center">
@@ -108,7 +105,7 @@ export default function URLTool() {
       </div>
 
       <div
-        className={`max-w-3xl mx-auto p-6 shadow-lg rounded-md ${
+        className={`w-full mx-auto p-6 shadow-lg rounded-md ${
           isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'
         } border`}
       >
@@ -204,5 +201,7 @@ export default function URLTool() {
         </div>
       </div>
     </div>
+    </ToolPageLayout>
+
   );
 }

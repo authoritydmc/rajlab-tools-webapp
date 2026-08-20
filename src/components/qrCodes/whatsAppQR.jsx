@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../themeContext';
 import toast, { Toaster } from 'react-hot-toast';
+import { FaWhatsapp } from 'react-icons/fa';
 import QRCodeDisplay from './QRDisplay';
 import CountryCodeDropdown from '../common/countryCodeSelector';
+import ToolPageLayout from '../common/ToolPageLayout';
+import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 
 export default function WhatsAppQr() {
   const { isDarkMode } = useTheme(); // Use theme context
@@ -58,12 +61,14 @@ export default function WhatsAppQr() {
     }
   };
 
+  const siblings = useCategorySiblings('/whatsapp-qr-code');
   return (
-    <div className={`min-h-screen p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'} transition-colors duration-300`}>
-      <Toaster /> {/* Toast container */}
-      <h1 className="text-3xl font-bold mb-8 text-center">WhatsApp QR Code Generator</h1>
+    <ToolPageLayout title="WhatsApp QR Code" icon={<FaWhatsapp />} breadcrumb={[{label: 'QR Codes', path: '/qr-code-generator'}]} siblings={siblings} currentPath="/whatsapp-qr-code">
+      <div className="w-full">
+<Toaster /> {/* Toast container */}
+      
 
-      <div className="max-w-5xl mx-auto">
+      <div className="w-full mx-auto">
         <div className={`flex flex-col lg:flex-row lg:space-x-8 p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'} border`}>
           {/* Form Section */}
           <div className="flex-1">
@@ -159,5 +164,7 @@ autofocus
         </div>
       </div>
     </div>
+    </ToolPageLayout>
+
   );
 }

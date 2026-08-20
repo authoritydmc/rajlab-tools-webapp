@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { FaClipboard, FaTrash } from 'react-icons/fa';
+import { FaClipboard, FaTrash, FaImage } from 'react-icons/fa';
 import { PiSelectionAllFill } from 'react-icons/pi';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
+import ToolPageLayout from '../common/ToolPageLayout';
+import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 
 export default function ImageToBase64Tool() {
   const { isDarkMode } = useTheme(); // Access theme context
@@ -10,12 +12,11 @@ export default function ImageToBase64Tool() {
   const [base64String, setBase64String] = useState('');
   const [loading, setLoading] = useState(false); // Loading state
   const [fileSize, setFileSize] = useState(0); // File size state
+  const siblings = useCategorySiblings('/image-to-base64');
 
   useEffect(() => {
     document.title = 'Image to Base64 Encoder | Rajlabs';
-
-    // Cleanup function to reset the title when the component is unmounted
-    return () => {
+  return () => {
       document.title = 'Utilities || Rajlabs'; // Reset to the default title when leaving the page
     };
   }, []);
@@ -75,16 +76,12 @@ export default function ImageToBase64Tool() {
   };
 
   return (
-    <div
-      className={`min-h-screen p-8 ${
-        isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'
-      } transition-colors duration-300`}
-    >
-      <h1 className="text-3xl font-bold mb-8 text-center">Image to Base64 String Converter</h1>
-      <Toaster /> {/* Toast container */}
+    <ToolPageLayout title="Image to Base64" icon={<FaImage />} breadcrumb={[{label: 'Encryption & Encoding Utilities', path: '/base64-encoder-decoder'}]} siblings={siblings} currentPath="/image-to-base64">
+      <div className="w-full">
+<Toaster /> {/* Toast container */}
 
       <div
-        className={`max-w-3xl mx-auto p-6 shadow-lg rounded-md ${
+        className={`w-full mx-auto p-6 shadow-lg rounded-md ${
           isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-150 border-gray-300'
         } border`}
       >
@@ -237,5 +234,7 @@ export default function ImageToBase64Tool() {
         </div>
       </div>
     </div>
+    </ToolPageLayout>
+
   );
 }
