@@ -106,7 +106,30 @@ export default function MainToolListPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const { isDarkMode } = useTheme();
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
-  const { sortMode, setSortMode, sortedCategories, trackClick, moveCategory } = useCategorySorting(toolCategoriesData);
+  const { sortMode, setSortMode, sortedCategories, trackClick, moveCategory, dragReorderCategory } = useCategorySorting(toolCategoriesData);
+
+  const handleDragStart = (e, title) => {
+    e.dataTransfer.setData('text/plain', title);
+    e.dataTransfer.effectAllowed = 'move';
+    e.currentTarget.style.opacity = '0.5';
+  };
+
+  const handleDragEnd = (e) => {
+    e.currentTarget.style.opacity = '1';
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault(); // Necessary to allow dropping
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e, targetTitle) => {
+    e.preventDefault();
+    const draggedTitle = e.dataTransfer.getData('text/plain');
+    if (draggedTitle && draggedTitle !== targetTitle) {
+      dragReorderCategory(draggedTitle, targetTitle);
+    }
+  };
 
   const filteredCategories = useMemo(() => sortedCategories
     .map(c => ({
@@ -222,8 +245,13 @@ export default function MainToolListPage() {
             return (
               <div
                 key={catIdx}
-                className={`animate-fade-in-up`}
+                className={`animate-fade-in-up cursor-grab active:cursor-grabbing`}
                 style={{ animationDelay: `${catIdx * 40}ms` }}
+                draggable
+                onDragStart={(e) => handleDragStart(e, category.title)}
+                onDragEnd={handleDragEnd}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, category.title)}
               >
                 <CategoryCard
                   category={category}

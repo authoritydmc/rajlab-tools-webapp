@@ -70,6 +70,26 @@ export function useCategorySorting(initialCategories) {
     setCustomOrder(currentList);
   }, [initialCategories, customOrder]);
 
+  const dragReorderCategory = useCallback((draggedTitle, targetTitle) => {
+    setSortMode('custom');
+    let currentList = customOrder.length > 0 ? [...customOrder] : initialCategories.map(c => c.title);
+    const allTitles = initialCategories.map(c => c.title);
+    currentList = currentList.filter(t => allTitles.includes(t));
+    const missing = allTitles.filter(t => !currentList.includes(t));
+    currentList.push(...missing);
+
+    const fromIndex = currentList.indexOf(draggedTitle);
+    const toIndex = currentList.indexOf(targetTitle);
+    
+    if (fromIndex !== -1 && toIndex !== -1 && fromIndex !== toIndex) {
+      // Remove the dragged item
+      currentList.splice(fromIndex, 1);
+      // Insert it at the target position
+      currentList.splice(toIndex, 0, draggedTitle);
+      setCustomOrder(currentList);
+    }
+  }, [initialCategories, customOrder]);
+
   const sortedCategories = [...initialCategories].sort((a, b) => {
     if (sortMode === 'usage') {
       const usageA = usageStats[a.title] || 0;
@@ -99,6 +119,7 @@ export function useCategorySorting(initialCategories) {
     setSortMode,
     sortedCategories,
     trackClick,
-    moveCategory
+    moveCategory,
+    dragReorderCategory
   };
 }
