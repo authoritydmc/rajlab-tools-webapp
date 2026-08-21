@@ -18,18 +18,18 @@ export default function JsonToYaml() {
     return () => { document.title = 'Utilities || Rajlabs'; };
   }, []);
 
-  const convert = () => {
+  useEffect(() => {
+    if (!input.trim()) { setOutput(''); setError(''); return; }
     try {
       const obj = JSON.parse(input);
       const yml = yaml.dump(obj, { indent: 2, lineWidth: -1 });
       setOutput(yml);
       setError('');
-      toast.success('Conversion complete!');
     } catch (e) {
       setError(e.message);
       setOutput('');
     }
-  };
+  }, [input]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(output);
@@ -61,7 +61,6 @@ export default function JsonToYaml() {
         </div>
         {error && <div className="text-red-500 mb-4 text-sm">{error}</div>}
         <div className="flex gap-2 justify-center mb-4">
-          <button onClick={convert} className={`p-2 rounded-md transition-colors duration-300 ${isDarkMode ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-500 text-white hover:bg-blue-600'}`}>Convert to YAML</button>
           <button onClick={handleClear} className={`p-2 rounded-md transition-colors duration-300 ${isDarkMode ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-red-500 text-white hover:bg-red-600'}`}><FaTrash className="inline mr-1" />Clear</button>
         </div>
         {output && (
