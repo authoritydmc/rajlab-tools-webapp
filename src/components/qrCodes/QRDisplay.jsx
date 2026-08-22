@@ -251,8 +251,8 @@ export default function QRCodeDisplay({
   };
 
   return (
-    <div className={`flex flex-col items-center justify-center p-5 sm:p-7 rounded-3xl shadow-xl border transition-all duration-300 mt-6 ${
-      isDarkMode ? 'bg-slate-900/80 border-slate-700/60 backdrop-blur-xl' : 'bg-white/80 border-slate-200/80 backdrop-blur-xl'
+    <div className={`flex flex-col items-center justify-center p-5 sm:p-7 rounded-2xl sm:rounded-3xl shadow-xl border transition-all duration-300 w-full h-full ${
+      isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/70 border-slate-200/60 backdrop-blur-xl'
     }`}>
       {showHeader && (
         <h3 className={`text-lg sm:text-xl font-bold mb-4 tracking-tight ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}>

@@ -136,111 +136,111 @@ export default function WhatsAppQr() {
     >
       <div className="w-full">
         <Toaster />
-        <div className={`w-full mx-auto p-6 shadow-lg rounded-2xl ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
-          <div className="flex flex-col lg:flex-row lg:space-x-8">
-            {/* Form Section */}
-            <div className="flex-1">
-              {/* Country Code and Phone Number Inputs */}
-              <div className="mb-6 flex flex-col lg:flex-row lg:items-end">
-                {/* Country Code Dropdown */}
-                <div className="flex flex-col w-48 mr-0 lg:mr-4 mb-4 lg:mb-0">
-                  <CountryCodeDropdown
-                    value={countryCode}
-                    onChange={handleCountryCodeChange}
-                    isDarkMode={isDarkMode}
-                  />
-                </div>
-                {/* Phone Number Input */}
-                <div className="flex-1">
-                  <label className="block font-bold mb-2" htmlFor="phoneNumber">Phone Number</label>
-                  <input
-                    id="phoneNumber"
-                    type="text"
-                    value={phoneNumber}
-                    onChange={handlePhoneChange}
-                    placeholder="Enter phone number"
-                    className={`w-full p-2.5 border rounded-xl font-mono text-sm ${isDarkMode ? 'bg-slate-800 text-white border-slate-700' : 'bg-white text-slate-900 border-slate-300'}`}
-                  />
-                  {phoneError && (
-                    <p className="text-red-500 text-sm mt-1">{phoneError}</p>
-                  )}
-                </div>
-              </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+          {/* Form Section (5 cols on lg/xl) */}
+          <div className={`lg:col-span-5 p-6 shadow-lg rounded-2xl ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
+            <h3 className={`text-base font-bold mb-4 ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>
+              Chat Configuration
+            </h3>
 
-              {/* Message Input (Optional) */}
-              <div className="mb-6">
-                <label className="block font-bold mb-2" htmlFor="message">Message (Optional)</label>
+            {/* Country Code and Phone Number Inputs */}
+            <div className="mb-4 flex flex-col sm:flex-row sm:items-end gap-3">
+              {/* Country Code Dropdown */}
+              <div className="flex flex-col w-full sm:w-44">
+                <CountryCodeDropdown
+                  value={countryCode}
+                  onChange={handleCountryCodeChange}
+                  isDarkMode={isDarkMode}
+                />
+              </div>
+              {/* Phone Number Input */}
+              <div className="flex-1">
+                <label className="block font-bold mb-2 text-sm" htmlFor="phoneNumber">Phone Number</label>
                 <input
-                  id="message"
+                  id="phoneNumber"
                   type="text"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Enter message (optional)"
-                  className={`w-full p-2.5 border rounded-xl ${isDarkMode ? 'bg-slate-800 text-white border-slate-700' : 'bg-white text-slate-900 border-slate-300'}`}
+                  value={phoneNumber}
+                  onChange={handlePhoneChange}
+                  placeholder="e.g. 9876543210"
+                  className={`w-full p-2.5 border rounded-xl font-mono text-sm ${isDarkMode ? 'bg-slate-800 text-white border-slate-700' : 'bg-white text-slate-900 border-slate-300'}`}
                 />
-              </div>
-
-              {/* Send Message Button */}
-              <div className="mb-4">
-                <button
-                  onClick={handleSendMessage}
-                  disabled={!qrData}
-                  className={`w-full py-2.5 px-4 rounded-xl font-semibold ${
-                    qrData
-                      ? 'bg-green-500 text-white hover:bg-green-600 shadow-md'
-                      : 'bg-gray-300 text-gray-700 cursor-not-allowed'
-                  } transition-all duration-200 active:scale-95`}
-                >
-                  Send Message on WhatsApp
-                </button>
+                {phoneError && (
+                  <p className="text-red-500 text-xs mt-1.5">{phoneError}</p>
+                )}
               </div>
             </div>
 
-            {/* QR Code Display Section with Branding & Frames */}
-            <div className="flex-1 mt-8 lg:mt-0">
-              {qrData && !phoneError ? (
-                <QRCodeDisplay
-                  data={qrData}
-                  size={size}
-                  errorCorrectionLevel="H"
-                  shareTitle={`WhatsApp QR ${countryCode}${phoneNumber}`}
-                  shareText={`Message to ${countryCode}${phoneNumber}${message ? `: ${message}` : ''}`}
-                  headerText={`WhatsApp Direct Chat QR`}
-                  visibleButtons={{ copy: true, download: true, share: true, print: true }}
-                  bgColor={bgColor}
-                  fgColor={fgColor}
-                  colorTheme={colorTheme}
-                  logo={logo}
-                  dotStyle={dotStyle}
-                  cornerSquareStyle={cornerSquareStyle}
-                  cornerDotStyle={cornerDotStyle}
-                  frame={frame}
-                  frameText={frameText}
-                  frameColor={frameColor}
-                  onCustomizationChange={(c) => {
-                    if (c.bg) setBgColor(c.bg);
-                    if (c.fg) setFgColor(c.fg);
-                    if (c.theme) setColorTheme(c.theme);
-                    if (c.logo) setLogo(c.logo);
-                    if (c.dotStyle) setDotStyle(c.dotStyle);
-                    if (c.cornerSquareStyle) setCornerSquareStyle(c.cornerSquareStyle);
-                    if (c.cornerDotStyle) setCornerDotStyle(c.cornerDotStyle);
-                    if (c.frame) setFrame(c.frame);
-                    if (c.frameText) setFrameText(c.frameText);
-                    if (c.frameColor) setFrameColor(c.frameColor);
-                  }}
-                />
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                  <h2 className="text-xl font-semibold mb-4">
-                    Your WhatsApp QR code will appear here!
-                  </h2>
-                  <p className="text-sm text-gray-500 mb-6">
-                    Enter a phone number to generate your instant QR code.
-                  </p>
-                </div>
-              )}
+            {/* Message Input (Optional) */}
+            <div className="mb-4">
+              <label className="block font-bold mb-2 text-sm" htmlFor="message">Message (Optional)</label>
+              <textarea
+                id="message"
+                rows={3}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Pre-filled message text (optional)"
+                className={`w-full p-2.5 border rounded-xl resize-none text-sm ${isDarkMode ? 'bg-slate-800 text-white border-slate-700' : 'bg-white text-slate-900 border-slate-300'}`}
+              />
             </div>
+
+            {/* Send Message Button */}
+            <div className="mb-2">
+              <button
+                onClick={handleSendMessage}
+                disabled={!qrData}
+                className={`w-full py-2.5 px-4 rounded-xl font-semibold text-sm ${
+                  qrData
+                    ? 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-md'
+                    : 'bg-gray-300 dark:bg-slate-800 text-gray-500 cursor-not-allowed'
+                } transition-all duration-200 active:scale-95`}
+              >
+                Direct WhatsApp Chat
+              </button>
+            </div>
+          </div>
+
+          {/* QR Code Display Section (7 cols on lg/xl) */}
+          <div className="lg:col-span-7 flex flex-col justify-center">
+            {qrData && !phoneError ? (
+              <QRCodeDisplay
+                data={qrData}
+                size={size}
+                errorCorrectionLevel="H"
+                shareTitle={`WhatsApp QR ${countryCode}${phoneNumber}`}
+                shareText={`Message to ${countryCode}${phoneNumber}${message ? `: ${message}` : ''}`}
+                headerText={`WhatsApp Direct Chat QR`}
+                visibleButtons={{ copy: true, download: true, share: true, print: true }}
+                bgColor={bgColor}
+                fgColor={fgColor}
+                colorTheme={colorTheme}
+                logo={logo}
+                dotStyle={dotStyle}
+                cornerSquareStyle={cornerSquareStyle}
+                cornerDotStyle={cornerDotStyle}
+                frame={frame}
+                frameText={frameText}
+                frameColor={frameColor}
+                onCustomizationChange={(c) => {
+                  if (c.bg) setBgColor(c.bg);
+                  if (c.fg) setFgColor(c.fg);
+                  if (c.theme) setColorTheme(c.theme);
+                  if (c.logo) setLogo(c.logo);
+                  if (c.dotStyle) setDotStyle(c.dotStyle);
+                  if (c.cornerSquareStyle) setCornerSquareStyle(c.cornerSquareStyle);
+                  if (c.cornerDotStyle) setCornerDotStyle(c.cornerDotStyle);
+                  if (c.frame) setFrame(c.frame);
+                  if (c.frameText) setFrameText(c.frameText);
+                  if (c.frameColor) setFrameColor(c.frameColor);
+                }}
+              />
+            ) : (
+              <div className={`p-12 text-center rounded-2xl border flex flex-col items-center justify-center ${
+                isDarkMode ? 'bg-slate-900/40 border-slate-800 text-slate-500' : 'bg-white/40 border-slate-200 text-slate-400'
+              }`}>
+                <FaWhatsapp size={40} className="mb-3 opacity-30" />
+                <p className="font-semibold text-sm">Enter a phone number on the left to generate your WhatsApp QR code.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
