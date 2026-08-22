@@ -45,6 +45,7 @@ const TextDiffStudio = lazy(() => import('./components/diff/TextDiffStudio'));
 const HtmlEntityStudio = lazy(() => import('./components/html-entity/HtmlEntityStudio'));
 const UrlLab = lazy(() => import('./components/url-lab/UrlLab'));
 const CodeFormatter = lazy(() => import('./components/code-formatter/CodeFormatter'));
+const MarkdownToWord = lazy(() => import('./components/markdown-to-word/MarkdownToWord'));
 const LoremIpsum = lazy(() => import('./components/lorem/LoremIpsum'));
 const RegexTester = lazy(() => import('./components/regex/RegexTester'));
 const UuidGenerator = lazy(() => import('./components/uuid/UuidGenerator'));
@@ -113,6 +114,7 @@ export const router = createBrowserRouter([
             { path: "yaml-to-json", element: <S fallback={<Loading />}><YamlToJson /></S> },
             { path: "color-picker", element: <S fallback={<Loading />}><ColorPicker /></S> },
             { path: "markdown-playground", element: <S fallback={<Loading />}><MarkdownPlayground /></S> },
+            { path: "markdown-to-word", element: <S fallback={<Loading />}><MarkdownToWord /></S> },
             { path: "text-diff", element: <S fallback={<Loading />}><TextDiffStudio /></S> },
             { path: "html-entity", element: <S fallback={<Loading />}><HtmlEntityStudio /></S> },
             { path: "url-lab", element: <S fallback={<Loading />}><UrlLab /></S> },

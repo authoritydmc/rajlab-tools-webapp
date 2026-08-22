@@ -17,10 +17,10 @@ service cloud.firestore {
     }
 
     // ── User feedback & ratings — anonymous creates only ───────────
-    // Reads blocked (view in Console). Whitelist + server timestamp + App Check (hardcoded site key 6LfUX5MtAAAAAKfkcwe...).
+    // Reads blocked (view in Console). Schema-validated (no App Check — server-side verification
+    // currently fails due to secret/site-key mismatch; re-enable after fixing Firebase Console).
     match /feedback/{docId} {
-      allow create: if request.app != null
-                    && request.resource.data.keys().hasOnly(["rating","comment","tool","path","url","userAgent","createdAt","clientTimestamp"])
+      allow create: if request.resource.data.keys().hasOnly(["rating","comment","tool","path","url","userAgent","createdAt","clientTimestamp"])
                     && request.resource.data.rating is int && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
                     && request.resource.data.comment is string && request.resource.data.comment.size() <= 500
                     && request.resource.data.tool is string && request.resource.data.tool.size() >= 1 && request.resource.data.tool.size() <= 120
@@ -64,6 +64,20 @@ service cloud.firestore {
                     && request.resource.data.updatedAt == request.time;
 
       allow delete: if false;
+    }
+
+    // ── Debug collection — no App Check, capped writes ─────────────
+    // Allows one create per docId (timestamped). Used to diagnose why
+    // App Check tokens fail server-side despite client-side success.
+    // Auto-expire by querying & deleting old docs periodically.
+    match /_debug/{docId} {
+      allow read: if false;
+      allow create: if request.resource.data.keys().hasAll(["ts","host","phase","slug","appCheckPresent","tokenLen","error","siteKey","provider","isDev","env"])
+                    && request.resource.data.ts is string && request.resource.data.ts.size() <= 40
+                    && request.resource.data.host is string && request.resource.data.host.size() <= 100
+                    && request.resource.data.phase is string && request.resource.data.phase.size() <= 20
+                    && request.resource.data.error is string && request.resource.data.error.size() <= 500;
+      allow update, delete: if false;
     }
   }
 }

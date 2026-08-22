@@ -456,6 +456,20 @@ export const TOOL_REGISTRY = {
       { name: 'lang', aliases: ['language'], type: 'string', default: 'json', description: 'Language: json, html, css, sql.' },
       { name: 'embed', type: 'boolean', default: false, description: 'Embed mode.' }
     ]
+  },
+  '/markdown-to-word': {
+    title: 'Markdown to Word Converter',
+    sourceFile: 'src/components/markdown-to-word/MarkdownToWord.jsx',
+    category: 'Text Utilities',
+    description: 'Convert Markdown documents to Word (.docx) files with customizable font, size, line height, and live preview.',
+    queryParams: [
+      { name: 'text', aliases: ['md', 'content'], type: 'string', default: '', description: 'Initial markdown text to convert.' },
+      { name: 'raw', type: 'string', default: '', description: '"text" (plain text output) or "json".' },
+      { name: 'embed', type: 'boolean', default: false, description: 'Embed mode.' }
+    ],
+    examples: [
+      { label: 'Pre-filled Markdown', params: { text: '# Hello World\n\nThis is **bold** text.' } }
+    ]
   }
 };
 
