@@ -7,7 +7,9 @@ import { playHoverSound, playClickSound, playFavSound } from '../utils/sounds';
 import { useDirectionSound } from '../hooks/useDirectionSound';
 import HoverPreview from './common/HoverPreview';
 import { HiMiniMagnifyingGlass, HiStar, HiChevronUp, HiChevronDown } from 'react-icons/hi2';
-import { FaStar } from 'react-icons/fa';
+import { FaStar, FaFire } from 'react-icons/fa';
+import { useToolUsage } from '../hooks/useToolUsage';
+import { formatCount, incrementToolUsage } from '../utils/toolUsageService';
 
 const CATEGORY_STYLE = {
   'Text Utilities': {
@@ -107,6 +109,7 @@ export default function MainToolListPage() {
   const { isDarkMode } = useTheme();
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
   const { sortMode, setSortMode, sortedCategories, trackClick, moveCategory, dragReorderCategory } = useCategorySorting(toolCategoriesData);
+  const { usageMap } = useToolUsage();
 
   const handleDragStart = (e, title) => {
     e.dataTransfer.setData('text/plain', title);
@@ -131,7 +134,24 @@ export default function MainToolListPage() {
     }
   };
 
-  const filteredCategories = useMemo(() => sortedCategories
+  // Community sort: override display order when sortMode === 'community'
+  const displayCategories = useMemo(() => {
+    if (sortMode !== 'community') return sortedCategories;
+    return [...sortedCategories]
+      .map(c => ({
+        ...c,
+        // sort tools inside each category by community usage when in community mode
+        tools: [...c.tools].sort((a, b) => (usageMap[b.link] || 0) - (usageMap[a.link] || 0)),
+      }))
+      .sort((a, b) => {
+        const sumA = a.tools.reduce((s, t) => s + (usageMap[t.link] || 0), 0);
+        const sumB = b.tools.reduce((s, t) => s + (usageMap[t.link] || 0), 0);
+        if (sumB !== sumA) return sumB - sumA;
+        return 0;
+      });
+  }, [sortedCategories, sortMode, usageMap]);
+
+  const filteredCategories = useMemo(() => displayCategories
     .map(c => ({
       ...c,
       tools: c.tools.filter(t =>
@@ -140,7 +160,7 @@ export default function MainToolListPage() {
       )
     }))
     .filter(c => c.tools.length > 0),
-    [sortedCategories, searchQuery]
+    [displayCategories, searchQuery]
   );
 
   const allTools = useMemo(() => {
@@ -154,12 +174,29 @@ export default function MainToolListPage() {
     [favorites, allTools]
   );
 
+  // Community popular — top 3 by Firestore usageMap
+  const popularTools = useMemo(() => {
+    const entries = Object.entries(usageMap)
+      .filter(([, v]) => Number(v) > 0)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([link]) => ({ link, tool: allTools[link], count: usageMap[link] }))
+      .filter(e => e.tool);
+    return entries;
+  }, [usageMap, allTools]);
+
   const handleFav = useCallback((e, link) => {
     e.preventDefault();
     e.stopPropagation();
     toggleFavorite(link);
     playFavSound();
   }, [toggleFavorite]);
+
+  // Wrap trackClick to also bump community counter (fire-and-forget)
+  const handleToolClick = useCallback((categoryTitle, toolLink, toolName) => {
+    trackClick(categoryTitle);
+    incrementToolUsage(toolLink, { title: toolName }).catch(() => {});
+  }, [trackClick]);
 
   return (
     <main className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}>
@@ -192,6 +229,38 @@ export default function MainToolListPage() {
 
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 py-6 sm:py-10">
 
+        {/* Community Popular — Top 3 (Firestore) */}
+        {popularTools.length > 0 && !searchQuery && (
+          <div className="mb-6 sm:mb-8 animate-fade-in-up">
+            <div className="flex items-center gap-2.5 mb-4 px-1">
+              <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center ${isDarkMode ? 'bg-orange-500/15 text-orange-400' : 'bg-orange-100 text-orange-600'}`}>
+                <FaFire size={16} />
+              </div>
+              <h2 className={`text-base sm:text-lg lg:text-xl font-bold ${isDarkMode ? 'text-orange-400' : 'text-orange-600'}`}>
+                Most Popular
+              </h2>
+              <span className={`text-[10px] sm:text-xs font-medium px-2 py-0.5 rounded-full border ${isDarkMode ? 'bg-white/[0.06] text-slate-400 border-white/10' : 'bg-orange-50 text-orange-600 border-orange-200'}`}>
+                Community · Live
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {popularTools.map(({ tool, count }, idx) => (
+                <div key={tool.link}>
+                  <ToolCard
+                    tool={tool}
+                    isDarkMode={isDarkMode}
+                    isFav={isFavorite(tool.link)}
+                    onFav={handleFav}
+                    usageCount={count}
+                    rank={idx + 1}
+                    onToolClick={handleToolClick}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Favorites */}
         {favoriteTools.length > 0 && !searchQuery && (
           <div className="mb-6 sm:mb-8 animate-fade-in-up">
@@ -208,7 +277,7 @@ export default function MainToolListPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-3">
               {favoriteTools.map(tool => (
-                <ToolCard key={tool.link} tool={tool} isDarkMode={isDarkMode} isFav={true} onFav={handleFav} favAccent />
+                <ToolCard key={tool.link} tool={tool} isDarkMode={isDarkMode} isFav={true} onFav={handleFav} favAccent usageCount={usageMap[tool.link]} onToolClick={handleToolClick} />
               ))}
             </div>
           </div>
@@ -228,7 +297,8 @@ export default function MainToolListPage() {
               }`}
             >
               <option value="default">Default</option>
-              <option value="usage">Most Used</option>
+              <option value="community">Popular (Community)</option>
+              <option value="usage">Most Used (Your Device)</option>
               <option value="custom">Custom</option>
             </select>
           </div>
@@ -261,6 +331,8 @@ export default function MainToolListPage() {
                   onFav={handleFav}
                   moveCategory={moveCategory}
                   trackClick={trackClick}
+                  usageMap={usageMap}
+                  onToolClick={handleToolClick}
                 />
               </div>
             );
@@ -279,7 +351,7 @@ export default function MainToolListPage() {
   );
 }
 
-function CategoryCard({ category, style, isDarkMode, isFavorite, onFav, moveCategory, trackClick }) {
+function CategoryCard({ category, style, isDarkMode, isFavorite, onFav, moveCategory, trackClick, usageMap, onToolClick }) {
   return (
     <div className={`group/card rounded-3xl border overflow-hidden transition-all duration-300 shadow-sm hover:shadow-lg ${
       isDarkMode ? style.dark + ' border-slate-700/50' : style.light + ' border-slate-200'
@@ -324,6 +396,8 @@ function CategoryCard({ category, style, isDarkMode, isFavorite, onFav, moveCate
             onFav={onFav}
             style={style}
             trackClick={trackClick}
+            usageCount={usageMap?.[tool.link]}
+            onToolClick={onToolClick}
           />
         ))}
       </div>
@@ -340,7 +414,7 @@ const HOVER_EFFECTS = [
 ];
 
 /*  Individual Tool Card (Seamless List Item)  */
-function ToolCard({ tool, categoryTitle, isDarkMode, isFav, onFav, style, favAccent, trackClick }) {
+function ToolCard({ tool, categoryTitle, isDarkMode, isFav, onFav, style, favAccent, trackClick, usageCount, onToolClick, rank }) {
   const dirSound = useDirectionSound();
 
   if (!tool.isEnabled) return null;
@@ -364,7 +438,8 @@ function ToolCard({ tool, categoryTitle, isDarkMode, isFav, onFav, style, favAcc
         onMouseMove={dirSound.onMouseMove}
         onClick={() => {
           playClickSound();
-          if (trackClick && categoryTitle) trackClick(categoryTitle);
+          if (onToolClick && categoryTitle) onToolClick(categoryTitle, tool.link, tool.name);
+          else if (trackClick && categoryTitle) trackClick(categoryTitle);
         }}
       >
         <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.15] group-hover:rotate-3 ${
@@ -376,8 +451,26 @@ function ToolCard({ tool, categoryTitle, isDarkMode, isFav, onFav, style, favAcc
         </div>
 
         <div className="flex-1 min-w-0 pr-6">
-          <div className={`text-base sm:text-lg font-bold leading-tight truncate tracking-tight transition-colors ${isDarkMode ? 'text-slate-200 group-hover:text-white' : 'text-slate-700 group-hover:text-slate-900'}`}>
-            {tool.name}
+          <div className={`text-base sm:text-lg font-bold leading-tight truncate tracking-tight transition-colors flex items-center gap-1.5 flex-wrap ${isDarkMode ? 'text-slate-200 group-hover:text-white' : 'text-slate-700 group-hover:text-slate-900'}`}>
+            <span className="truncate">{tool.name}</span>
+            {typeof usageCount === 'number' && usageCount > 0 && (
+              rank ? (
+                <span
+                  title={`${usageCount.toLocaleString()} community uses`}
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 bg-orange-500 text-white border border-orange-500"
+                >
+                  <FaFire size={10} className="text-white" />
+                  {formatCount(usageCount)}
+                </span>
+              ) : (
+                <span
+                  title={`${usageCount.toLocaleString()} community uses`}
+                  className={`inline-flex items-center gap-1 text-[10px] font-medium shrink-0 tracking-wide ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}
+                >
+                  · {formatCount(usageCount)}
+                </span>
+              )
+            )}
           </div>
           {tool.description && (
             <div className={`text-xs sm:text-sm mt-1 leading-snug line-clamp-2 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>

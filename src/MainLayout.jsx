@@ -6,6 +6,7 @@ import packageInfo from '../package.json';
 import SoundToggle from './components/common/SoundToggle';
 import FlipClock from './components/common/FlipClock';
 import FloatingChaiButton from './components/common/FloatingChaiButton';
+import ToolRouteTracker from './components/common/ToolRouteTracker';
 
 function MainLayout() {
   const { isDarkMode, toggleDarkMode } = useTheme();
@@ -77,6 +78,7 @@ function MainLayout() {
 
       {/* Main Content */}
       <main className="flex-1 relative">
+        <ToolRouteTracker />
         <Outlet />
       </main>
 

@@ -18,6 +18,8 @@ import { HiSparkles } from 'react-icons/hi2';
 import SteamingChaiIcon from './SteamingChaiIcon';
 import { SUPPORT_UPI_ID, SUPPORT_UPI_NAME, CASHFREE_URL, BMC_URL } from '../../config';
 import { useTheme } from '../../themeContext';
+import { submitFeedbackToFirestore, submitRatingToFirestore } from '../../utils/feedbackService';
+import { logFirebaseEvent } from '../../firebaseConfig';
 
 const UPI_PRESETS = [
   { amount: 21, label: 'Shubh Shuruat', emoji: '🪔' },
@@ -85,42 +87,58 @@ export default function SupportChaiModal({
     });
   };
 
-  const handleRate = (stars) => {
+  // Persist rating to Firestore + localStorage fallback
+  const handleRate = async (stars) => {
     setRating(stars);
     setSubmittedRating(true);
+    const toolLabel = downloadLabel || 'General';
+
+    // Local cache (offline fallback + instant UX)
     try {
       const stored = JSON.parse(localStorage.getItem('rajlab_user_feedback') || '[]');
-      stored.push({
-        rating: stars,
-        downloadLabel: downloadLabel || 'General',
-        timestamp: new Date().toISOString(),
-      });
+      stored.push({ rating: stars, downloadLabel: toolLabel, timestamp: new Date().toISOString(), source: 'local' });
       localStorage.setItem('rajlab_user_feedback', JSON.stringify(stored));
     } catch {
       // Ignore storage errors
     }
+
+    // Firestore
+    try {
+      await submitRatingToFirestore({ rating: stars, tool: toolLabel });
+      logFirebaseEvent('rate_tool', { rating: stars, tool: toolLabel });
+    } catch (err) {
+      console.warn('[feedback] Firestore rating save failed, kept in localStorage:', err?.message);
+    }
   };
 
-  const handleSendComment = (e) => {
+  const handleSendComment = async (e) => {
     e.preventDefault();
-    if (!feedbackComment.trim() && !rating) return;
+    const trimmed = feedbackComment.trim();
+    if (!trimmed && !rating) return;
     setSubmittingComment(true);
-    setTimeout(() => {
-      try {
-        const stored = JSON.parse(localStorage.getItem('rajlab_user_feedback') || '[]');
-        stored.push({
-          rating: rating || 5,
-          comment: feedbackComment.trim(),
-          downloadLabel: downloadLabel || 'General',
-          timestamp: new Date().toISOString(),
-        });
-        localStorage.setItem('rajlab_user_feedback', JSON.stringify(stored));
-      } catch {
-        // Ignore storage errors
-      }
-      setSubmittingComment(false);
-      setCommentSubmitted(true);
-    }, 400);
+    const toolLabel = downloadLabel || 'General';
+    const payload = { rating: rating || 5, comment: trimmed, tool: toolLabel };
+
+    // Firestore — primary store
+    try {
+      await submitFeedbackToFirestore(payload);
+      logFirebaseEvent('submit_feedback', { rating: payload.rating, tool: toolLabel, has_comment: !!trimmed });
+    } catch (err) {
+      console.warn('[feedback] Firestore feedback save failed:', err?.message);
+      // still continue to local fallback so UX isn't blocked
+    }
+
+    // Local cache as backup / offline queue
+    try {
+      const stored = JSON.parse(localStorage.getItem('rajlab_user_feedback') || '[]');
+      stored.push({ ...payload, downloadLabel: toolLabel, timestamp: new Date().toISOString(), source: 'firestore_attempted' });
+      localStorage.setItem('rajlab_user_feedback', JSON.stringify(stored));
+    } catch {
+      // Ignore storage errors
+    }
+
+    setSubmittingComment(false);
+    setCommentSubmitted(true);
   };
 
   return (
@@ -487,7 +505,7 @@ export default function SupportChaiModal({
               />
               <div className="flex items-center justify-between">
                 <span className={`text-[10px] ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                  Client-side feedback &middot; Zero PII
+                  Stored in Firestore &middot; Anonymous &middot; Zero PII
                 </span>
                 <button
                   type="submit"

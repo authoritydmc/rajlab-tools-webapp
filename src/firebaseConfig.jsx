@@ -1,28 +1,27 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics, isSupported,logEvent } from "firebase/analytics";
+import { getAnalytics, logEvent } from "firebase/analytics";
+import { getFirestore } from "firebase/firestore";
 import firebaseConfigData from './firebaseConfig.json'; // Import JSON config
-
-
-
 
 const firebaseApp = initializeApp(firebaseConfigData);
 
-const analytics =getAnalytics(firebaseApp) 
-// console.log(firebaseApp)
+let analytics = null;
+try {
+  analytics = getAnalytics(firebaseApp);
+} catch {
+  // Analytics not supported in this environment (e.g. SSR / unsupported browser)
+}
 
+const db = getFirestore(firebaseApp);
 
 const logFirebaseEvent = (eventName, eventParams = {}) => {
-  // Check if analytics is initialized
   if (analytics) {
-    // console.log("Logging to firebase",eventName)
     logEvent(analytics, eventName, eventParams);
   } else {
     console.warn("Analytics is not supported or not initialized");
   }
 };
 
-
-
-// Exporting analytics and logEvent function
-export { analytics, logFirebaseEvent };
+// Exporting app, db, analytics and helper
+export { firebaseApp, analytics, db, logFirebaseEvent };

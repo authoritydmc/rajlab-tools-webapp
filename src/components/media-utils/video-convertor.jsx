@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { FaFileVideo, FaDownload, FaTrash, FaUpload, FaPlay, FaCog, FaCut, FaExpand, FaVolumeMute, FaCheck, FaExclamationTriangle, FaRedo, FaInfoCircle, FaCompress, FaTachometerAlt, FaWaveSquare, FaEye, FaChartBar, FaCloudDownloadAlt, FaHdd } from 'react-icons/fa';
+import { FaFileVideo, FaDownload, FaTrash, FaUpload, FaPlay, FaCog, FaCut, FaExpand, FaVolumeMute, FaCheck, FaExclamationTriangle, FaRedo, FaInfoCircle, FaCompress, FaTachometerAlt, FaWaveSquare, FaEye, FaChartBar, FaHdd } from 'react-icons/fa';
+
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
@@ -8,129 +9,7 @@ import ToolPageLayout from '../common/ToolPageLayout';
 import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 import { triggerChaiModal } from '../../chaiModalContext';
 
-const CACHE_NAME = 'ffmpeg-wasm-cache-v1';
 
-async function fetchBlobWithProgress(url, mimeType, onProgress, timeoutMs = 25000) {
-  // 1. Check local Cache API first
-  try {
-    if (typeof window !== 'undefined' && 'caches' in window) {
-      const cache = await caches.open(CACHE_NAME);
-      const cachedResponse = await cache.match(url);
-      if (cachedResponse && cachedResponse.ok) {
-        const blob = await cachedResponse.blob();
-        if (blob && blob.size > 0) {
-          onProgress?.({
-            url,
-            loaded: blob.size,
-            total: blob.size,
-            percent: 100,
-            speed: 'Cached',
-            cached: true,
-            done: true
-          });
-          return URL.createObjectURL(new Blob([blob], { type: mimeType }));
-        }
-      }
-    }
-  } catch (e) {
-    console.warn('Cache lookup skipped/failed:', e);
-  }
-
-  // 2. Fetch from network with timeout & chunked progress
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(new Error(`Timeout after ${timeoutMs / 1000}s fetching ${url}`)), timeoutMs);
-
-  try {
-    const response = await fetch(url, { signal: controller.signal });
-    clearTimeout(timeoutId);
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status} (${response.statusText || 'Error'})`);
-    }
-
-    const contentLength = response.headers.get('content-length');
-    const total = contentLength ? parseInt(contentLength, 10) : 0;
-    const reader = response.body?.getReader();
-    let blob;
-
-    if (!reader) {
-      const arrayBuf = await response.arrayBuffer();
-      blob = new Blob([arrayBuf], { type: mimeType });
-      onProgress?.({
-        url,
-        loaded: blob.size,
-        total: blob.size,
-        percent: 100,
-        speed: 'Downloaded',
-        cached: false,
-        done: true
-      });
-    } else {
-      const chunks = [];
-      let loaded = 0;
-      const startTime = Date.now();
-      let lastReport = 0;
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        if (value) {
-          chunks.push(value);
-          loaded += value.length;
-          const now = Date.now();
-          if (now - lastReport > 80 || (total > 0 && loaded >= total)) {
-            lastReport = now;
-            const elapsed = Math.max(0.1, (now - startTime) / 1000);
-            const speedBytes = loaded / elapsed;
-            const speedStr = speedBytes > 1024 * 1024
-              ? `${(speedBytes / (1024 * 1024)).toFixed(1)} MB/s`
-              : `${(speedBytes / 1024).toFixed(0)} KB/s`;
-            const percent = total > 0 ? Math.min(100, Math.round((loaded / total) * 100)) : 0;
-            onProgress?.({
-              url,
-              loaded,
-              total,
-              percent,
-              speed: speedStr,
-              cached: false,
-              done: false
-            });
-          }
-        }
-      }
-
-      blob = new Blob(chunks, { type: mimeType });
-      onProgress?.({
-        url,
-        loaded,
-        total: total || loaded,
-        percent: 100,
-        speed: 'Done',
-        cached: false,
-        done: true
-      });
-    }
-
-    // Save to Cache API in background for instant reloads
-    try {
-      if (typeof window !== 'undefined' && 'caches' in window && blob.size > 0) {
-        const cache = await caches.open(CACHE_NAME);
-        await cache.put(url, new Response(blob.slice(), {
-          headers: {
-            'Content-Type': mimeType,
-            'Content-Length': String(blob.size),
-          }
-        }));
-      }
-    } catch (e) {
-      console.warn('Failed to cache WASM resource:', e);
-    }
-
-    return URL.createObjectURL(blob);
-  } catch (err) {
-    clearTimeout(timeoutId);
-    throw err;
-  }
-}
 
 const FORMATS = [
   { value: 'mp4', label: 'MP4 (H.264)', mime: 'video/mp4' },
@@ -227,15 +106,7 @@ export default function FfmpegTool() {
   const [downloadSize, setDownloadSize] = useState(null);
   const [ffmpegState, setFfmpegState] = useState('idle');
   const [loadError, setLoadError] = useState('');
-  const [downloadProgress, setDownloadProgress] = useState({
-    stage: 'Initializing...',
-    percent: 0,
-    loaded: 0,
-    total: 0,
-    speed: '',
-    cdn: '',
-    isCached: false
-  });
+  const [loadStage, setLoadStage] = useState('');
   const [isConverting, setIsConverting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [progressTime, setProgressTime] = useState(0);
@@ -255,9 +126,7 @@ export default function FfmpegTool() {
 
   const loadFFmpeg = useCallback(async () => {
     if (ffmpegRef.current) {
-      try {
-        await ffmpegRef.current.terminate();
-      } catch {}
+      try { await ffmpegRef.current.terminate(); } catch {}
       ffmpegRef.current = null;
     }
 
@@ -265,125 +134,46 @@ export default function FfmpegTool() {
     ffmpegRef.current = ffmpeg;
     setFfmpegState('loading');
     setLoadError('');
-    setDownloadProgress({
-      stage: 'Connecting to CDN...',
-      percent: 0,
-      loaded: 0,
-      total: 0,
-      speed: '',
-      cdn: '',
-      isCached: false
-    });
+    setLoadStage('Loading FFmpeg WASM...');
 
-    addLog('Starting FFmpeg WASM loader...');
-    ffmpeg.on('log', ({ message }) => addLog(`[FFmpeg Engine] ${message}`));
+    ffmpeg.on('log', ({ message }) => addLog(`[FFmpeg] ${message}`));
     ffmpeg.on('progress', ({ progress: p, time }) => {
       setProgress(Math.round(p * 100));
       setProgressTime(time / 1000000);
     });
 
-    const candidates = [
-      {
-        name: 'jsDelivr (@ffmpeg/core@0.12.10)',
-        base: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm'
-      },
-      {
-        name: 'unpkg (@ffmpeg/core@0.12.10)',
-        base: 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/esm'
-      },
-      {
-        name: 'jsDelivr fallback (@ffmpeg/core@0.12.6)',
-        base: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/esm'
-      },
-      {
-        name: 'unpkg fallback (@ffmpeg/core@0.12.6)',
-        base: 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm'
-      }
-    ];
+    try {
+      const base = window.location.origin;
+      addLog('Loading FFmpeg WASM from /vendor/ffmpeg-core/...');
 
-    let lastErr = null;
-    for (const c of candidates) {
-      try {
-        addLog(`Attempting mirror: ${c.name}`);
-        setDownloadProgress(prev => ({ ...prev, cdn: c.name, stage: `Connecting to ${c.name}...` }));
+      setLoadStage('Fetching core.js...');
+      const coreURL = `${base}/vendor/ffmpeg-core/ffmpeg-core.js`;
 
-        addLog(`Fetching ffmpeg-core.js...`);
-        const coreURL = await fetchBlobWithProgress(
-          `${c.base}/ffmpeg-core.js`,
-          'text/javascript',
-          (prog) => {
-            if (prog.cached) {
-              addLog(`ffmpeg-core.js loaded from local browser cache ✓`);
-            }
-            setDownloadProgress(prev => ({
-              ...prev,
-              stage: prog.cached ? 'Loaded core.js from cache' : 'Downloading ffmpeg-core.js...',
-              percent: Math.min(20, Math.round(prog.percent * 0.2)),
-              speed: prog.speed,
-              isCached: prog.cached
-            }));
-          },
-          20000
-        );
+      setLoadStage('Fetching core.wasm (~30MB)...');
+      addLog('Fetching ffmpeg-core.wasm (~30MB)...');
+      const wasmURL = `${base}/vendor/ffmpeg-core/ffmpeg-core.wasm`;
 
-        addLog(`Fetching ffmpeg-core.wasm (~9-30MB binary)...`);
-        const wasmURL = await fetchBlobWithProgress(
-          `${c.base}/ffmpeg-core.wasm`,
-          'application/wasm',
-          (prog) => {
-            if (prog.cached) {
-              addLog(`ffmpeg-core.wasm loaded from local browser cache ✓`);
-            }
-            const overallPercent = 20 + Math.round(prog.percent * 0.75);
-            setDownloadProgress(prev => ({
-              ...prev,
-              stage: prog.cached
-                ? 'Loaded core.wasm from cache'
-                : `Downloading WASM: ${formatBytes(prog.loaded)} / ${formatBytes(prog.total || prog.loaded)}`,
-              percent: overallPercent,
-              loaded: prog.loaded,
-              total: prog.total || prog.loaded,
-              speed: prog.speed,
-              isCached: prog.cached
-            }));
-          },
-          45000
-        );
+      setLoadStage('Instantiating WebAssembly runtime...');
+      addLog('Instantiating WebAssembly runtime (may take a moment)...');
+      await ffmpeg.load({ coreURL, wasmURL });
 
-        setDownloadProgress(prev => ({ ...prev, stage: 'Instantiating WebAssembly runtime...', percent: 95 }));
-        addLog('Compiling & initializing WebAssembly runtime...');
-        await ffmpeg.load({ coreURL, wasmURL });
-
-        setDownloadProgress(prev => ({ ...prev, stage: 'Ready', percent: 100 }));
-        addLog(`FFmpeg WASM initialized successfully via ${c.name} ✓`);
-        setFfmpegState('ready');
-        toast.success('FFmpeg is ready!');
-        return;
-      } catch (e) {
-        lastErr = e;
-        addLog(`Mirror ${c.name} failed: ${e?.message || e}`);
-      }
+      setLoadStage('Ready');
+      addLog('FFmpeg WASM ready ✓');
+      setFfmpegState('ready');
+      toast.success('FFmpeg is ready!');
+    } catch (e) {
+      const errMsg = String(e?.message || e || 'Unknown error');
+      setFfmpegState('error');
+      setLoadError(errMsg);
+      addLog(`FFmpeg failed to load: ${errMsg}`);
+      toast.error('FFmpeg failed to load');
     }
 
-    setFfmpegState('error');
-    const errMsg = String(lastErr?.message || lastErr || 'Failed to download FFmpeg WASM');
-    setLoadError(errMsg);
-    addLog(`All FFmpeg load mirrors failed: ${errMsg}`);
-    toast.error('FFmpeg failed to load');
   }, [addLog]);
 
-  const clearFFmpegCacheAndReload = async () => {
-    try {
-      if (typeof window !== 'undefined' && 'caches' in window) {
-        await caches.delete(CACHE_NAME);
-        addLog('Cleared local FFmpeg WASM cache.');
-        toast.success('Cache cleared, retrying...');
-      }
-    } catch (e) {
-      addLog(`Error clearing cache: ${e?.message}`);
-    }
-    loadFFmpeg();
-  };
+
+
+
 
   useEffect(() => {
     document.title = 'Video Converter | Rajlabs';
@@ -563,9 +353,9 @@ export default function FfmpegTool() {
             <div className="flex items-center gap-2">
               <span className={`w-2.5 h-2.5 rounded-full ${isReady ? 'bg-emerald-500 animate-pulse' : isLoading ? 'bg-amber-500 animate-pulse' : 'bg-red-500'}`} />
               <span className="font-bold">{isReady ? 'FFmpeg 0.12.10 ready' : isLoading ? 'Loading FFmpeg WASM...' : 'FFmpeg load error'}</span>
-              {isReady && downloadProgress.isCached && (
+              {isReady && (
                 <span className={`px-2 py-0.5 rounded-full text-[11px] inline-flex items-center gap-1 ${isDarkMode?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30':'bg-emerald-50 text-emerald-700 border border-emerald-200'}`}>
-                  <FaHdd size={10}/> Cached
+                  <FaHdd size={10}/> Self-hosted
                 </span>
               )}
             </div>
@@ -582,42 +372,39 @@ export default function FfmpegTool() {
               )}
               {inputMeta && <span className={`hidden sm:inline-flex items-center gap-1 ${isDarkMode?'text-slate-500':'text-slate-400'}`}><FaExpand size={10}/> {effectiveResolution}</span>}
               {ffmpegState==='error' && (
-                <div className="flex gap-1.5">
-                  <button onClick={loadFFmpeg} className="px-3 py-1 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white inline-flex items-center gap-1"><FaRedo size={11}/> Retry</button>
-                  <button onClick={clearFFmpegCacheAndReload} className="px-3 py-1 rounded-xl text-xs font-bold bg-slate-700 hover:bg-slate-600 text-white inline-flex items-center gap-1"><FaTrash size={10}/> Clear Cache</button>
-                </div>
+                <button onClick={loadFFmpeg} className="px-3 py-1 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white inline-flex items-center gap-1"><FaRedo size={11}/> Retry</button>
               )}
               {isLoading && (
                 <span className="text-amber-500 font-semibold inline-flex items-center gap-1.5">
-                  <FaCloudDownloadAlt className="animate-bounce" size={13}/>
-                  {downloadProgress.stage} {downloadProgress.percent > 0 ? `(${downloadProgress.percent}%)` : ''} {downloadProgress.speed ? `• ${downloadProgress.speed}` : ''}
+                  <FaCog className="animate-spin" size={12}/>
+                  {loadStage}
                 </span>
               )}
             </div>
           </div>
 
-          {/* Download progress banner when loading */}
+          {/* Loading banner when initializing FFmpeg */}
           {isLoading && (
             <div className={`px-4 py-3 border-b ${isDarkMode ? 'bg-amber-950/20 border-amber-500/20 text-amber-300' : 'bg-amber-50/80 border-amber-200 text-amber-800'}`}>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2 text-xs">
+              <div className="flex items-center justify-between gap-2 text-xs">
                 <div className="flex items-center gap-2">
-                  <FaCloudDownloadAlt className="text-amber-500 animate-pulse text-base" />
-                  <span className="font-bold">Fetching FFmpeg WASM Binaries (~9.3MB):</span>
-                  <span className="opacity-90">{downloadProgress.stage}</span>
+                  <FaCog className="text-amber-500 animate-spin text-base shrink-0" />
+                  <div>
+                    <span className="font-bold">Initializing FFmpeg WASM</span>
+                    <span className="ml-2 opacity-80">{loadStage}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 font-mono text-[11px]">
-                  {downloadProgress.cdn && <span className="opacity-70 px-1.5 py-0.5 rounded bg-black/10 dark:bg-white/10">{downloadProgress.cdn}</span>}
-                  <span className="font-bold text-amber-500">{downloadProgress.percent}%</span>
-                </div>
+                <span className={`text-[11px] px-2 py-0.5 rounded-full font-mono ${isDarkMode?'bg-amber-500/20 text-amber-400':'bg-amber-100 text-amber-700'}`}>
+                  self-hosted · no CDN
+                </span>
               </div>
-              <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                <div
-                  className="bg-amber-500 h-full rounded-full transition-all duration-150"
-                  style={{ width: `${Math.max(5, downloadProgress.percent)}%` }}
-                />
+              {/* Indeterminate animated bar */}
+              <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden mt-2">
+                <div className="h-full bg-amber-500 rounded-full animate-pulse" style={{ width: '100%', opacity: 0.7 }} />
               </div>
             </div>
           )}
+
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             {/* Left: Input + Realtime Preview */}
@@ -639,7 +426,8 @@ export default function FfmpegTool() {
                     <FaUpload className="mx-auto text-slate-400" size={26}/>
                     <div className={`font-semibold text-sm ${isDarkMode?'text-slate-200':'text-slate-700'}`}>Drop video here or click to browse</div>
                     <div className={`text-xs ${isDarkMode?'text-slate-500':'text-slate-400'}`}>MP4, MOV, AVI, MKV, WEBM... 100% client-side</div>
-                    {!isReady && isLoading && <div className="text-amber-500 text-xs font-bold mt-2 animate-pulse">Downloading FFmpeg in background...</div>}
+                    {!isReady && isLoading && <div className="text-amber-500 text-xs font-bold mt-2 animate-pulse">Initializing FFmpeg WASM...</div>}
+
                     {isReady && <div className="text-emerald-500 text-xs font-bold mt-2">FFmpeg Ready to process videos!</div>}
                   </div>
                 )}
@@ -695,8 +483,8 @@ export default function FfmpegTool() {
                       <div className="opacity-80 mt-1">{loadError}</div>
                       <div className="flex gap-2 mt-2">
                         <button onClick={loadFFmpeg} className="px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold text-xs inline-flex items-center gap-1"><FaRedo size={11}/> Retry</button>
-                        <button onClick={clearFFmpegCacheAndReload} className="px-3 py-1 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs inline-flex items-center gap-1"><FaTrash size={10}/> Clear Cache & Retry</button>
                       </div>
+
                     </div>
                   </div>
                 )
@@ -834,7 +622,8 @@ export default function FfmpegTool() {
           </div>
 
           <div className={`px-4 py-3 border-t text-xs text-center ${isDarkMode?'bg-slate-800/30 border-slate-700/50 text-slate-500':'bg-slate-50 border-slate-200 text-slate-400'}`}>
-            100% client-side • FFmpeg WASM 0.12.10 • Cached locally after first download • Zero server uploads
+            100% client-side • FFmpeg WASM 0.12.10 • Self-hosted binaries · no CDN dependency • Zero server uploads
+
           </div>
         </div>
       </div>

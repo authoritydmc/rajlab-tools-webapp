@@ -1,0 +1,18 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "tool_usage",
+      "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "count", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "feedback",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tool", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

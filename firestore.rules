@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── User feedback & ratings ──────────────────────────────────
+    // Anonymous writes allowed with strict validation.
+    // Reads are blocked for public (view in Firebase Console only).
+    match /feedback/{docId} {
+      allow create: if request.resource.data.rating is int
+                    && request.resource.data.rating >= 1
+                    && request.resource.data.rating <= 5
+                    && request.resource.data.comment is string
+                    && request.resource.data.comment.size() <= 500
+                    && request.resource.data.tool is string
+                    && request.resource.data.tool.size() <= 120
+                    && request.resource.data.clientTimestamp is string
+                    // optional fields — if present must be correct type
+                    && (!('path' in request.resource.data) || request.resource.data.path is string)
+                    && (!('url' in request.resource.data) || request.resource.data.url is string)
+                    && (!('userAgent' in request.resource.data) || request.resource.data.userAgent is string);
+      allow read, update, delete: if false;
+    }
+
+    // ── Community tool usage counters ─────────────────────────────
+    // One doc per tool, id = slug without leading slash (e.g. "merge-pdf").
+    // Public read = true so homepage can rank & badge every tool.
+    // Public create/update = true with guardrails on count to prevent abuse.
+    match /tool_usage/{slug} {
+      allow read: if true;
+      allow create, update: if request.resource.data.count is int
+                    && request.resource.data.count >= 0
+                    && request.resource.data.count <= 100000000
+                    && (!('slug' in request.resource.data) || request.resource.data.slug is string)
+                    && (!('link' in request.resource.data) || request.resource.data.link is string)
+                    && (!('title' in request.resource.data) || request.resource.data.title is string);
+      allow delete: if false;
+    }
+  }
+}
