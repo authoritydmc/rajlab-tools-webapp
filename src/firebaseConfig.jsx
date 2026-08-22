@@ -16,21 +16,19 @@ try {
 
 const db = getFirestore(firebaseApp);
 
-// ── App Check (reCAPTCHA v3 / Enterprise) — free v3, non-invasive ──────
-// Supports either: VITE_RECAPTCHA_V3_SITE_KEY (free, via google.com/recaptcha/admin → v3)
-// or VITE_RECAPTCHA_ENTERPRISE_SITE_KEY (Enterprise). Either works.
-// For local dev, set VITE_APPCHECK_DEBUG_TOKEN=true to auto-enable debug token
-// and register it in Firebase Console → App Check → Manage debug tokens.
-// If no key, App Check is skipped (writes work until rules enforce).
+// ── App Check (reCAPTCHA v3) — free, public site key hardcoded ─────
+// Site key is public by design (domain-locked in reCAPTCHA Admin). Hardcoded
+// so open-source deploys work without env setup. Override via env if needed.
 let appCheck = null;
+const hardcodedSiteKey = "6LfrIJMtAAAAAOcUqVTk_vsCTEGBF_bofvKJ7yhY";
 const v3Key = import.meta.env.VITE_RECAPTCHA_V3_SITE_KEY?.trim();
 const enterpriseKey = import.meta.env.VITE_RECAPTCHA_ENTERPRISE_SITE_KEY?.trim();
-const recaptchaSiteKey = v3Key || enterpriseKey;
+const recaptchaSiteKey = v3Key || enterpriseKey || hardcodedSiteKey;
 const isEnterprise = !!enterpriseKey && !v3Key;
 if (recaptchaSiteKey && typeof window !== "undefined") {
   try {
     if (import.meta.env.DEV) {
-      // @ts-ignore — debug token for localhost
+      // @ts-ignore — debug token for localhost (register printed token in Console → App Check → Manage debug tokens)
       self.FIREBASE_APPCHECK_DEBUG_TOKEN = import.meta.env.VITE_APPCHECK_DEBUG_TOKEN || true;
     }
     appCheck = initializeAppCheck(firebaseApp, {
@@ -40,8 +38,6 @@ if (recaptchaSiteKey && typeof window !== "undefined") {
   } catch (e) {
     console.warn("[AppCheck] init failed — check site key", e);
   }
-} else if (import.meta.env.DEV) {
-  console.info("[AppCheck] skipped — set VITE_RECAPTCHA_V3_SITE_KEY (or ENTERPRISE) to enable");
 }
 
 const logFirebaseEvent = (eventName, eventParams = {}) => {
