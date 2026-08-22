@@ -17,7 +17,7 @@ service cloud.firestore {
     }
 
     // ── User feedback & ratings — anonymous creates only ───────────
-    // Reads blocked (view in Console). Hardened with App Check (reCAPTCHA Enterprise) — invisible, score-based.
+    // Reads blocked (view in Console). Hardened with App Check (reCAPTCHA v3) — free, invisible, score-based.
     // Client must present valid App Check token (initialized in src/firebaseConfig.jsx).
     match /feedback/{docId} {
       allow create: if request.app != null

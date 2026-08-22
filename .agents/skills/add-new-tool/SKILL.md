@@ -46,7 +46,7 @@ Follow these steps to add a new tool to the application:
     - **Whitelist the slug in `firestore.rules`** — add your new `"/my-new-tool"` slug (without leading slash, e.g. `"my-new-tool"`) to `isValidSlug()` array. This is required; otherwise `incrementToolUsage()` writes are rejected by security rules and community counts stay at 0.
     - **Tool Registry** — if your tool has URL query params / embed modes, add an entry to `src/utils/toolRegistry.js` (`TOOL_REGISTRY["/my-new-tool"] = { title, sourceFile, category, queryParams }`) so `ToolRouteTracker` can auto-count it and embeds work.
     - **No index change needed** for `tool_usage` (single-field `count` is auto-indexed). Only add to `firestore.indexes.json` if you introduce a new composite query (e.g. filtering `feedback` by new fields).
-    - **App Check:** No code change needed — `src/firebaseConfig.jsx` auto-attaches reCAPTCHA Enterprise token if `VITE_RECAPTCHA_ENTERPRISE_SITE_KEY` is set. Ensure `firestore.rules` keeps `request.app != null` for `feedback`/`tool_usage` writes.
+    - **App Check:** No code change needed — `src/firebaseConfig.jsx` auto-attaches reCAPTCHA v3 token if `VITE_RECAPTCHA_V3_SITE_KEY` is set. Ensure `firestore.rules` keeps `request.app != null` for `feedback`/`tool_usage` writes.
     - After editing rules, deploy: `npx firebase deploy --only firestore --project portfolio-site-ba08a` (or paste `firestore.rules` in Console → Firestore → Rules → Publish).
 
 6.  **Update Changelog & Version (MANDATORY)**:
