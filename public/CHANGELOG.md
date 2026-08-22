@@ -4,6 +4,23 @@ All notable changes to **Rajlab Tools Webapp** are documented here, organized by
 
 ---
 
+## [2.2.0] — 2026-08-22
+
+### Added
+- Direct URL query parameter support across core tools (`?data=...`, `?size=...`, `?pa=...`, `?pn=...`, `?text=...`, `?mode=...`, `?count=...`) for instant output computation.
+- Direct Raw Output Engine (`?raw=image`, `?raw=svg`, `?raw=json`, `?raw=text`, `?download=true`) and dedicated `/raw/:toolSlug` endpoints for embedding pure assets into other apps, websites, and markdown.
+- QR Code Background & Foreground Color Customization (Standard Black-on-White, Dark Inverted BG, and Custom Color Pickers) via `theme=light|dark` and `bg=...&fg=...`.
+- Interactive Developer Guide & Live Embed Code Generator on every tool page with parameter reference tables, live URLs, HTML `<iframe>`, HTML `<img>`, React JSX, and Markdown embed snippets.
+- 1-Click exact GitHub source code links under each tool connecting directly to the component file in the open-source repository.
+- Dedicated standalone embed route `/embed/:toolSlug` and `?embed=true` for headless widget presentation.
+
+### Fixed
+- Fixed top Flip Clock ghosting and inverted duplicate number overlap during second transitions using 3D backface clipping and bounded flap geometry.
+- Made receiver name optional in UPI QR Code Generator.
+- Polished category header spacing and responsive padding on the main tools grid.
+
+---
+
 ## [2.1.0] — 2026-08-21
 
 ### Added

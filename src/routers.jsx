@@ -14,7 +14,7 @@ const Loading = () => (
   </div>
 );
 
-// ... existing lazy imports ...
+// ... lazy imports ...
 const TextSanitize = lazy(() => import('./components/text-Sanitize/text-Sanitize'));
 const TextFormatter = lazy(() => import('./components/text-formatter/text-formatter'));
 const Base64Tool = lazy(() => import('./components/base64EncoderDecoder/base64tools'));
@@ -52,10 +52,22 @@ const SplitPdfTool = lazy(() => import('./components/pdf-tools/splitPdf'));
 const UnlockPdfTool = lazy(() => import('./components/pdf-tools/unlockPdf'));
 const UnlockExcelTool = lazy(() => import('./components/excel-tools/unlockExcel'));
 const QRScanner = lazy(() => import('./components/qrCodes/QRScanner'));
+const DirectEmbedView = lazy(() => import('./components/embeds/DirectEmbedView'));
+const RawResultView = lazy(() => import('./components/embeds/RawResultView'));
 
 const S = Suspense;
 
 export const router = createBrowserRouter([
+    {
+      path: "/raw/:toolSlug",
+      element: <S fallback={<Loading />}><RawResultView /></S>,
+      errorElement: <GlobalError />,
+    },
+    {
+      path: "/embed/:toolSlug",
+      element: <S fallback={<Loading />}><DirectEmbedView /></S>,
+      errorElement: <GlobalError />,
+    },
     {
       path: "/",
       element: <MainLayout />,

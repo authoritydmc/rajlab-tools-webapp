@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
 import { FaClipboard, FaTrash, FaParagraph } from 'react-icons/fa';
@@ -40,6 +41,7 @@ function generateParagraph(sentences = 5) {
 export default function LoremIpsum() {
   const siblings = useCategorySiblings('/lorem-ipsum');
   const { isDarkMode } = useTheme();
+  const [searchParams] = useSearchParams();
   const [count, setCount] = useState(3);
   const [unit, setUnit] = useState('paragraphs');
   const [output, setOutput] = useState('');
@@ -48,6 +50,34 @@ export default function LoremIpsum() {
     document.title = 'Lorem Ipsum Generator | Rajlabs';
     return () => { document.title = 'Utilities || Rajlabs'; };
   }, []);
+
+  // Load from query parameters
+  useEffect(() => {
+    const qCount = searchParams.get('count') || searchParams.get('n') || searchParams.get('c');
+    const qUnit = searchParams.get('unit') || searchParams.get('type');
+
+    let initialCount = count;
+    let initialUnit = unit;
+
+    if (qCount && !isNaN(qCount)) {
+      initialCount = Math.max(1, Math.min(100, Number(qCount)));
+      setCount(initialCount);
+    }
+    if (qUnit && ['paragraphs', 'sentences', 'words'].includes(qUnit.toLowerCase())) {
+      initialUnit = qUnit.toLowerCase();
+      setUnit(initialUnit);
+    }
+
+    let result = '';
+    if (initialUnit === 'paragraphs') {
+      result = Array.from({ length: initialCount }, () => generateParagraph(4 + Math.floor(Math.random() * 3))).join('\n\n');
+    } else if (initialUnit === 'sentences') {
+      result = Array.from({ length: initialCount }, () => generateSentence()).join(' ');
+    } else if (initialUnit === 'words') {
+      result = Array.from({ length: initialCount }, () => WORDS[Math.floor(Math.random() * WORDS.length)]).join(' ');
+    }
+    setOutput(result);
+  }, [searchParams]);
 
   const generate = () => {
     let result = '';
@@ -70,7 +100,14 @@ export default function LoremIpsum() {
   const handleClear = () => { setOutput(''); };
 
   return (
-    <ToolPageLayout title="Lorem Ipsum Generator" icon={<FaParagraph />} siblings={siblings} currentPath="/lorem-ipsum" breadcrumb={[{label: 'Text Utilities', path: '/format-text'}]}>
+    <ToolPageLayout 
+      title="Lorem Ipsum Generator" 
+      icon={<FaParagraph />} 
+      siblings={siblings} 
+      currentPath="/lorem-ipsum" 
+      breadcrumb={[{ label: 'Text Utilities', path: '/format-text' }]}
+      activeParams={{ count, unit }}
+    >
       <Toaster />
       <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
         <div className="flex flex-wrap gap-4 mb-4 items-end">

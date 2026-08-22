@@ -1,14 +1,31 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../../themeContext';
 import { HiHome, HiArrowLeft, HiChevronRight, HiChevronDown } from 'react-icons/hi2';
+import { FaGithub } from 'react-icons/fa';
 import getIconByName from '../../utils/getIconsUtil';
+import DeveloperEmbedGuide from './DeveloperEmbedGuide';
+import { getGitHubUrl } from '../../utils/toolRegistry';
 
-export default function ToolPageLayout({ title, icon, breadcrumb = [], siblings = [], currentPath, children }) {
+export default function ToolPageLayout({ 
+  title, 
+  icon, 
+  breadcrumb = [], 
+  siblings = [], 
+  currentPath, 
+  activeParams = {}, 
+  showGuide = true, 
+  children 
+}) {
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [openDropdown, setOpenDropdown] = useState(null);
   const dropdownRef = useRef(null);
+
+  const isEmbed = searchParams.get('embed') === 'true' || searchParams.get('direct') === '1' || searchParams.get('embed') === '1';
+  const rawParam = searchParams.get('raw') || searchParams.get('format');
+  const githubUrl = getGitHubUrl(currentPath);
 
   const crumbs = [
     { label: 'Home', path: '/' },
@@ -29,6 +46,41 @@ export default function ToolPageLayout({ title, icon, breadcrumb = [], siblings 
 
   const categoryCrumbIndex = crumbs.length - 2; // second-to-last is category
   const hasSiblings = siblings.length > 0;
+
+  // Standalone Raw Output Mode (e.g. ?raw=image, ?raw=svg, ?raw=json, ?raw=text)
+  if (rawParam) {
+    const RawResultView = React.lazy(() => import('../embeds/RawResultView'));
+    return (
+      <React.Suspense fallback={<div className="p-4 text-xs font-mono text-slate-500">Rendering raw asset...</div>}>
+        <RawResultView />
+      </React.Suspense>
+    );
+  }
+
+  // Headless minimal embed mode
+  if (isEmbed) {
+    return (
+      <div className={`w-full min-h-screen p-3 sm:p-5 flex flex-col justify-between ${
+        isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-white text-slate-900'
+      }`}>
+        <div className="w-full max-w-4xl mx-auto flex-1">
+          {children}
+        </div>
+        <div className="text-center pt-4 pb-2">
+          <a
+            href={window.location.origin + (currentPath || '')}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`text-[11px] font-medium transition-colors hover:underline ${
+              isDarkMode ? 'text-slate-500 hover:text-indigo-400' : 'text-slate-400 hover:text-indigo-600'
+            }`}
+          >
+            Powered by Rajlabs Utilities &bull; Open Tool
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full flex flex-col flex-1">
@@ -138,8 +190,23 @@ export default function ToolPageLayout({ title, icon, breadcrumb = [], siblings 
             </nav>
           </div>
 
-          {/* Right: Tool title on large screens */}
-          <div className="flex items-center gap-2 shrink-0 ml-2 sm:ml-4">
+          {/* Right: GitHub Source Button + Tool title */}
+          <div className="flex items-center gap-2.5 shrink-0 ml-2 sm:ml-4">
+            <a
+              href={githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border ${
+                isDarkMode 
+                  ? 'bg-white/5 border-slate-700 text-slate-300 hover:bg-white/10 hover:text-white' 
+                  : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+              }`}
+              title="View source on GitHub"
+            >
+              <FaGithub size={13} />
+              <span className="hidden sm:inline">GitHub</span>
+            </a>
+
             {icon && <span className={`text-base sm:text-lg ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>{icon}</span>}
             <h1 className={`text-xs sm:text-sm md:text-base font-bold hidden md:block ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>
               {title}
@@ -148,14 +215,23 @@ export default function ToolPageLayout({ title, icon, breadcrumb = [], siblings 
         </div>
       </div>
 
-      {/* Page Content - always below sticky header(56px) + breadcrumb(~40px) */}
+      {/* Page Content */}
       <div className="relative z-10 max-w-[1600px] w-full mx-auto px-3 sm:px-4 lg:px-8 pt-3 pb-8 sm:pt-5 sm:pb-10">
         {/* Mobile title */}
         <div className="flex items-center gap-2 mb-3 sm:mb-4 md:hidden">
           {icon && <span className={`text-lg ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>{icon}</span>}
           <h1 className={`text-xl sm:text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{title}</h1>
         </div>
+        
         {children}
+
+        {/* Developer Guide & Live Embed Code Generator */}
+        {showGuide && (
+          <DeveloperEmbedGuide 
+            currentPath={currentPath} 
+            activeParams={activeParams} 
+          />
+        )}
       </div>
     </div>
   );

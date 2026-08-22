@@ -1,182 +1,136 @@
-import React, { useState ,useEffect} from 'react';
-import { toast, Toaster } from 'react-hot-toast'; // Import react-hot-toast
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
-import { FaClipboard, FaTrash } from 'react-icons/fa'; // Import your clipboard icon
+import { FaClipboard, FaTrash } from 'react-icons/fa';
 import { CgFormatText } from 'react-icons/cg';
 import { PiSelectionAllFill } from 'react-icons/pi';
 import ToolPageLayout from '../common/ToolPageLayout';
 import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 
 export default function TextFormatter() {
-  const { isDarkMode } = useTheme(); // Use dark mode from context
+  const { isDarkMode } = useTheme();
+  const [searchParams] = useSearchParams();
   const [inputText, setInputText] = useState("");
   const [outputText, setOutputText] = useState("");
   const siblings = useCategorySiblings('/format-text');
 
-
   useEffect(() => {
     document.title = 'Text Formatter | Rajlabs';
-  return () => {
+    return () => {
       document.title = 'Utilities || Rajlabs';
     };
   }, []);
-  // Function to sanitize the text by removing non-word characters
-  const sanitizeText = (text) => {
-    return text.replace(/[^\w\s]/g, ""); // Retains letters, digits, and whitespace
+
+  // Load from query params
+  useEffect(() => {
+    const qText = searchParams.get('text') || searchParams.get('input');
+    if (qText !== null && qText !== undefined) {
+      setInputText(qText);
+      setOutputText(qText);
+    }
+  }, [searchParams]);
+
+  const toUpperCase = (text) => text.toUpperCase();
+  const toLowerCase = (text) => text.toLowerCase();
+  const trimWhitespace = (text) => text.trim();
+  const reverseText = (text) => text.split('').reverse().join('');
+  const capitalizeWords = (text) => text.replace(/\b\w/g, (char) => char.toUpperCase());
+
+  const handleSelectAll = (textAreaId) => {
+    document.getElementById(textAreaId).select();
   };
 
-  // Function to convert text to uppercase
-  const toUpperCase = (text) => {
-    return text.toUpperCase();
-  };
-
-  // Function to convert text to lowercase
-  const toLowerCase = (text) => {
-    return text.toLowerCase();
-  };
-
-  // Function to trim leading and trailing whitespace
-  const trimWhitespace = (text) => {
-    return text.trim();
-  };
-
-  // Function to reverse the text
-  const reverseText = (text) => {
-    return text.split('').reverse().join('');
-  };
-
-  // Handler for input change
-  const handleInputChange = (event) => {
-    const newText = event.target.value;
-    setInputText(newText);
-    setOutputText(sanitizeText(newText)); // Default action is sanitizing
-  };
-
-  // Function to handle "Copy to Clipboard" button click
   const handleCopyToClipboard = () => {
     navigator.clipboard.writeText(outputText);
-    toast.success("Copied to clipboard!"); // Show toast notification
+    toast.success('Copied to clipboard!');
   };
 
-  // Function to handle "Clear" button click
   const handleClear = () => {
-    setInputText("");
-    setOutputText("");
-  };
-
-  // Function to format text based on action
-  const handleFormatText = (action) => {
-    switch (action) {
-      case 'uppercase':
-        setOutputText(toUpperCase(inputText));
-        break;
-      case 'lowercase':
-        setOutputText(toLowerCase(inputText));
-        break;
-      case 'trim':
-        setOutputText(trimWhitespace(inputText));
-        break;
-      case 'reverse':
-        setOutputText(reverseText(inputText));
-        break;
-      default:
-        setOutputText(sanitizeText(inputText));
-    }
-    toast.success(`Text formatted as ${action}`);
+    setInputText('');
+    setOutputText('');
   };
 
   return (
-    <ToolPageLayout title="Text Formatter" icon={<CgFormatText />} breadcrumb={[{label: 'Text Utilities', path: '/format-text'}]} siblings={siblings} currentPath="/format-text">
+    <ToolPageLayout 
+      title="Text Formatter" 
+      icon={<CgFormatText />} 
+      breadcrumb={[{ label: 'Text Utilities', path: '/format-text' }]} 
+      siblings={siblings} 
+      currentPath="/format-text"
+      activeParams={{ text: inputText }}
+    >
       <div className="w-full">
-<Toaster /> {/* Toast container */}
+        <Toaster />
 
-      <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
-        {/* Input Section */}
-        <div className="relative mb-8">
-          <textarea
-            id="input"
-            value={inputText}
-            onChange={handleInputChange}
-            placeholder="Type or paste text here..."
-            className={`w-full h-40 p-2 border rounded-md resize-none ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-50 text-gray-900 border-gray-300'}`}
-          />
-          {/* Input Action Buttons */}
-          <div className="absolute top-2 right-2 flex gap-2">
-            <button
-              onClick={() => document.getElementById('input').select()}
-              className={`p-2 rounded-md transition-colors duration-300 ${isDarkMode ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
-              title="Select All"
-            >
-              <PiSelectionAllFill size={16} />
-            </button>
-            <button
-              onClick={handleClear}
-              className={`p-2 rounded-md transition-colors duration-300 ${isDarkMode ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-red-500 text-white hover:bg-red-600'}`}
-              title="Clear"
-            >
-              <FaTrash size={16} />
-            </button>
+        <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
+          {/* Input Section */}
+          <div className="relative mb-6">
+            <textarea
+              id="input"
+              value={inputText}
+              onChange={(e) => {
+                setInputText(e.target.value);
+                setOutputText(e.target.value);
+              }}
+              placeholder="Type or paste text to format..."
+              className={`w-full h-36 p-3 border rounded-md resize-none font-mono text-sm ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-50 text-gray-900 border-gray-300'}`}
+            />
+            <div className="absolute top-2 right-2 flex gap-2">
+              <button
+                onClick={() => handleSelectAll('input')}
+                className={`p-2 rounded-md transition-colors duration-300 ${isDarkMode ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+                title="Select All"
+              >
+                <PiSelectionAllFill size={16} />
+              </button>
+              <button
+                onClick={handleClear}
+                className={`p-2 rounded-md transition-colors duration-300 ${isDarkMode ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-red-500 text-white hover:bg-red-600'}`}
+                title="Clear"
+              >
+                <FaTrash />
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Output Section */}
-        <div className="relative mb-8">
-          <textarea
-            id="output"
-            value={outputText}
-            placeholder="Your output goes here..."
-            readOnly
-            className={`w-full h-40 p-2 border rounded-md resize-none ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-50 text-gray-900 border-gray-300'}`}
-          />
-          {/* Output Action Buttons */}
-          <div className="absolute top-2 right-2 flex gap-2">
-            <button
-              onClick={() => document.getElementById('output').select()}
-              className={`p-2 rounded-md transition-colors duration-300 ${isDarkMode ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
-              title="Select All"
-            >
-              <PiSelectionAllFill size={16} />
-            </button>
-            <button
-              onClick={handleCopyToClipboard}
-              className={`p-2 rounded-md transition-colors duration-300 ${isDarkMode ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-green-500 text-white hover:bg-green-600'}`}
-              title="Copy to Clipboard"
-            >
-              <FaClipboard size={16} />
-            </button>
+          {/* Transformation Controls */}
+          <div className="flex flex-wrap gap-2.5 mb-6 justify-center">
+            <button onClick={() => setOutputText(toUpperCase(inputText))} className={`px-4 py-2 rounded-lg font-medium text-xs sm:text-sm ${isDarkMode ? 'bg-indigo-600 hover:bg-indigo-500 text-white' : 'bg-indigo-600 hover:bg-indigo-700 text-white'}`}>UPPERCASE</button>
+            <button onClick={() => setOutputText(toLowerCase(inputText))} className={`px-4 py-2 rounded-lg font-medium text-xs sm:text-sm ${isDarkMode ? 'bg-indigo-600 hover:bg-indigo-500 text-white' : 'bg-indigo-600 hover:bg-indigo-700 text-white'}`}>lowercase</button>
+            <button onClick={() => setOutputText(capitalizeWords(inputText))} className={`px-4 py-2 rounded-lg font-medium text-xs sm:text-sm ${isDarkMode ? 'bg-indigo-600 hover:bg-indigo-500 text-white' : 'bg-indigo-600 hover:bg-indigo-700 text-white'}`}>Capitalize Words</button>
+            <button onClick={() => setOutputText(trimWhitespace(inputText))} className={`px-4 py-2 rounded-lg font-medium text-xs sm:text-sm ${isDarkMode ? 'bg-indigo-600 hover:bg-indigo-500 text-white' : 'bg-indigo-600 hover:bg-indigo-700 text-white'}`}>Trim Spaces</button>
+            <button onClick={() => setOutputText(reverseText(inputText))} className={`px-4 py-2 rounded-lg font-medium text-xs sm:text-sm ${isDarkMode ? 'bg-indigo-600 hover:bg-indigo-500 text-white' : 'bg-indigo-600 hover:bg-indigo-700 text-white'}`}>Reverse Text</button>
           </div>
-        </div>
 
-        {/* Formatting Actions */}
-        <div className="flex gap-2 justify-center">
-          <button
-            onClick={() => handleFormatText('uppercase')}
-            className={`p-2 rounded-md transition-colors duration-300 ${isDarkMode ? 'bg-yellow-600 text-white hover:bg-yellow-700' : 'bg-yellow-500 text-white hover:bg-yellow-600'}`}
-          >
-            Uppercase
-          </button>
-          <button
-            onClick={() => handleFormatText('lowercase')}
-            className={`p-2 rounded-md transition-colors duration-300 ${isDarkMode ? 'bg-purple-600 text-white hover:bg-purple-700' : 'bg-purple-500 text-white hover:bg-purple-600'}`}
-          >
-            Lowercase
-          </button>
-          <button
-            onClick={() => handleFormatText('trim')}
-            className={`p-2 rounded-md transition-colors duration-300 ${isDarkMode ? 'bg-teal-600 text-white hover:bg-teal-700' : 'bg-teal-500 text-white hover:bg-teal-600'}`}
-          >
-            Trim
-          </button>
-          <button
-            onClick={() => handleFormatText('reverse')}
-            className={`p-2 rounded-md transition-colors duration-300 ${isDarkMode ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-red-500 text-white hover:bg-red-600'}`}
-          >
-            Reverse
-          </button>
+          {/* Output Section */}
+          <div className="relative">
+            <textarea
+              id="output"
+              value={outputText}
+              placeholder="Formatted text will appear here..."
+              readOnly
+              className={`w-full h-36 p-3 border rounded-md resize-none font-mono text-sm ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-green-50 text-gray-900 border-gray-300'}`}
+            />
+            <div className="absolute top-2 right-2 flex gap-2">
+              <button
+                onClick={() => handleSelectAll('output')}
+                className={`p-2 rounded-md transition-colors duration-300 ${isDarkMode ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+                title="Select All"
+              >
+                <PiSelectionAllFill size={16} />
+              </button>
+              <button
+                onClick={handleCopyToClipboard}
+                className={`p-2 rounded-md transition-colors duration-300 ${isDarkMode ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-green-500 text-white hover:bg-green-600'}`}
+                title="Copy to Clipboard"
+              >
+                <FaClipboard size={16} />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
     </ToolPageLayout>
-
   );
 }

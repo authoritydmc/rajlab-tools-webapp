@@ -31,19 +31,19 @@ function FlipUnit({ value, dark }) {
   return (
     <div
       className="relative w-[30px] h-[40px] sm:w-[36px] sm:h-[48px] rounded-md select-none"
-      style={{ perspective: '300px', boxShadow: '0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)' }}
+      style={{ perspective: '400px', boxShadow: '0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)' }}
     >
-      {/* ── Static top half ── */}
+      {/* ── Static top half (shows current digit) ── */}
       <div className={`absolute inset-x-0 top-0 h-1/2 ${bg} ${tx} overflow-hidden rounded-t-md`}>
         <div className="absolute inset-0 flex items-end justify-center">
-          <span className="font-mono text-lg sm:text-xl font-bold" style={{ lineHeight: '2' }}>{cur}</span>
+          <span className="font-mono text-lg sm:text-xl font-bold translate-y-[50%] leading-none">{cur}</span>
         </div>
       </div>
 
-      {/* ── Static bottom half ── */}
+      {/* ── Static bottom half (shows current digit) ── */}
       <div className={`absolute inset-x-0 bottom-0 h-1/2 ${bg} ${tx} overflow-hidden rounded-b-md`}>
         <div className="absolute inset-0 flex items-start justify-center">
-          <span className="font-mono text-lg sm:text-xl font-bold" style={{ lineHeight: '2', marginTop: '-1em' }}>{cur}</span>
+          <span className="font-mono text-lg sm:text-xl font-bold -translate-y-[50%] leading-none">{cur}</span>
         </div>
       </div>
 
@@ -51,10 +51,15 @@ function FlipUnit({ value, dark }) {
       {flipping && (
         <div
           className={`absolute inset-x-0 top-0 h-1/2 ${bg} ${tx} overflow-hidden rounded-t-md z-20`}
-          style={{ transformOrigin: '50% 100%', animation: 'flipDown 0.3s ease-in forwards' }}
+          style={{
+            transformOrigin: 'bottom center',
+            animation: 'flipDown 0.35s ease-in forwards',
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden',
+          }}
         >
           <div className="absolute inset-0 flex items-end justify-center">
-            <span className="font-mono text-lg sm:text-xl font-bold" style={{ lineHeight: '2' }}>{old}</span>
+            <span className="font-mono text-lg sm:text-xl font-bold translate-y-[50%] leading-none">{old}</span>
           </div>
         </div>
       )}
@@ -63,10 +68,16 @@ function FlipUnit({ value, dark }) {
       {flipping && (
         <div
           className={`absolute inset-x-0 bottom-0 h-1/2 ${bg} ${tx} overflow-hidden rounded-b-md z-20`}
-          style={{ transformOrigin: '50% 0%', transform: 'rotateX(90deg)', animation: 'flipUp 0.3s 0.2s ease-out forwards' }}
+          style={{
+            transformOrigin: 'top center',
+            animation: 'flipUp 0.35s 0.175s ease-out forwards',
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden',
+            transform: 'rotateX(90deg)',
+          }}
         >
           <div className="absolute inset-0 flex items-start justify-center">
-            <span className="font-mono text-lg sm:text-xl font-bold" style={{ lineHeight: '2', marginTop: '-1em' }}>{cur}</span>
+            <span className="font-mono text-lg sm:text-xl font-bold -translate-y-[50%] leading-none">{cur}</span>
           </div>
         </div>
       )}

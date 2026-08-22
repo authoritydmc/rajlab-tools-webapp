@@ -190,7 +190,7 @@ export default function MainToolListPage() {
         </div>
       </div>
 
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 py-6 sm:py-10">
 
         {/* Favorites */}
         {favoriteTools.length > 0 && !searchQuery && (
@@ -285,27 +285,27 @@ function CategoryCard({ category, style, isDarkMode, isFavorite, onFav, moveCate
       isDarkMode ? style.dark + ' border-slate-700/50' : style.light + ' border-slate-200'
     }`}>
       {/* Header */}
-      <div className={`flex items-center gap-3 px-5 py-4 border-b ${
+      <div className={`flex items-center gap-2.5 sm:gap-3 px-4 sm:px-5 py-3.5 sm:py-4 border-b ${
         isDarkMode ? 'border-white/[0.05] bg-slate-900/40' : 'border-slate-200/60 bg-white/50'
       }`}>
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 ${
+        <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-lg shrink-0 ${
           isDarkMode ? style.iconDark : style.iconLight
         }`}>
           {getIconByName(category.iconName)}
         </div>
-        <h2 className={`flex-1 text-base sm:text-lg font-bold tracking-tight truncate ${
+        <h2 className={`flex-1 text-sm sm:text-base md:text-lg font-bold tracking-tight break-words min-w-0 ${
           isDarkMode ? 'text-slate-100' : 'text-slate-800'
         }`}>
           {category.title}
         </h2>
         
         {/* Reorder Controls (Visible on hover) */}
-        <div className={`hidden sm:flex items-center gap-1 opacity-0 group-hover/card:opacity-100 transition-opacity duration-200 mr-2 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-          <button onClick={() => moveCategory(category.title, 'up')} className="p-1.5 rounded-md hover:bg-slate-500/20 active:scale-95 transition-all" title="Move Up/Left"><HiChevronUp size={16} /></button>
-          <button onClick={() => moveCategory(category.title, 'down')} className="p-1.5 rounded-md hover:bg-slate-500/20 active:scale-95 transition-all" title="Move Down/Right"><HiChevronDown size={16} /></button>
+        <div className={`hidden sm:flex items-center gap-1 opacity-0 group-hover/card:opacity-100 transition-opacity duration-200 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+          <button onClick={() => moveCategory(category.title, 'up')} className="p-1 rounded-md hover:bg-slate-500/20 active:scale-95 transition-all" title="Move Up/Left"><HiChevronUp size={15} /></button>
+          <button onClick={() => moveCategory(category.title, 'down')} className="p-1 rounded-md hover:bg-slate-500/20 active:scale-95 transition-all" title="Move Down/Right"><HiChevronDown size={15} /></button>
         </div>
 
-        <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0 ${
+        <span className={`text-[10px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full shrink-0 ${
           isDarkMode ? style.accent : style.accent
         }`}>
           {category.tools.length} Tools

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
 import { FaClipboard, FaTrash, FaExpand, FaCompress, FaSearch, FaArrowUp, FaArrowDown, FaEye } from 'react-icons/fa';
@@ -145,6 +146,7 @@ const JsonNode = React.memo(({
 export default function JsonViewer() {
   const siblings = useCategorySiblings('/json-viewer');
   const { isDarkMode } = useTheme();
+  const [searchParams] = useSearchParams();
   const [input, setInput] = useState('');
   const [parsed, setParsed] = useState(null);
   const [error, setError] = useState('');
@@ -160,6 +162,14 @@ export default function JsonViewer() {
     document.title = 'Advanced JSON Viewer | Rajlabs';
     return () => { document.title = 'Utilities || Rajlabs'; };
   }, []);
+
+  // Load from query parameters
+  useEffect(() => {
+    const qJson = searchParams.get('json') || searchParams.get('data') || searchParams.get('text');
+    if (qJson !== null && qJson !== undefined) {
+      setInput(qJson);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!input.trim()) { setParsed(null); setError(''); return; }
@@ -219,7 +229,7 @@ export default function JsonViewer() {
     } else {
       setCurrentMatch(-1);
     }
-  }, [searchQuery, parsed]); // Omit expandedPaths intentionally to avoid loop
+  }, [searchQuery, parsed]);
 
   // Scroll to current match
   useEffect(() => {
@@ -276,12 +286,17 @@ export default function JsonViewer() {
   };
 
   return (
-    <ToolPageLayout title="JSON Viewer" icon={<FaEye />} siblings={siblings} currentPath="/json-viewer" breadcrumb={[{label: 'JSON Utilities', path: '/json-viewer'}]}>
-      <div className={`min-h-screen p-4 lg:p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-green-50 text-gray-900'} transition-colors duration-300`}>
-        
+    <ToolPageLayout 
+      title="JSON Viewer" 
+      icon={<FaEye />} 
+      siblings={siblings} 
+      currentPath="/json-viewer" 
+      breadcrumb={[{ label: 'JSON Utilities', path: '/json-viewer' }]}
+      activeParams={{ json: input }}
+    >
+      <div className={`p-4 lg:p-6 ${isDarkMode ? 'text-white' : 'text-gray-900'} transition-colors duration-300`}>
         <Toaster />
         <div className={`w-full mx-auto p-4 lg:p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
-          
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Left Column: Input */}
             <div className="flex-1 flex flex-col">
@@ -357,7 +372,6 @@ export default function JsonViewer() {
               )}
             </div>
           </div>
-
         </div>
       </div>
     </ToolPageLayout>
