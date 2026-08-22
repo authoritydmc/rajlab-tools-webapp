@@ -16,6 +16,10 @@ const LoremIpsum = lazy(() => import('../lorem/LoremIpsum'));
 const SanitizeText = lazy(() => import('../text-Sanitize/text-Sanitize'));
 const TextFormatter = lazy(() => import('../text-formatter/text-formatter'));
 const MarkdownPlayground = lazy(() => import('../markdown/MarkdownPlayground'));
+const TextDiffStudio = lazy(() => import('../diff/TextDiffStudio'));
+const HtmlEntityStudio = lazy(() => import('../html-entity/HtmlEntityStudio'));
+const UrlLab = lazy(() => import('../url-lab/UrlLab'));
+const CodeFormatter = lazy(() => import('../code-formatter/CodeFormatter'));
 const JsonViewer = lazy(() => import('../json/JsonViewer'));
 const JwtDecoder = lazy(() => import('../json/JwtDecoder'));
 const JsonDiffChecker = lazy(() => import('../json/JsonDiffChecker'));
@@ -54,6 +58,10 @@ const COMPONENT_MAP = {
   'sanitize-text': SanitizeText,
   'format-text': TextFormatter,
   'markdown-playground': MarkdownPlayground,
+  'text-diff': TextDiffStudio,
+  'html-entity': HtmlEntityStudio,
+  'url-lab': UrlLab,
+  'code-formatter': CodeFormatter,
   'json-viewer': JsonViewer,
   'jwt-decoder': JwtDecoder,
   'json-diff-checker': JsonDiffChecker,

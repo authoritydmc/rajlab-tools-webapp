@@ -151,6 +151,26 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://utility.rajlabs.in/text-diff</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://utility.rajlabs.in/html-entity</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://utility.rajlabs.in/url-lab</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://utility.rajlabs.in/code-formatter</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://utility.rajlabs.in/lorem-ipsum</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

@@ -39,6 +39,10 @@ const JsonToYaml = lazy(() => import('./components/json/JsonToYaml'));
 const YamlToJson = lazy(() => import('./components/json/YamlToJson'));
 const ColorPicker = lazy(() => import('./components/color/ColorPicker'));
 const MarkdownPlayground = lazy(() => import('./components/markdown/MarkdownPlayground'));
+const TextDiffStudio = lazy(() => import('./components/diff/TextDiffStudio'));
+const HtmlEntityStudio = lazy(() => import('./components/html-entity/HtmlEntityStudio'));
+const UrlLab = lazy(() => import('./components/url-lab/UrlLab'));
+const CodeFormatter = lazy(() => import('./components/code-formatter/CodeFormatter'));
 const LoremIpsum = lazy(() => import('./components/lorem/LoremIpsum'));
 const RegexTester = lazy(() => import('./components/regex/RegexTester'));
 const UuidGenerator = lazy(() => import('./components/uuid/UuidGenerator'));
@@ -102,6 +106,10 @@ export const router = createBrowserRouter([
             { path: "yaml-to-json", element: <S fallback={<Loading />}><YamlToJson /></S> },
             { path: "color-picker", element: <S fallback={<Loading />}><ColorPicker /></S> },
             { path: "markdown-playground", element: <S fallback={<Loading />}><MarkdownPlayground /></S> },
+            { path: "text-diff", element: <S fallback={<Loading />}><TextDiffStudio /></S> },
+            { path: "html-entity", element: <S fallback={<Loading />}><HtmlEntityStudio /></S> },
+            { path: "url-lab", element: <S fallback={<Loading />}><UrlLab /></S> },
+            { path: "code-formatter", element: <S fallback={<Loading />}><CodeFormatter /></S> },
             { path: "lorem-ipsum", element: <S fallback={<Loading />}><LoremIpsum /></S> },
             { path: "regex-tester", element: <S fallback={<Loading />}><RegexTester /></S> },
             { path: "uuid-generator", element: <S fallback={<Loading />}><UuidGenerator /></S> },

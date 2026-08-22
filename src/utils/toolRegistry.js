@@ -415,6 +415,47 @@ export const TOOL_REGISTRY = {
     queryParams: [
       { name: 'embed', type: 'boolean', default: false, description: 'Embed mode.' }
     ]
+  },
+  '/text-diff': {
+    title: 'Text Diff Studio',
+    sourceFile: 'src/components/diff/TextDiffStudio.jsx',
+    category: 'Text Utilities',
+    description: 'Side-by-side and unified text diff with line/word/char modes, ignore options and export.',
+    queryParams: [
+      { name: 'text', aliases: ['a','input'], type: 'string', default: '', description: 'First text to compare.' },
+      { name: 'embed', type: 'boolean', default: false, description: 'Embed mode.' }
+    ]
+  },
+  '/html-entity': {
+    title: 'HTML Entity Studio',
+    sourceFile: 'src/components/html-entity/HtmlEntityStudio.jsx',
+    category: 'Developer Tools',
+    description: 'Encode/decode HTML entities between named, numeric and hex with live preview.',
+    queryParams: [
+      { name: 'text', aliases: ['input'], type: 'string', default: '', description: 'Text to encode/decode.' },
+      { name: 'embed', type: 'boolean', default: false, description: 'Embed mode.' }
+    ]
+  },
+  '/url-lab': {
+    title: 'URL Lab',
+    sourceFile: 'src/components/url-lab/UrlLab.jsx',
+    category: 'Developer Tools',
+    description: 'Parse URL parts and build query strings visually.',
+    queryParams: [
+      { name: 'url', aliases: ['input','text'], type: 'string', default: '', description: 'URL to parse.' },
+      { name: 'embed', type: 'boolean', default: false, description: 'Embed mode.' }
+    ]
+  },
+  '/code-formatter': {
+    title: 'Code Formatter',
+    sourceFile: 'src/components/code-formatter/CodeFormatter.jsx',
+    category: 'Developer Tools',
+    description: 'Beautify and minify JSON, HTML, CSS, SQL with Monaco editor.',
+    queryParams: [
+      { name: 'code', aliases: ['text','input'], type: 'string', default: '', description: 'Code to format.' },
+      { name: 'lang', aliases: ['language'], type: 'string', default: 'json', description: 'Language: json, html, css, sql.' },
+      { name: 'embed', type: 'boolean', default: false, description: 'Embed mode.' }
+    ]
   }
 };
 

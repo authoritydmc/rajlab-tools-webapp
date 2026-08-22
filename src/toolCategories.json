@@ -30,6 +30,13 @@
         "iconName": "FaMarkdown",
         "isEnabled": true,
         "description": "Interactive markdown playground — Monaco editor, live preview, TOC, and HTML/PDF/TXT exports."
+      },
+      {
+        "name": "Text Diff Studio",
+        "link": "/text-diff",
+        "iconName": "FaBalanceScale",
+        "isEnabled": true,
+        "description": "Compare two texts side-by-side or inline — line/word/char diff with stats and export."
       }
     ]
   },
@@ -262,6 +269,27 @@
         "iconName": "FaRulerCombined",
         "isEnabled": true,
         "description": "Convert between CSS units: px, rem, em, %, vw, vh, pt with customizable viewport."
+      },
+      {
+        "name": "HTML Entity Studio",
+        "link": "/html-entity",
+        "iconName": "FaCode",
+        "isEnabled": true,
+        "description": "Encode/decode HTML entities — named, numeric, hex with live preview and quick map."
+      },
+      {
+        "name": "URL Lab",
+        "link": "/url-lab",
+        "iconName": "FaLink",
+        "isEnabled": true,
+        "description": "Parse URLs into parts and rebuild query strings with a visual query builder."
+      },
+      {
+        "name": "Code Formatter",
+        "link": "/code-formatter",
+        "iconName": "FaLaptopCode",
+        "isEnabled": true,
+        "description": "Beautify & minify JSON/HTML/CSS/SQL with Monaco and indent control."
       }
     ]
   },
