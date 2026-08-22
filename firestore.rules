@@ -17,10 +17,11 @@ service cloud.firestore {
     }
 
     // ── User feedback & ratings — anonymous creates only ───────────
-    // Reads blocked (view in Console). Flood mitigation: hard limits + server timestamp + key whitelist.
-    // Next hardening: enable App Check (reCAPTCHA Enterprise) then uncomment `request.app != null`.
+    // Reads blocked (view in Console). Hardened with App Check (reCAPTCHA Enterprise) — invisible, score-based.
+    // Client must present valid App Check token (initialized in src/firebaseConfig.jsx).
     match /feedback/{docId} {
-      allow create: if request.resource.data.keys().hasOnly(["rating","comment","tool","path","url","userAgent","createdAt","clientTimestamp"])
+      allow create: if request.app != null
+                    && request.resource.data.keys().hasOnly(["rating","comment","tool","path","url","userAgent","createdAt","clientTimestamp"])
                     && request.resource.data.rating is int && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
                     && request.resource.data.comment is string && request.resource.data.comment.size() <= 500
                     && request.resource.data.tool is string && request.resource.data.tool.size() >= 1 && request.resource.data.tool.size() <= 120
@@ -29,7 +30,6 @@ service cloud.firestore {
                     && request.resource.data.userAgent is string && request.resource.data.userAgent.size() <= 500
                     && request.resource.data.createdAt == request.time
                     && request.resource.data.clientTimestamp is string && request.resource.data.clientTimestamp.size() <= 50;
-                    // && request.app != null
       allow read, update, delete: if false;
     }
 
@@ -39,12 +39,12 @@ service cloud.firestore {
     //  • docId MUST == slug, link MUST == "/"+slug (prevents spoof)
     //  • create: count MUST be 1, updatedAt MUST be server time (prevents seeding huge numbers)
     //  • update: count MUST be previous+1 (prevents jump to 1M), other fields immutable, +10M cap
-    //  • 2s client throttle in toolUsageService.js + this rule makes mass spam expensive
-    //  • Future: enable App Check + Cloud Function rate-limit (per-IP 1/min) for stronger abuse resistance
+    //  • 2s client throttle in toolUsageService.js + App Check token required
     match /tool_usage/{slug} {
       allow read: if true;
 
-      allow create: if slug == request.resource.data.slug
+      allow create: if request.app != null
+                    && slug == request.resource.data.slug
                     && isValidSlug(slug)
                     && request.resource.data.keys().hasOnly(["slug","link","title","count","updatedAt"])
                     && request.resource.data.link == "/" + slug
@@ -53,7 +53,8 @@ service cloud.firestore {
                     && request.resource.data.count == 1
                     && request.resource.data.updatedAt == request.time;
 
-      allow update: if slug == resource.data.slug
+      allow update: if request.app != null
+                    && slug == resource.data.slug
                     && isValidSlug(slug)
                     && request.resource.data.keys().hasOnly(["slug","link","title","count","updatedAt"])
                     && request.resource.data.slug == resource.data.slug
