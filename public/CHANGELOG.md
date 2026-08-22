@@ -4,6 +4,11 @@ All notable changes to **Rajlab Tools Webapp** are documented here, organized by
 
 ---
 
+## [3.1.2] — 2026-08-24
+
+### Changed
+- **App Check Debug Cleanup (`src/firebaseConfig.jsx`, `src/utils/toolUsageService.js`, `src/utils/feedbackService.js`)**: Removed temporary `AppCheck DEBUG` console logs, `_debug` Firestore writes, and `window.__APPCHECK_DEBUG` exposure now that enforcement is live and stable (65% verified on `utils.rajlabs.in`). `tool_usage` increments are now silent fire-and-forget with API-layer enforcement; no more noisy `onTokenChanged`/`getToken` logs in production.
+
 ## [3.1.1] — 2026-08-24
 
 ### Fixed

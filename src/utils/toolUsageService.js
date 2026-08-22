@@ -9,23 +9,6 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 
-// ── Debug helper: write to _debug collection (no App Check required) ───────
-async function writeDebugDoc(data) {
-  try {
-    const debugRef = doc(db, '_debug', `${data.slug}-${data.phase}-${Date.now()}`);
-    await setDoc(debugRef, {
-      ts: new Date().toISOString(),
-      host: typeof window !== 'undefined' ? window.location.hostname : 'ssr',
-      isDev: typeof import.meta !== 'undefined' ? !!import.meta.env.DEV : false,
-      env: typeof import.meta !== 'undefined' ? (import.meta.env.MODE || 'unknown') : 'ssr',
-      ...data,
-    });
-  } catch (e) {
-    // Debug write itself failed — likely rules not deployed yet. Log to console only.
-    console.warn('[toolUsage DEBUG] _debug write failed (rules not deployed?):', e?.message);
-  }
-}
-
 const COLLECTION = 'tool_usage';
 
 // Throttle in-memory so a single session doesn't spam counts on re-renders.
@@ -70,54 +53,6 @@ export async function incrementToolUsage(linkOrSlug, meta = {}) {
 
   const ref = doc(db, COLLECTION, slug);
 
-  // ── Gather App Check diagnostic info before the write ──────────────
-  let acInfo = { appCheckPresent: false, tokenLen: 0, tokenPrefix: '', provider: 'none', siteKey: '', error: '' };
-  try {
-    const { appCheck } = await import('../firebaseConfig');
-    const siteKey = import.meta.env?.VITE_RECAPTCHA_ENTERPRISE_SITE_KEY?.trim()
-      || import.meta.env?.VITE_RECAPTCHA_V3_SITE_KEY?.trim()
-      || '6LfUX5Mt...9-p';
-    const isEnterprise = !!import.meta.env?.VITE_RECAPTCHA_ENTERPRISE_SITE_KEY && !import.meta.env?.VITE_RECAPTCHA_V3_SITE_KEY;
-
-    acInfo.siteKey = siteKey;
-    acInfo.provider = isEnterprise ? 'Enterprise' : 'V3';
-    acInfo.appCheckPresent = !!appCheck;
-
-    if (appCheck) {
-      const { getToken } = await import('firebase/app-check');
-      try {
-        const result = await getToken(appCheck, false);
-        const token = result?.token || '';
-        // AppCheckTokenResult only has {token}; expireTimeMillis is NOT returned by getToken()
-        // (was AppCheckToken internally). Guard Date conversion.
-        const exp = result?.expireTimeMillis;
-        acInfo.tokenLen = token.length;
-        acInfo.tokenPrefix = token.slice(0, 20);
-        if (typeof exp === 'number' && Number.isFinite(exp)) {
-          try { acInfo.expireTime = new Date(exp).toISOString(); } catch {}
-        }
-        acInfo.error = '';
-        console.log(`[toolUsage DEBUG] ${slug} AppCheck token OK len=${token.length} prefix=${token.slice(0,12)}...`);
-      } catch (e) {
-        acInfo.error = `${e?.code || 'unknown'}: ${e?.message || 'no message'}`;
-        console.warn(`[toolUsage DEBUG] ${slug} AppCheck getToken FAILED`, e?.code, e?.message);
-      }
-    } else {
-      acInfo.error = 'appCheck object is null — init failed?';
-      console.warn(`[toolUsage DEBUG] ${slug} appCheck is null`);
-    }
-
-    // Also try to inspect what the SDK will actually attach
-    // The Firebase SDK checks internal state; log what we can access
-    acInfo.internalState = typeof appCheck?.getUid === 'function' ? 'has getUid' : 'no getUid';
-  } catch (e) {
-    acInfo.error = `import/setup failed: ${e?.message}`;
-  }
-
-  // ── Pre-write debug doc (phase=pre-write) ──────────────────────────
-  await writeDebugDoc({ slug, phase: 'pre-write', ...acInfo });
-
-  // ── Attempt the Firestore write ────────────────────────────────────
   try {
     await setDoc(
       ref,
@@ -130,29 +65,10 @@ export async function incrementToolUsage(linkOrSlug, meta = {}) {
       },
       { merge: true }
     );
-    console.log(`[toolUsage DEBUG] ${slug} increment OK — Firestore 200`);
-
-    // Success debug doc — we now know request.app was validated
-    await writeDebugDoc({ slug, phase: 'success', ...acInfo, error: '' });
   } catch (err) {
-    console.warn('[toolUsage] increment failed for', slug, err?.message, 'code=', err?.code);
-
-    // Failure debug doc — capture EVERYTHING: what we sent, what failed
-    await writeDebugDoc({
-      slug,
-      phase: 'failure',
-      ...acInfo,
-      error: `${err?.code || 'unknown'}: ${err?.message || 'no message'}`,
-      // extra detail about the failure
-      fullErrorCode: err?.code || '',
-      fullErrorMsg: err?.message || '',
-      // What Firestore rules expect vs what we sent
-      ruleExpectation: 'request.app != null (App Check token must be verified server-side)',
-      hint: 'If appCheckPresent=true and tokenLen>0 but still permission-denied, the Firebase Console secret key does NOT match the site key. Go to Firebase Console > Project Settings > App Check > reCAPTCHA and verify.',
-    });
-
     // allow retry next time by clearing cooldown
     if (incrementedThisSession._timestamps) delete incrementedThisSession._timestamps[key];
+    // Fail silently — App Check enforcement at API layer will reject invalid origins before reaching here
     throw err;
   }
 }

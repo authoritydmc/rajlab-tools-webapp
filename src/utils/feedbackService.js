@@ -39,23 +39,7 @@ export async function submitFeedbackToFirestore({ rating, comment = '', tool = '
     clientTimestamp: new Date().toISOString(),
   };
 
-  // TEMP DEBUG + ensure token before write
-  try {
-    const { appCheck } = await import('../firebaseConfig');
-    if (appCheck) {
-      const { getToken } = await import('firebase/app-check');
-      try {
-        const { token } = await getToken(appCheck, false);
-        console.log(`[feedback DEBUG] ${safeTool} AppCheck OK len=${token.length}`);
-      } catch (e) {
-        console.warn(`[feedback DEBUG] ${safeTool} AppCheck FAIL`, e?.code, e?.message, '— will write without token');
-      }
-    } else {
-      console.warn(`[feedback DEBUG] ${safeTool} appCheck is null`);
-    }
-  } catch {}
   const ref = await addDoc(collection(db, FEEDBACK_COLLECTION), doc);
-  console.log(`[feedback DEBUG] ${safeTool} submit OK id=${ref.id} rating=${safeRating} — Firestore 200`);
   return ref.id;
 }
 
