@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
-import { initializeAppCheck, ReCaptchaV3Provider, ReCaptchaEnterpriseProvider } from "firebase/app-check";
+import { initializeAppCheck, ReCaptchaV3Provider, ReCaptchaEnterpriseProvider, getToken as getAppCheckToken } from "firebase/app-check";
 import firebaseConfigData from './firebaseConfig.json'; // Import JSON config
 
 const firebaseApp = initializeApp(firebaseConfigData);
@@ -37,13 +37,27 @@ if (recaptchaSiteKey && typeof window !== "undefined") {
       isTokenAutoRefreshEnabled: true,
     });
 
+    // TEMP DEBUG — remove after App Check stable (shows why text-diff got PERMISSION_DENIED despite no visible recaptcha error)
+    if (typeof window !== "undefined") {
+      console.log(`[AppCheck DEBUG] init key=${recaptchaSiteKey.slice(0,6)}...${recaptchaSiteKey.slice(-4)} provider=${isEnterprise ? 'Enterprise' : 'V3'} host=${window.location.hostname} DEV=${import.meta.env.DEV}`);
+      // Log first token fetch (async) — will show 400/ App not registered if misconfigured
+      getAppCheckToken(appCheck, false).then(({ token }) => {
+        console.log(`[AppCheck DEBUG] getToken OK token=${token.slice(0,12)}... len=${token.length} time=${new Date().toISOString()}`);
+      }).catch((e) => {
+        console.warn(`[AppCheck DEBUG] getToken FAILED code=${e?.code} message=${e?.message}`, e);
+      });
+      // expose for manual console test: await __APPCHECK_DEBUG.getToken()
+      // @ts-ignore
+      window.__APPCHECK_DEBUG = { appCheck, getToken: () => getAppCheckToken(appCheck, false), key: recaptchaSiteKey, isEnterprise };
+    }
+
     // Gracefully surface the 400 that happens async (token exchange). Don't crash the app;
     // Firestore writes already fallback to localStorage and rules should allow graceful degradation.
     // Log actionable hint for https://utils.rajlabs.in/ mismatch.
     if (typeof window !== "undefined") {
       window.addEventListener("unhandledrejection", (ev) => {
         const msg = String(ev?.reason?.message || ev?.reason || "");
-        if (msg.includes("appCheck") || msg.includes("exchangeRecaptcha") || msg.includes("400")) {
+        if (msg.includes("appCheck") || msg.includes("exchangeRecaptcha") || msg.includes("400") || msg.includes("App not registered")) {
           console.warn(
             "[AppCheck] token exchange failed (400). Likely: site key not authorized for this domain (add utils.rajlabs.in / utility.rajlabs.in in reCAPTCHA Admin + Firebase Console > App Check) or v3 vs Enterprise mismatch. App continues without App Check; Firestore writes may be rejected until fixed. Details:",
             ev.reason

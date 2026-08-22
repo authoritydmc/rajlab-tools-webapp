@@ -52,6 +52,16 @@ export async function incrementToolUsage(linkOrSlug, meta = {}) {
   incrementedThisSession._timestamps[key] = Date.now();
 
   const ref = doc(db, COLLECTION, slug);
+  // TEMP DEBUG — log AppCheck token presence at write time (remove after stable)
+  try {
+    const { appCheck } = await import('../firebaseConfig');
+    if (appCheck) {
+      const { getToken } = await import('firebase/app-check');
+      getToken(appCheck, false).then(({ token }) => console.log(`[toolUsage DEBUG] ${slug} AppCheck token OK len=${token.length}`)).catch((e) => console.warn(`[toolUsage DEBUG] ${slug} AppCheck getToken FAILED`, e?.code, e?.message));
+    } else {
+      console.warn(`[toolUsage DEBUG] ${slug} appCheck is null — rules with request.app will fail`);
+    }
+  } catch {}
   try {
     await setDoc(
       ref,
@@ -64,8 +74,9 @@ export async function incrementToolUsage(linkOrSlug, meta = {}) {
       },
       { merge: true }
     );
+    console.log(`[toolUsage DEBUG] ${slug} increment OK`);
   } catch (err) {
-    console.warn('[toolUsage] increment failed for', slug, err?.message);
+    console.warn('[toolUsage] increment failed for', slug, err?.message, 'code=', err?.code);
     // allow retry next time by clearing cooldown
     if (incrementedThisSession._timestamps) delete incrementedThisSession._timestamps[key];
     throw err;
