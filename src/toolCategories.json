@@ -25,11 +25,11 @@
         "description": "Generate placeholder text in paragraphs, sentences, or words for mockups and designs."
       },
       {
-        "name": "Markdown Preview",
+        "name": "Markdown Playground",
         "link": "/markdown-preview",
         "iconName": "FaMarkdown",
         "isEnabled": true,
-        "description": "Live markdown editor with instant HTML preview. Supports headings, lists, code blocks, tables, and more."
+        "description": "Interactive markdown playground — Monaco editor, live preview, TOC, and HTML/PDF/TXT exports."
       }
     ]
   },

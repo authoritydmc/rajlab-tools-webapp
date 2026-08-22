@@ -102,6 +102,7 @@ export const router = createBrowserRouter([
             { path: "yaml-to-json", element: <S fallback={<Loading />}><YamlToJson /></S> },
             { path: "color-picker", element: <S fallback={<Loading />}><ColorPicker /></S> },
             { path: "markdown-preview", element: <S fallback={<Loading />}><MarkdownPreview /></S> },
+            { path: "markdown-playground", element: <S fallback={<Loading />}><MarkdownPreview /></S> },
             { path: "lorem-ipsum", element: <S fallback={<Loading />}><LoremIpsum /></S> },
             { path: "regex-tester", element: <S fallback={<Loading />}><RegexTester /></S> },
             { path: "uuid-generator", element: <S fallback={<Loading />}><UuidGenerator /></S> },

@@ -162,10 +162,20 @@ export const TOOL_REGISTRY = {
     ]
   },
   '/markdown-preview': {
-    title: 'Markdown Preview',
+    title: 'Markdown Playground',
     sourceFile: 'src/components/markdown/MarkdownPreview.jsx',
     category: 'Text Utilities',
-    description: 'Live interactive Markdown editor with instant HTML rendering.',
+    description: 'Interactive markdown playground with Monaco editor, header controls, live preview, TOC and versatile exports.',
+    queryParams: [
+      { name: 'text', aliases: ['md', 'content'], type: 'string', default: '', description: 'Initial markdown text.' },
+      { name: 'embed', type: 'boolean', default: false, description: 'Embed mode.' }
+    ]
+  },
+  '/markdown-playground': {
+    title: 'Markdown Playground',
+    sourceFile: 'src/components/markdown/MarkdownPreview.jsx',
+    category: 'Text Utilities',
+    description: 'Interactive markdown playground with Monaco editor, header controls, live preview, TOC and versatile exports.',
     queryParams: [
       { name: 'text', aliases: ['md', 'content'], type: 'string', default: '', description: 'Initial markdown text.' },
       { name: 'embed', type: 'boolean', default: false, description: 'Embed mode.' }

@@ -155,7 +155,6 @@ rajlab-tools-webapp/
 │   └── index.css             # Tailwind base + mesh gradient + glass utilities
 ├── .github/workflows/        # Firebase Hosting deploy (merge + PR preview)
 ├── generateSiteMap.py        # Parses src/routers.jsx → sitemap.xml
-├── migrateTools.cjs
 ├── vite.config.js
 ├── tailwind.config.js
 ├── eslint.config.js
