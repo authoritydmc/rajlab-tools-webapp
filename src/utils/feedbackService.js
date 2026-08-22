@@ -39,7 +39,18 @@ export async function submitFeedbackToFirestore({ rating, comment = '', tool = '
     clientTimestamp: new Date().toISOString(),
   };
 
+  // TEMP DEBUG — log AppCheck + result (remove after stable)
+  try {
+    const { appCheck } = await import('../firebaseConfig');
+    if (appCheck) {
+      const { getToken } = await import('firebase/app-check');
+      getToken(appCheck, false).then(({ token }) => console.log(`[feedback DEBUG] ${safeTool} AppCheck OK len=${token.length}`)).catch((e) => console.warn(`[feedback DEBUG] ${safeTool} AppCheck FAIL`, e?.code, e?.message));
+    } else {
+      console.warn(`[feedback DEBUG] ${safeTool} appCheck is null`);
+    }
+  } catch {}
   const ref = await addDoc(collection(db, FEEDBACK_COLLECTION), doc);
+  console.log(`[feedback DEBUG] ${safeTool} submit OK id=${ref.id} rating=${safeRating}`);
   return ref.id;
 }
 

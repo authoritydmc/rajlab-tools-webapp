@@ -42,13 +42,26 @@ if (recaptchaSiteKey && typeof window !== "undefined") {
       console.log(`[AppCheck DEBUG] init key=${recaptchaSiteKey.slice(0,6)}...${recaptchaSiteKey.slice(-4)} provider=${isEnterprise ? 'Enterprise' : 'V3'} host=${window.location.hostname} DEV=${import.meta.env.DEV}`);
       // Log first token fetch (async) — will show 400/ App not registered if misconfigured
       getAppCheckToken(appCheck, false).then(({ token }) => {
-        console.log(`[AppCheck DEBUG] getToken OK token=${token.slice(0,12)}... len=${token.length} time=${new Date().toISOString()}`);
+        console.log(`[AppCheck DEBUG] ✅ getToken OK provider=${isEnterprise ? 'Enterprise' : 'V3'} token=${token.slice(0,12)}... len=${token.length} time=${new Date().toISOString()}`);
+        console.log(`[AppCheck DEBUG] ✅ reCAPTCHA passed — token valid, Firestore writes will include X-Firebase-AppCheck header`);
       }).catch((e) => {
-        console.warn(`[AppCheck DEBUG] getToken FAILED code=${e?.code} message=${e?.message}`, e);
+        console.warn(`[AppCheck DEBUG] ❌ getToken FAILED code=${e?.code} message=${e?.message}`, e);
+        console.warn(`[AppCheck DEBUG] ❌ reCAPTCHA FAILED — check Site Key ${recaptchaSiteKey.slice(0,6)}... allowed domains, Firebase App Check Secret, and that you are on ${window.location.hostname}`);
       });
+      // also log auto-refresh success
+      try {
+        // @ts-ignore — onTokenChanged is available in v10+
+        import('firebase/app-check').then(({ onTokenChanged }) => {
+          if (typeof onTokenChanged === 'function') {
+            onTokenChanged(appCheck, (tok) => {
+              if (tok?.token) console.log(`[AppCheck DEBUG] 🔄 onTokenChanged OK len=${tok.token.length} expires=${new Date(tok.expireTimeMillis).toISOString()}`);
+            }, (err) => console.warn(`[AppCheck DEBUG] 🔄 onTokenChanged FAIL`, err));
+          }
+        });
+      } catch {}
       // expose for manual console test: await __APPCHECK_DEBUG.getToken()
       // @ts-ignore
-      window.__APPCHECK_DEBUG = { appCheck, getToken: () => getAppCheckToken(appCheck, false), key: recaptchaSiteKey, isEnterprise };
+      window.__APPCHECK_DEBUG = { appCheck, getToken: () => getAppCheckToken(appCheck, false), key: recaptchaSiteKey, isEnterprise, testSuccess: () => console.log('[AppCheck DEBUG] ✅ manual getToken test — if you see this with token length, reCAPTCHA passed') };
     }
 
     // Gracefully surface the 400 that happens async (token exchange). Don't crash the app;
