@@ -17,11 +17,9 @@ service cloud.firestore {
     }
 
     // ── User feedback & ratings — anonymous creates only ───────────
-    // Reads blocked (view in Console). Whitelist + server timestamp + App Check (hardcoded site key).
-    // NOTE: App Check temporarily relaxed — v3 key 6LfUX... was just rotated, token exchange failing with
-    // "App not registered / Missing permissions". Re-enforce `request.app != null` after Firebase → App Check shows Registered.
+    // Reads blocked (view in Console). Whitelist + server timestamp + App Check (hardcoded site key 6LfUX5MtAAAAAKfkcwe...).
     match /feedback/{docId} {
-      allow create: if true
+      allow create: if request.app != null
                     && request.resource.data.keys().hasOnly(["rating","comment","tool","path","url","userAgent","createdAt","clientTimestamp"])
                     && request.resource.data.rating is int && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
                     && request.resource.data.comment is string && request.resource.data.comment.size() <= 500
@@ -44,7 +42,8 @@ service cloud.firestore {
     match /tool_usage/{slug} {
       allow read: if true;
 
-      allow create: if slug == request.resource.data.slug
+      allow create: if request.app != null
+                    && slug == request.resource.data.slug
                     && isValidSlug(slug)
                     && request.resource.data.keys().hasOnly(["slug","link","title","count","updatedAt"])
                     && request.resource.data.link == "/" + slug
@@ -53,7 +52,8 @@ service cloud.firestore {
                     && request.resource.data.count == 1
                     && request.resource.data.updatedAt == request.time;
 
-      allow update: if slug == resource.data.slug
+      allow update: if request.app != null
+                    && slug == resource.data.slug
                     && isValidSlug(slug)
                     && request.resource.data.keys().hasOnly(["slug","link","title","count","updatedAt"])
                     && request.resource.data.slug == resource.data.slug
