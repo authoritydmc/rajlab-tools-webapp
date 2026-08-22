@@ -74,7 +74,7 @@ export default function DeveloperEmbedGuide({ currentPath, activeParams = {} }) 
   const effectivePreviewMargin = previewMargin ?? 10;
   const effectivePreviewUrl = getRawUrlWithSize(effectivePreviewSize, effectivePreviewMargin);
 
-  // Build QR data for live canvas preview (so <img> not needed)
+  // Data for live preview canvas (no iframe, no scroll)
   const getPreviewQrData = () => {
     if (currentPath === '/upi-code-generator') {
       const pa = activeParams.pa || activeParams.upi || activeParams.vpa || 'demo@ybl';
@@ -100,13 +100,15 @@ export default function DeveloperEmbedGuide({ currentPath, activeParams = {} }) 
     const logoUrl = getPresetLogoUrl(logo !== 'auto' ? logo : (detectBrandFromData(previewQrData) || 'none'));
     const bg = activeParams.bg ? `#${String(activeParams.bg).replace('#','')}` : (activeParams.theme==='dark' ? '#0f172a' : '#ffffff');
     const fg = activeParams.fg ? `#${String(activeParams.fg).replace('#','')}` : (activeParams.theme==='dark' ? '#ffffff' : '#000000');
+    // Preview always fits 96x96 box, no scroll — actual size shown via label, not canvas pixels
+    const previewRenderSize = Math.max(32, Math.min(96, effectivePreviewSize));
     const opts = {
-      width: Math.max(32, Math.min(256, effectivePreviewSize)),
-      height: Math.max(32, Math.min(256, effectivePreviewSize)),
+      width: previewRenderSize,
+      height: previewRenderSize,
       data: previewQrData,
-      margin: effectivePreviewMargin,
+      margin: 2,
       qrOptions: { typeNumber: 0, mode: 'Byte', errorCorrectionLevel: logoUrl ? 'H' : 'M' },
-      imageOptions: { hideBackgroundDots: true, imageSize: 0.3, margin: 4, crossOrigin: 'anonymous' },
+      imageOptions: { hideBackgroundDots: true, imageSize: 0.25, margin: 2, crossOrigin: 'anonymous' },
       dotsOptions: { color: fg, type: activeParams.dots || activeParams.dotStyle || 'square' },
       backgroundOptions: { color: bg },
       cornersSquareOptions: { color: fg, type: activeParams.corner || activeParams.eyeFrame || 'square' },
@@ -119,6 +121,15 @@ export default function DeveloperEmbedGuide({ currentPath, activeParams = {} }) 
       previewQrRef.current.append(previewRef.current);
     } else {
       previewQrRef.current.update(opts);
+    }
+    // Ensure canvas scales to container without scroll
+    const canvas = previewRef.current.querySelector('canvas');
+    if (canvas) {
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      canvas.style.maxWidth = '100%';
+      canvas.style.maxHeight = '100%';
+      canvas.style.objectFit = 'contain';
     }
   }, [hasImageRaw, previewQrData, effectivePreviewSize, effectivePreviewMargin, activeParams]);
 
@@ -428,8 +439,8 @@ Source: ${githubUrl}
           {hasImageRaw && (
             <div className={`p-4 rounded-xl border space-y-3 ${isDarkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
               <div className="flex items-center gap-4">
-                <div className={`w-24 h-24 rounded-xl overflow-hidden border flex items-center justify-center shrink-0 p-1 ${isDarkMode ? 'bg-white border-slate-700' : 'bg-white border-slate-200'}`}>
-                  <div ref={previewRef} className="w-full h-full flex items-center justify-center [&>canvas]:max-w-full [&>canvas]:max-h-full [&>canvas]:w-auto [&>canvas]:h-auto" />
+                <div className={`w-24 h-24 rounded-xl overflow-hidden border flex items-center justify-center shrink-0 p-1.5 bg-white ${isDarkMode ? 'border-slate-700' : 'border-slate-200'}`}>
+                  <div ref={previewRef} className="w-full h-full flex items-center justify-center [&>canvas]:w-full [&>canvas]:h-full [&>canvas]:object-contain [&>canvas]:max-w-full [&>canvas]:max-h-full" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className={`text-xs font-bold flex items-center gap-1.5 flex-wrap ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>
