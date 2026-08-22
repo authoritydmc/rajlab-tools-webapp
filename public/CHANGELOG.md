@@ -4,6 +4,13 @@ All notable changes to **Rajlab Tools Webapp** are documented here, organized by
 
 ---
 
+## [2.5.2] — 2026-08-22
+
+### Changed
+- **Firebase Hosting Deploy Cache**: Removed generated Firebase hosting cache files from source tracking so deployments stay cleaner and repository updates focus on app source changes.
+
+---
+
 ## [2.5.1] — 2026-08-22
 
 ### Changed
