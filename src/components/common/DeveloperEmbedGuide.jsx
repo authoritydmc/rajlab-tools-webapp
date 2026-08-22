@@ -46,8 +46,10 @@ export default function DeveloperEmbedGuide({ currentPath, activeParams = {} }) 
   // Legacy alias for older code branches
   const isQrTool = isImageTool;
   const hasRawParam = toolInfo.queryParams?.some(p => p.name === 'raw');
-  const hasImageRaw = isImageTool;
-  const hasJsonRaw = hasRawParam && !['/qr-scanner','/json-diff-checker','/regex-tester','/timestamp-converter','/css-unit-converter','/color-picker','/markdown-preview','/image-to-base64','/base64-to-image','/print-cost-estimator','/image-compressor','/video-converter','/merge-pdf','/split-pdf','/unlock-pdf','/unlock-excel'].includes(currentPath);
+  const hasImageRaw = isImageTool && hasRawParam;
+  const hasJsonRaw = hasRawParam && !hasImageRaw;
+  const [urlFormat, setUrlFormat] = useState(hasImageRaw ? 'rawImage' : hasJsonRaw ? 'rawJson' : 'page');
+  const displayUrl = urlFormat === 'rawImage' ? rawImageUrl : urlFormat === 'rawJson' ? rawJsonUrl : urlFormat === 'embed' ? embedUrl : directToolUrl;
 
   const extractOptions = (typeStr) => {
     if (!typeStr) return [];
@@ -395,121 +397,33 @@ Source: ${githubUrl}
             ) : null}
           </div>
 
-          {/* Direct API Endpoints Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {/* Live Configured Tool URL */}
-            <div className={`p-3.5 rounded-xl border flex flex-col justify-between ${isDarkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-              <div>
-                <span className={`text-[11px] font-semibold uppercase tracking-wider block mb-1 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                  Interactive UI URL (With Current Inputs)
-                </span>
-                <div className="font-mono text-xs text-emerald-400 break-all select-all mb-2">
-                  {directToolUrl}
-                </div>
-              </div>
-              <div className="flex items-center gap-2 pt-2 border-t border-slate-800/40 flex-wrap">
-                <button
-                  onClick={() => copyToClipboard(directToolUrl, 'live-url')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                    copiedKey === 'live-url' ? 'bg-emerald-600 text-white' : isDarkMode ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-white text-slate-700 border border-slate-200'
-                  }`}
-                >
-                  {copiedKey === 'live-url' ? <FaCheck size={11} /> : <FaCopy size={11} />}
-                  <span>Copy Page URL</span>
-                </button>
-                {hasImageRaw && (
-                  <button
-                    onClick={() => copyToClipboard(rawImageUrl, 'live-raw-url')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                      copiedKey === 'live-raw-url' ? 'bg-emerald-600 text-white' : isDarkMode ? 'bg-indigo-900/40 text-indigo-300 hover:bg-indigo-800/60 border border-indigo-500/20' : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
-                    }`}
-                    title="Copy RAW image URL (?raw=image) for direct <img> embedding"
-                  >
-                    {copiedKey === 'live-raw-url' ? <FaCheck size={11} /> : <FaImage size={11} />}
-                    <span>Copy RAW URL</span>
-                  </button>
-                )}
-                {hasJsonRaw && !hasImageRaw && (
-                  <button
-                    onClick={() => copyToClipboard(rawJsonUrl, 'live-raw-url')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                      copiedKey === 'live-raw-url' ? 'bg-emerald-600 text-white' : isDarkMode ? 'bg-emerald-900/30 text-emerald-300 hover:bg-emerald-800/50 border border-emerald-500/20' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                    }`}
-                    title="Copy RAW JSON URL (?raw=json)"
-                  >
-                    {copiedKey === 'live-raw-url' ? <FaCheck size={11} /> : <FaCopy size={11} />}
-                    <span>Copy RAW URL</span>
-                  </button>
-                )}
+          {/* Unified URL Bar — single copy, format toggle replaces 4 duplicative copies */}
+          <div className={`p-3.5 rounded-xl border space-y-3 ${isDarkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <span className={`text-[11px] font-semibold uppercase tracking-wider ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>Live URL — auto-updates</span>
+              <div className={`flex gap-1 p-1 rounded-full border text-[11px] font-semibold ${isDarkMode ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'}`}>
+                {[
+                  { id: 'page', label: 'Page' },
+                  ...(hasImageRaw ? [{ id: 'rawImage', label: 'Raw Image' }] : []),
+                  ...(hasJsonRaw ? [{ id: 'rawJson', label: 'Raw JSON' }] : []),
+                  { id: 'embed', label: 'Embed' },
+                ].map(f => (
+                  <button key={f.id} onClick={() => setUrlFormat(f.id)} className={`px-2.5 py-1 rounded-full transition-all ${urlFormat===f.id ? 'bg-indigo-600 text-white shadow' : isDarkMode ? 'text-slate-400 hover:text-slate-200' : 'text-slate-500 hover:text-slate-800'}`}>{f.label}</button>
+                ))}
               </div>
             </div>
-
-            {/* Direct Image / Raw Data Endpoint - only show if tool supports raw */}
-            {hasImageRaw ? (
-              <div className={`p-3.5 rounded-xl border flex flex-col justify-between ${isDarkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-                <div>
-                  <span className={`text-[11px] font-semibold uppercase tracking-wider block mb-1 text-indigo-400`}>
-                    Direct Branded Image Endpoint (?raw=image)
-                  </span>
-                  <div className="font-mono text-xs text-indigo-300 break-all select-all mb-2">
-                    {rawImageUrl}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 pt-2 border-t border-slate-800/40">
-                  <button
-                    onClick={() => copyToClipboard(rawImageUrl, 'raw-img-url')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                      copiedKey === 'raw-img-url' ? 'bg-emerald-600 text-white' : isDarkMode ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-white text-slate-700 border border-slate-200'
-                    }`}
-                  >
-                    {copiedKey === 'raw-img-url' ? <FaCheck size={11} /> : <FaCopy size={11} />}
-                    <span>Copy Image Link</span>
-                  </button>
-                  <a
-                    href={rawImageUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-sm"
-                  >
-                    <FaExternalLinkAlt size={10} />
-                    <span>View Image</span>
-                  </a>
-                </div>
-              </div>
-            ) : hasJsonRaw ? (
-              <div className={`p-3.5 rounded-xl border flex flex-col justify-between ${isDarkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-                <div>
-                  <span className={`text-[11px] font-semibold uppercase tracking-wider block mb-1 text-emerald-400`}>
-                    Direct Raw Data Endpoint (?raw=json)
-                  </span>
-                  <div className="font-mono text-xs text-emerald-300 break-all select-all mb-2">
-                    {rawJsonUrl}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 pt-2 border-t border-slate-800/40">
-                  <button
-                    onClick={() => copyToClipboard(rawJsonUrl, 'raw-json-url')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                      copiedKey === 'raw-json-url' ? 'bg-emerald-600 text-white' : isDarkMode ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-white text-slate-700 border border-slate-200'
-                    }`}
-                  >
-                    {copiedKey === 'raw-json-url' ? <FaCheck size={11} /> : <FaCopy size={11} />}
-                    <span>Copy JSON Link</span>
-                  </button>
-                  <a
-                    href={rawJsonUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-sm"
-                  >
-                    <FaExternalLinkAlt size={10} />
-                    <span>View JSON</span>
-                  </a>
-                </div>
-              </div>
-            ) : null}
+            <div className={`font-mono text-xs break-all select-all p-2.5 rounded-lg border ${isDarkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-white border-slate-200'}`}>
+              <span className={urlFormat==='rawImage' ? 'text-indigo-300' : urlFormat==='rawJson' ? 'text-emerald-300' : urlFormat==='embed' ? 'text-sky-300' : 'text-emerald-400'}>{displayUrl}</span>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => copyToClipboard(displayUrl, 'unified-copy')} className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${copiedKey==='unified-copy' ? 'bg-emerald-600 text-white' : isDarkMode ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-white text-slate-700 border border-slate-200'}`}>
+                {copiedKey==='unified-copy' ? 'Copied!' : 'Copy'}
+              </button>
+              <a href={displayUrl} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-1.5">
+                <FaExternalLinkAlt size={10}/> Open
+              </a>
+            </div>
           </div>
-
           {/* Live realtime preview for image tools — canvas-based, no <img> */}
           {hasImageRaw && (
             <div className={`p-4 rounded-xl border space-y-3 ${isDarkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
