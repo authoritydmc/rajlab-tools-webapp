@@ -155,7 +155,12 @@ export default function FfmpegTool() {
 
       setLoadStage('Instantiating WebAssembly runtime...');
       addLog('Instantiating WebAssembly runtime (may take a moment)...');
-      await ffmpeg.load({ coreURL, wasmURL });
+
+      const loadPromise = ffmpeg.load({ coreURL, wasmURL });
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('FFmpeg load timed out after 60s — check your connection or try refreshing')), 60000)
+      );
+      await Promise.race([loadPromise, timeoutPromise]);
 
       setLoadStage('Ready');
       addLog('FFmpeg WASM ready ✓');
