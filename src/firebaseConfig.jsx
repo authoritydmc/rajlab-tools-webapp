@@ -16,15 +16,21 @@ try {
 
 const db = getFirestore(firebaseApp);
 
-// ── App Check (reCAPTCHA v3) — free, public site key hardcoded ─────
+// ── App Check (reCAPTCHA Enterprise) — public site key hardcoded ─────
 // Site key is public by design (domain-locked in reCAPTCHA Admin). Hardcoded
 // so open-source deploys work without env setup. Override via env if needed.
+// 400 on exchangeRecaptchaV3Token → you used V3 provider with an Enterprise key (or vice versa)
+// or domain not allowlisted. This project uses Enterprise key 6LfrIJMt... by default.
 let appCheck = null;
 const hardcodedSiteKey = "6LfrIJMtAAAAAOcUqVTk_vsCTEGBF_bofvKJ7yhY";
+// This hardcoded key is reCAPTCHA **Enterprise** (see Google Cloud Console → reCAPTCHA → Key details shows grecaptcha.enterprise.execute).
+// Your 400 `exchangeRecaptchaV3Token` error proves the app incorrectly used ReCaptchaV3Provider with an Enterprise key.
+// Fix: treat hardcoded key as Enterprise by default. Override only if VITE_RECAPTCHA_V3_SITE_KEY is explicitly set.
 const v3Key = import.meta.env.VITE_RECAPTCHA_V3_SITE_KEY?.trim();
 const enterpriseKey = import.meta.env.VITE_RECAPTCHA_ENTERPRISE_SITE_KEY?.trim();
 const recaptchaSiteKey = v3Key || enterpriseKey || hardcodedSiteKey;
-const isEnterprise = !!enterpriseKey && !v3Key;
+// Enterprise if: explicit enterpriseKey set, OR we're falling back to the hardcoded Enterprise key and no v3Key provided.
+const isEnterprise = !!enterpriseKey || (!v3Key && recaptchaSiteKey === hardcodedSiteKey);
 if (recaptchaSiteKey && typeof window !== "undefined") {
   try {
     if (import.meta.env.DEV) {
@@ -35,8 +41,26 @@ if (recaptchaSiteKey && typeof window !== "undefined") {
       provider: isEnterprise ? new ReCaptchaEnterpriseProvider(recaptchaSiteKey) : new ReCaptchaV3Provider(recaptchaSiteKey),
       isTokenAutoRefreshEnabled: true,
     });
+
+    // Gracefully surface the 400 that happens async (token exchange). Don't crash the app;
+    // Firestore writes already fallback to localStorage and rules should allow graceful degradation.
+    // Log actionable hint for https://utils.rajlabs.in/ mismatch.
+    if (typeof window !== "undefined") {
+      window.addEventListener("unhandledrejection", (ev) => {
+        const msg = String(ev?.reason?.message || ev?.reason || "");
+        if (msg.includes("appCheck") || msg.includes("exchangeRecaptcha") || msg.includes("400")) {
+          console.warn(
+            "[AppCheck] token exchange failed (400). Likely: site key not authorized for this domain (add utils.rajlabs.in / utility.rajlabs.in in reCAPTCHA Admin + Firebase Console > App Check) or v3 vs Enterprise mismatch. App continues without App Check; Firestore writes may be rejected until fixed. Details:",
+            ev.reason
+          );
+        }
+      });
+    }
   } catch (e) {
-    console.warn("[AppCheck] init failed — check site key", e);
+    console.warn(
+      "[AppCheck] init failed — check site key (is this key v3 or Enterprise? Add utils.rajlabs.in to allowlist). App will run without App Check.",
+      e
+    );
   }
 }
 
