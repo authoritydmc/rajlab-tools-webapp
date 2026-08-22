@@ -2,78 +2,28 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://utils.rajlabs.in/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://utils.rajlabs.in/</loc>
+    <loc>https://utils.rajlabs.in/changelog</loc>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://utils.rajlabs.in/*</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://utils.rajlabs.in/sanitize-text</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://utils.rajlabs.in/format-text</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://utils.rajlabs.in/base64-encoder-decoder</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://utils.rajlabs.in/bcrypt-hashing</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://utils.rajlabs.in/image-to-base64</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://utils.rajlabs.in/base64-to-image</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://utils.rajlabs.in/url-encoder-decoder</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://utils.rajlabs.in/password-generator</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://utils.rajlabs.in/print-cost-estimator</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://utils.rajlabs.in/qr-code-generator</loc>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://utils.rajlabs.in/upi-code-generator</loc>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://utils.rajlabs.in/whatsapp-qr-code</loc>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://utils.rajlabs.in/qr-scanner</loc>
@@ -81,19 +31,34 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://utils.rajlabs.in/video-converter</loc>
+    <loc>https://utils.rajlabs.in/base64-encoder-decoder</loc>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://utils.rajlabs.in/jwt-decoder</loc>
+    <loc>https://utils.rajlabs.in/url-encoder-decoder</loc>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://utils.rajlabs.in/hash-generator</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://utils.rajlabs.in/uuid-generator</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://utils.rajlabs.in/json-viewer</loc>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://utils.rajlabs.in/jwt-decoder</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://utils.rajlabs.in/json-diff-checker</loc>
@@ -131,42 +96,12 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://utils.rajlabs.in/color-picker</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://utils.rajlabs.in/markdown-preview</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://utils.rajlabs.in/lorem-ipsum</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://utils.rajlabs.in/regex-tester</loc>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://utils.rajlabs.in/uuid-generator</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://utils.rajlabs.in/timestamp-converter</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://utils.rajlabs.in/hash-generator</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://utils.rajlabs.in/image-compressor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -176,14 +111,69 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://utils.rajlabs.in/changelog</loc>
+    <loc>https://utils.rajlabs.in/color-picker</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://utils.rajlabs.in/password-generator</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://utils.rajlabs.in/bcrypt-hashing</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://utils.rajlabs.in/image-to-base64</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://utils.rajlabs.in/base64-to-image</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://utils.rajlabs.in/format-text</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://utils.rajlabs.in/sanitize-text</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://utils.rajlabs.in/lorem-ipsum</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://utils.rajlabs.in/markdown-preview</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://utils.rajlabs.in/print-cost-estimator</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://utils.rajlabs.in/image-compressor</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://utils.rajlabs.in/video-converter</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://utils.rajlabs.in/merge-pdf</loc>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://utils.rajlabs.in/split-pdf</loc>
