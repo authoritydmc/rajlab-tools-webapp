@@ -25,6 +25,7 @@
     "marked": "^18.0.10",
     "papaparse": "^5.6.0",
     "pdf-lib": "^1.17.1",
+    "qr-code-styling": "^1.9.2",
     "qrcode.react": "^4.0.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

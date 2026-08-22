@@ -15,11 +15,19 @@ export default function WhatsAppQr() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [message, setMessage] = useState('');
   const [qrData, setQrData] = useState('');
-  const [errorCorrectionLevel] = useState('H');
   const [phoneError, setPhoneError] = useState('');
+  
+  // Customization States with WhatsApp Defaults
   const [bgColor, setBgColor] = useState('#ffffff');
   const [fgColor, setFgColor] = useState('#000000');
   const [colorTheme, setColorTheme] = useState('light');
+  const [logo, setLogo] = useState('whatsapp'); // default WhatsApp logo
+  const [dotStyle, setDotStyle] = useState('dots');
+  const [cornerSquareStyle, setCornerSquareStyle] = useState('dot');
+  const [cornerDotStyle, setCornerDotStyle] = useState('dot');
+  const [frame, setFrame] = useState('banner-bottom');
+  const [frameText, setFrameText] = useState('CHAT ON WHATSAPP');
+  const [frameColor, setFrameColor] = useState('#25D366'); // WhatsApp green
 
   const size = 256;
   const validatePhoneNumber = (number) => /^[0-9]{7,15}$/.test(number);
@@ -31,6 +39,10 @@ export default function WhatsAppQr() {
     const bgParam = searchParams.get('bg') || searchParams.get('bgColor');
     const fgParam = searchParams.get('fg') || searchParams.get('fgColor');
     const themeParam = searchParams.get('theme') || searchParams.get('colorTheme');
+    const logoParam = searchParams.get('logo') || searchParams.get('icon');
+    const frameParam = searchParams.get('frame');
+    const frameTxtParam = searchParams.get('frameText') || searchParams.get('cta');
+    const frameColParam = searchParams.get('frameColor') || searchParams.get('fc');
 
     if (qCode) setCountryCode(qCode);
     if (qPhone) {
@@ -60,6 +72,11 @@ export default function WhatsAppQr() {
       setFgColor(fgParam.startsWith('#') ? fgParam : `#${fgParam}`);
       setColorTheme('custom');
     }
+
+    if (logoParam) setLogo(logoParam);
+    if (frameParam) setFrame(frameParam);
+    if (frameTxtParam) setFrameText(frameTxtParam);
+    if (frameColParam) setFrameColor(frameColParam.startsWith('#') ? frameColParam : `#${frameColParam}`);
   }, [searchParams]);
 
   useEffect(() => {
@@ -108,7 +125,10 @@ export default function WhatsAppQr() {
       activeParams={{ 
         code: countryCode, 
         phone: phoneNumber, 
-        message,
+        message: message || undefined,
+        logo: logo !== 'none' ? logo : undefined,
+        frame: frame !== 'none' ? frame : undefined,
+        frameText: frame !== 'none' ? frameText : undefined,
         theme: colorTheme !== 'light' ? colorTheme : undefined,
         bg: colorTheme === 'custom' ? bgColor.replace('#', '') : undefined,
         fg: colorTheme === 'custom' ? fgColor.replace('#', '') : undefined,
@@ -176,21 +196,39 @@ export default function WhatsAppQr() {
               </div>
             </div>
 
-            {/* QR Code Display Section with Theme Colors */}
+            {/* QR Code Display Section with Branding & Frames */}
             <div className="flex-1 mt-8 lg:mt-0">
               {qrData && !phoneError ? (
                 <QRCodeDisplay
                   data={qrData}
                   size={size}
-                  errorCorrectionLevel={errorCorrectionLevel}
+                  errorCorrectionLevel="H"
                   shareTitle={`WhatsApp QR ${countryCode}${phoneNumber}`}
                   shareText={`Message to ${countryCode}${phoneNumber}${message ? `: ${message}` : ''}`}
-                  headerText={`WhatsApp QR ${countryCode}${phoneNumber}`}
+                  headerText={`WhatsApp Direct Chat QR`}
                   visibleButtons={{ copy: true, download: true, share: true, print: true }}
                   bgColor={bgColor}
                   fgColor={fgColor}
                   colorTheme={colorTheme}
-                  onColorChange={({ bg, fg, theme }) => { setBgColor(bg); setFgColor(fg); setColorTheme(theme); }}
+                  logo={logo}
+                  dotStyle={dotStyle}
+                  cornerSquareStyle={cornerSquareStyle}
+                  cornerDotStyle={cornerDotStyle}
+                  frame={frame}
+                  frameText={frameText}
+                  frameColor={frameColor}
+                  onCustomizationChange={(c) => {
+                    if (c.bg) setBgColor(c.bg);
+                    if (c.fg) setFgColor(c.fg);
+                    if (c.theme) setColorTheme(c.theme);
+                    if (c.logo) setLogo(c.logo);
+                    if (c.dotStyle) setDotStyle(c.dotStyle);
+                    if (c.cornerSquareStyle) setCornerSquareStyle(c.cornerSquareStyle);
+                    if (c.cornerDotStyle) setCornerDotStyle(c.cornerDotStyle);
+                    if (c.frame) setFrame(c.frame);
+                    if (c.frameText) setFrameText(c.frameText);
+                    if (c.frameColor) setFrameColor(c.frameColor);
+                  }}
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-center p-8">

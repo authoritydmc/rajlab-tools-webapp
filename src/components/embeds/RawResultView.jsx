@@ -1,25 +1,27 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { QRCodeCanvas, QRCodeSVG } from 'qrcode.react';
+import QRCodeStyling from 'qr-code-styling';
 import { FaDownload, FaCopy, FaCheck, FaExternalLinkAlt } from 'react-icons/fa';
 import CryptoJS from 'crypto-js';
+import { getPresetLogoUrl } from '../../utils/qrLogoPresets';
 
 export default function RawResultView() {
   const { toolSlug } = useParams();
   const [searchParams] = useSearchParams();
   const [copied, setCopied] = useState(false);
-  const qrRef = useRef(null);
+  const containerRef = useRef(null);
+  const qrInstance = useRef(null);
 
   const slug = (toolSlug || '').replace(/^\//, '');
   const rawMode = (searchParams.get('raw') || searchParams.get('format') || 'image').toLowerCase();
   const shouldDownload = searchParams.get('download') === 'true' || searchParams.get('download') === '1';
 
   // QR Parameters
-  const data = searchParams.get('data') || searchParams.get('text') || searchParams.get('url') || searchParams.get('q') || '';
+  const data = searchParams.get('data') || searchParams.get('text') || searchParams.get('url') || searchParams.get('q') || 'https://rajlabs.in';
   const size = parseInt(searchParams.get('size') || searchParams.get('s') || 300);
   const ec = searchParams.get('errorCorrectionLevel') || searchParams.get('ec') || 'M';
   
-  // Theme / Color Parameters (Default Standard Black-on-White)
+  // Theme & Styling
   const theme = (searchParams.get('theme') || searchParams.get('mode') || 'light').toLowerCase();
   let defaultBg = theme === 'dark' ? '#0f172a' : '#ffffff';
   let defaultFg = theme === 'dark' ? '#ffffff' : '#000000';
@@ -29,74 +31,101 @@ export default function RawResultView() {
   const bgColor = customBg ? (customBg.startsWith('#') ? customBg : `#${customBg}`) : defaultBg;
   const fgColor = customFg ? (customFg.startsWith('#') ? customFg : `#${customFg}`) : defaultFg;
 
+  // Customizer styling parameters
+  const logoParam = searchParams.get('logo') || searchParams.get('icon');
+  const dotStyle = searchParams.get('dotStyle') || searchParams.get('dots') || searchParams.get('pattern') || 'square';
+  const cornerSquareStyle = searchParams.get('eyeFrame') || searchParams.get('corner') || searchParams.get('eye') || 'square';
+  const cornerDotStyle = searchParams.get('eyeBall') || searchParams.get('eyeball') || 'square';
+  const frame = searchParams.get('frame') || 'none';
+  const frameText = searchParams.get('frameText') || searchParams.get('cta') || 'SCAN ME';
+  const frameColor = searchParams.get('frameColor') || searchParams.get('fc') || '#000000';
+
+  const logoUrl = getPresetLogoUrl(logoParam);
+
+  // Render QRCodeStyling inside canvas container
+  useEffect(() => {
+    if (!containerRef.current || rawMode === 'json' || rawMode === 'text') return;
+
+    const options = {
+      width: size,
+      height: size,
+      data,
+      margin: 10,
+      qrOptions: {
+        typeNumber: 0,
+        mode: 'Byte',
+        errorCorrectionLevel: logoUrl ? 'H' : ec,
+      },
+      imageOptions: {
+        hideBackgroundDots: true,
+        imageSize: 0.3,
+        margin: 6,
+        crossOrigin: 'anonymous',
+      },
+      dotsOptions: {
+        color: fgColor,
+        type: dotStyle,
+      },
+      backgroundOptions: {
+        color: bgColor,
+      },
+      cornersSquareOptions: {
+        color: fgColor,
+        type: cornerSquareStyle,
+      },
+      cornersDotOptions: {
+        color: fgColor,
+        type: cornerDotStyle,
+      },
+      image: logoUrl || undefined,
+    };
+
+    if (!qrInstance.current) {
+      qrInstance.current = new QRCodeStyling(options);
+      containerRef.current.innerHTML = '';
+      qrInstance.current.append(containerRef.current);
+    } else {
+      qrInstance.current.update(options);
+    }
+  }, [data, size, ec, bgColor, fgColor, dotStyle, cornerSquareStyle, cornerDotStyle, logoUrl, rawMode]);
+
   // Auto download trigger if download=true
   useEffect(() => {
-    if (shouldDownload && qrRef.current) {
+    if (shouldDownload && qrInstance.current) {
       setTimeout(() => {
-        const canvas = qrRef.current.querySelector('canvas');
-        if (canvas) {
-          const url = canvas.toDataURL('image/png');
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `${slug || 'qr-code'}.png`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        }
+        qrInstance.current.download({ name: slug || 'qr-code', extension: 'png' });
       }, 300);
     }
   }, [shouldDownload, slug]);
 
-  const copyImage = async () => {
-    try {
-      const canvas = qrRef.current?.querySelector('canvas');
-      if (canvas && window.ClipboardItem) {
-        canvas.toBlob(async (blob) => {
-          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-          setCopied(true);
-          setTimeout(() => setCopied(false), 2000);
-        });
-      } else {
-        await navigator.clipboard.writeText(data);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      }
-    } catch {
-      await navigator.clipboard.writeText(data);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+  const copyData = async () => {
+    await navigator.clipboard.writeText(data);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const downloadImage = () => {
-    const canvas = qrRef.current?.querySelector('canvas');
-    if (canvas) {
-      const url = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${slug || 'qr-code'}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    if (qrInstance.current) {
+      qrInstance.current.download({ name: slug || 'qr-code', extension: 'png' });
     }
   };
 
   // --- Raw JSON Mode ---
   if (rawMode === 'json') {
-    let resultPayload = { success: true, tool: slug, timestamp: new Date().toISOString() };
+    let resultPayload = { 
+      success: true, 
+      tool: slug, 
+      data, 
+      size, 
+      dotStyle,
+      cornerSquareStyle,
+      logo: logoParam || 'none',
+      frame,
+      frameText: frame !== 'none' ? frameText : undefined,
+      timestamp: new Date().toISOString() 
+    };
 
-    if (slug.includes('qr') || slug === 'qr-code-generator') {
-      resultPayload = {
-        ...resultPayload,
-        data,
-        size,
-        errorCorrectionLevel: ec,
-        bgColor,
-        fgColor,
-        theme,
-      };
-    } else if (slug === 'hash-generator') {
-      resultPayload.input = data;
+    if (slug === 'hash-generator') {
       resultPayload.hashes = {
         md5: CryptoJS.MD5(data).toString(),
         sha256: CryptoJS.SHA256(data).toString(),
@@ -104,34 +133,11 @@ export default function RawResultView() {
     } else if (slug === 'uuid-generator') {
       const count = parseInt(searchParams.get('count') || 5);
       resultPayload.uuids = Array.from({ length: count }, () => crypto.randomUUID());
-    } else if (slug === 'base64-encoder-decoder') {
-      const isEncode = searchParams.get('mode') !== 'decode';
-      resultPayload.mode = isEncode ? 'encode' : 'decode';
-      resultPayload.input = data;
-      resultPayload.output = isEncode ? btoa(data) : atob(data);
     }
 
     return (
       <div className="min-h-screen bg-slate-950 text-emerald-400 p-4 font-mono text-xs overflow-auto">
         <pre>{JSON.stringify(resultPayload, null, 2)}</pre>
-      </div>
-    );
-  }
-
-  // --- Raw SVG Mode ---
-  if (rawMode === 'svg') {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-slate-950">
-        <div className="p-4 rounded-2xl shadow-2xl" style={{ backgroundColor: bgColor }}>
-          <QRCodeSVG
-            value={data || 'https://rajlabs.in'}
-            size={size}
-            level={ec}
-            includeMargin={true}
-            bgColor={bgColor}
-            fgColor={fgColor}
-          />
-        </div>
       </div>
     );
   }
@@ -142,8 +148,6 @@ export default function RawResultView() {
     if (slug === 'uuid-generator') {
       const count = parseInt(searchParams.get('count') || 5);
       rawText = Array.from({ length: count }, () => crypto.randomUUID()).join('\n');
-    } else if (slug === 'base64-encoder-decoder') {
-      rawText = searchParams.get('mode') === 'decode' ? atob(data) : btoa(data);
     } else if (slug === 'hash-generator') {
       rawText = CryptoJS.SHA256(data).toString();
     }
@@ -155,13 +159,13 @@ export default function RawResultView() {
     );
   }
 
-  // --- Default: Standalone Pure Image Canvas View ---
+  // --- Default: Standalone Branded Canvas Output View ---
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-slate-950 select-none relative group">
       {/* Floating Toolbar on Hover */}
       <div className="absolute top-4 right-4 flex items-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity bg-slate-900/80 backdrop-blur-md border border-slate-800 p-1.5 rounded-xl shadow-xl z-20">
         <button
-          onClick={copyImage}
+          onClick={copyData}
           className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-1.5 transition-all"
         >
           {copied ? <FaCheck className="text-emerald-400" size={11} /> : <FaCopy size={11} />}
@@ -181,32 +185,43 @@ export default function RawResultView() {
           target="_blank"
           rel="noopener noreferrer"
           className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-all"
-          title="Open in Full Editor"
+          title="Open in Editor"
         >
           <FaExternalLinkAlt size={12} />
         </a>
       </div>
 
-      {/* Standalone Canvas */}
+      {/* Branded QR Container with Optional Outer Frame */}
       <div 
-        ref={qrRef}
-        className="p-4 rounded-2xl shadow-2xl transition-transform duration-300 hover:scale-[1.02]"
-        style={{ backgroundColor: bgColor }}
+        className="transition-all duration-300 flex flex-col items-center justify-center shadow-2xl rounded-3xl overflow-hidden"
+        style={{
+          backgroundColor: frame !== 'none' ? frameColor : bgColor,
+          padding: frame !== 'none' ? '18px 18px' : '8px',
+        }}
       >
-        <QRCodeCanvas
-          value={data || 'https://rajlabs.in'}
-          size={size}
-          level={ec}
-          includeMargin={true}
-          bgColor={bgColor}
-          fgColor={fgColor}
+        {frame === 'banner-top' && (
+          <div className="text-white font-extrabold text-sm uppercase tracking-wider mb-2 px-4 text-center">
+            {frameText}
+          </div>
+        )}
+
+        <div 
+          ref={containerRef}
+          className="rounded-2xl overflow-hidden flex items-center justify-center p-2"
+          style={{ backgroundColor: bgColor }}
         />
+
+        {frame === 'banner-bottom' && (
+          <div className="text-white font-extrabold text-sm uppercase tracking-wider mt-2 px-4 text-center">
+            {frameText}
+          </div>
+        )}
       </div>
 
-      {/* Direct Info Label */}
+      {/* Info Label */}
       <div className="mt-4 text-center">
         <span className="text-[11px] font-mono text-slate-500">
-          {bgColor === '#ffffff' ? 'Standard White BG' : 'Dark BG'} &bull; {size}x{size}px
+          {logoParam ? `${logoParam.toUpperCase()} Logo &bull; ` : ''}{dotStyle} dots &bull; {size}x{size}px
         </span>
       </div>
     </div>

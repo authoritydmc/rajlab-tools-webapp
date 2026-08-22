@@ -17,11 +17,20 @@ export default function UPIPaymentSettings() {
   const [amount, setAmount] = useState('');
   const [qrData, setQrData] = useState('');
   const [size, setSize] = useState(256);
-  const [errorCorrectionLevel, setErrorCorrectionLevel] = useState('M');
+  const [errorCorrectionLevel, setErrorCorrectionLevel] = useState('H');
   const [upiError, setUpiError] = useState('');
+  
+  // Customization States with UPI Defaults
   const [bgColor, setBgColor] = useState('#ffffff');
   const [fgColor, setFgColor] = useState('#000000');
   const [colorTheme, setColorTheme] = useState('light');
+  const [logo, setLogo] = useState('upi'); // default to UPI logo
+  const [dotStyle, setDotStyle] = useState('rounded');
+  const [cornerSquareStyle, setCornerSquareStyle] = useState('extra-rounded');
+  const [cornerDotStyle, setCornerDotStyle] = useState('dot');
+  const [frame, setFrame] = useState('banner-bottom'); // default to Bottom Banner
+  const [frameText, setFrameText] = useState('SCAN & PAY');
+  const [frameColor, setFrameColor] = useState('#0f172a');
 
   const validateUpiAddress = (upiAddress) => {
     const upiPattern = /^[0-9]+$|^[a-zA-Z0-9._]+@[a-zA-Z0-9]+$/;
@@ -36,11 +45,15 @@ export default function UPIPaymentSettings() {
     const bgParam = searchParams.get('bg') || searchParams.get('bgColor');
     const fgParam = searchParams.get('fg') || searchParams.get('fgColor');
     const themeParam = searchParams.get('theme') || searchParams.get('colorTheme');
+    const logoParam = searchParams.get('logo') || searchParams.get('icon');
+    const frameParam = searchParams.get('frame');
+    const frameTxtParam = searchParams.get('frameText') || searchParams.get('cta');
+    const frameColParam = searchParams.get('frameColor') || searchParams.get('fc');
 
     if (qPa) {
       setUpi(qPa);
       if (!validateUpiAddress(qPa)) {
-        setUpiError('Invalid UPI address format. Use either all digits or format user@bank');
+        setUpiError('Invalid UPI address format. Use format user@bank or digits');
       }
     } else {
       const storedUpi = LocalStorageUtils.getItem(KEYS.UPI_ADDRESS);
@@ -76,6 +89,11 @@ export default function UPIPaymentSettings() {
       setFgColor(fgParam.startsWith('#') ? fgParam : `#${fgParam}`);
       setColorTheme('custom');
     }
+
+    if (logoParam) setLogo(logoParam);
+    if (frameParam) setFrame(frameParam);
+    if (frameTxtParam) setFrameText(frameTxtParam);
+    if (frameColParam) setFrameColor(frameColParam.startsWith('#') ? frameColParam : `#${frameColParam}`);
   }, [searchParams]);
 
   useEffect(() => {
@@ -97,7 +115,7 @@ export default function UPIPaymentSettings() {
     const value = e.target.value;
     setUpi(value);
     if (!validateUpiAddress(value)) {
-      setUpiError('Invalid UPI address format. Use either all digits or format user@bank');
+      setUpiError('Invalid UPI address format. Use format user@bank or digits');
     } else {
       setUpiError('');
     }
@@ -127,6 +145,9 @@ export default function UPIPaymentSettings() {
         pn: name || undefined, 
         am: amount || undefined, 
         size,
+        logo: logo !== 'none' ? logo : undefined,
+        frame: frame !== 'none' ? frame : undefined,
+        frameText: frame !== 'none' ? frameText : undefined,
         theme: colorTheme !== 'light' ? colorTheme : undefined,
         bg: colorTheme === 'custom' ? bgColor.replace('#', '') : undefined,
         fg: colorTheme === 'custom' ? fgColor.replace('#', '') : undefined,
@@ -187,19 +208,37 @@ export default function UPIPaymentSettings() {
         </div>
       </div>
 
-      {/* QR Code Display with Color Themes */}
+      {/* QR Code Display with UPI Branding, Frame & Logos */}
       {qrData && !upiError && (
         <QRCodeDisplay
           data={qrData}
           size={parseInt(size) || 256}
-          errorCorrectionLevel={errorCorrectionLevel}
+          errorCorrectionLevel="H"
           shareTitle="UPI QR"
-          shareText={`Paying ${name} (${upi}) ${amount ? ` ₹${amount}` : ''}`}
-          headerText="UPI QR code"
+          shareText={`Paying ${name || 'Merchant'} (${upi}) ${amount ? ` ₹${amount}` : ''}`}
+          headerText="UPI Payment QR Code"
           bgColor={bgColor}
           fgColor={fgColor}
           colorTheme={colorTheme}
-          onColorChange={({ bg, fg, theme }) => { setBgColor(bg); setFgColor(fg); setColorTheme(theme); }}
+          logo={logo}
+          dotStyle={dotStyle}
+          cornerSquareStyle={cornerSquareStyle}
+          cornerDotStyle={cornerDotStyle}
+          frame={frame}
+          frameText={frameText}
+          frameColor={frameColor}
+          onCustomizationChange={(c) => {
+            if (c.bg) setBgColor(c.bg);
+            if (c.fg) setFgColor(c.fg);
+            if (c.theme) setColorTheme(c.theme);
+            if (c.logo) setLogo(c.logo);
+            if (c.dotStyle) setDotStyle(c.dotStyle);
+            if (c.cornerSquareStyle) setCornerSquareStyle(c.cornerSquareStyle);
+            if (c.cornerDotStyle) setCornerDotStyle(c.cornerDotStyle);
+            if (c.frame) setFrame(c.frame);
+            if (c.frameText) setFrameText(c.frameText);
+            if (c.frameColor) setFrameColor(c.frameColor);
+          }}
         />
       )}
     </ToolPageLayout>

@@ -9,61 +9,65 @@ export const TOOL_REGISTRY = {
     title: 'QR Code Generator',
     sourceFile: 'src/components/qrCodes/QRSettingMainPage.jsx',
     category: 'QR Codes',
-    description: 'Generate customizable QR codes for any text, URL, contact info, and WiFi details.',
+    description: 'Generate customizable branded QR codes with center logos, custom dot styles, corner eyes, outer frames, and colors.',
     queryParams: [
       { name: 'data', aliases: ['text', 'url', 'q'], type: 'string', default: '', description: 'Text or URL encoded inside the QR code.' },
       { name: 'size', aliases: ['s'], type: 'number', default: 256, description: 'Width and height of the generated QR code in pixels (e.g. 128, 256, 512).' },
-      { name: 'errorCorrectionLevel', aliases: ['ec', 'level'], type: 'string', default: 'M', description: 'Error correction level: L (7%), M (15%), Q (25%), H (30%).' },
-      { name: 'theme', aliases: ['mode'], type: 'string', default: 'light', description: 'Color theme: "light" (Standard Black on White) or "dark" (Inverted White on Dark).' },
+      { name: 'logo', aliases: ['icon'], type: 'string', default: 'none', description: 'Center brand icon ("upi", "gpay", "phonepe", "paytm", "whatsapp", "rajlabs", "link", "wifi", or image URL).' },
+      { name: 'dots', aliases: ['dotStyle', 'pattern'], type: 'string', default: 'square', description: 'Data dot shape: "square", "rounded", "dots", "classy".' },
+      { name: 'corner', aliases: ['eyeFrame'], type: 'string', default: 'square', description: 'Corner eye shape: "square", "extra-rounded", "dot".' },
+      { name: 'frame', aliases: ['frameStyle'], type: 'string', default: 'none', description: 'Outer CTA banner frame: "none", "banner-bottom", "banner-top".' },
+      { name: 'frameText', aliases: ['cta'], type: 'string', default: 'SCAN ME', description: 'Call-to-action text displayed on outer banner frame.' },
+      { name: 'theme', aliases: ['mode'], type: 'string', default: 'light', description: 'Color theme: "light" (Standard Black on White) or "dark" (Inverted).' },
       { name: 'bg', aliases: ['bgColor'], type: 'string', default: 'ffffff', description: 'Custom background hex color without hash (e.g. ffffff, 0f172a).' },
       { name: 'fg', aliases: ['fgColor'], type: 'string', default: '000000', description: 'Custom QR module hex color without hash (e.g. 000000, 6366f1).' },
-      { name: 'raw', aliases: ['format'], type: 'string', default: '', description: 'Direct output mode: "image" / "png" (pure canvas image), "svg" (vector), or "json".' },
+      { name: 'raw', aliases: ['format'], type: 'string', default: '', description: 'Direct output mode: "image" / "png" (pure canvas image), "svg", or "json".' },
       { name: 'download', type: 'boolean', default: false, description: 'Set to true to trigger instant browser download.' },
       { name: 'embed', type: 'boolean', default: false, description: 'Set to true for clean embed/widget mode without navbar and headers.' },
     ],
     examples: [
-      { label: 'Standard Black on White', params: { data: 'https://rajlabs.in', theme: 'light', size: 256 } },
-      { label: 'Direct Image Embed (?raw=image)', params: { data: 'https://rajlabs.in', raw: 'image', size: 300 } },
-      { label: 'Dark Inverted QR', params: { data: 'https://rajlabs.in', theme: 'dark', size: 256 } },
-      { label: 'Custom Indigo QR', params: { data: 'https://rajlabs.in', bg: 'ffffff', fg: '6366f1', size: 300 } }
+      { label: 'Branded WhatsApp QR with Logo', params: { data: 'https://wa.me/919876543210', logo: 'whatsapp', dots: 'dots', frame: 'banner-bottom', frameText: 'CHAT WITH US' } },
+      { label: 'UPI Payment with Logo & Frame', params: { data: 'upi://pay?pa=user@upi', logo: 'upi', frame: 'banner-bottom', frameText: 'SCAN TO PAY' } },
+      { label: 'Minimal Rounded Black & White', params: { data: 'https://rajlabs.in', dots: 'rounded', corner: 'extra-rounded' } }
     ]
   },
   '/upi-code-generator': {
     title: 'UPI QR Code Generator',
     sourceFile: 'src/components/qrCodes/UPIQrCodeGenerators.jsx',
     category: 'QR Codes',
-    description: 'Generate standardized UPI payment QR codes with payee VPA, name, and optional amount.',
+    description: 'Generate standardized UPI payment QR codes with payee VPA, optional name, amount, UPI/GPay/PhonePe branding, and payment frames.',
     queryParams: [
       { name: 'pa', aliases: ['upi', 'vpa'], type: 'string', default: '', description: 'Receiver UPI ID / VPA (e.g. username@okhdfcbank).' },
-      { name: 'pn', aliases: ['name'], type: 'string', default: '', description: 'Payee or Merchant Display Name.' },
+      { name: 'pn', aliases: ['name'], type: 'string', default: '', description: 'Payee or Merchant Display Name (optional).' },
       { name: 'am', aliases: ['amount'], type: 'number', default: '', description: 'Optional payment amount in INR (e.g. 100, 499.50).' },
+      { name: 'logo', aliases: ['icon'], type: 'string', default: 'upi', description: 'Center logo ("upi", "gpay", "phonepe", "paytm", "none").' },
+      { name: 'frame', type: 'string', default: 'banner-bottom', description: 'Outer frame: "banner-bottom", "banner-top", "none".' },
+      { name: 'frameText', type: 'string', default: 'SCAN & PAY', description: 'Frame CTA label.' },
       { name: 'size', aliases: ['s'], type: 'number', default: 256, description: 'QR code size in pixels.' },
-      { name: 'theme', aliases: ['mode'], type: 'string', default: 'light', description: '"light" (Standard Black on White) or "dark" (Inverted White on Dark).' },
-      { name: 'bg', aliases: ['bgColor'], type: 'string', default: 'ffffff', description: 'Background hex code.' },
-      { name: 'fg', aliases: ['fgColor'], type: 'string', default: '000000', description: 'Foreground QR hex code.' },
+      { name: 'theme', aliases: ['mode'], type: 'string', default: 'light', description: '"light" (Standard Black on White) or "dark".' },
       { name: 'raw', type: 'string', default: '', description: '"image", "svg", or "json".' },
-      { name: 'embed', type: 'boolean', default: false, description: 'Set to true for distraction-free widget mode.' },
+      { name: 'embed', type: 'boolean', default: false, description: 'Set to true for widget mode.' },
     ],
     examples: [
-      { label: 'Fixed Amount Request', params: { pa: 'raj@upi', pn: 'Raj Kumar', am: '500' } },
-      { label: 'Direct Image Request', params: { pa: 'rajlabs@icici', pn: 'Rajlabs Dev', raw: 'image' } }
+      { label: 'Branded Google Pay Request', params: { pa: 'raj@okhdfcbank', pn: 'Raj Kumar', am: '250', logo: 'gpay', frameText: 'PAY VIA GPAY' } },
+      { label: 'PhonePe Payment Banner', params: { pa: 'merchant@ybl', logo: 'phonepe', frameText: 'PHONEPE ACCEPTED' } }
     ]
   },
   '/whatsapp-qr-code': {
     title: 'WhatsApp QR Code',
     sourceFile: 'src/components/qrCodes/whatsAppQR.jsx',
     category: 'QR Codes',
-    description: 'Generate direct click-to-chat WhatsApp QR codes without needing to save phone contacts.',
+    description: 'Generate WhatsApp direct chat QR codes with WhatsApp center icon and call-to-action banner frames.',
     queryParams: [
       { name: 'phone', aliases: ['number', 'p'], type: 'string', default: '', description: 'Phone number (7 to 15 digits).' },
       { name: 'code', aliases: ['cc', 'country'], type: 'string', default: '91', description: 'Country calling code (e.g. 91, 1, 44).' },
       { name: 'message', aliases: ['msg', 'text'], type: 'string', default: '', description: 'Optional pre-filled message text.' },
+      { name: 'logo', type: 'string', default: 'whatsapp', description: 'Center logo ("whatsapp", "none", or image URL).' },
+      { name: 'frame', type: 'string', default: 'banner-bottom', description: '"banner-bottom", "banner-top", "none".' },
+      { name: 'frameText', type: 'string', default: 'CHAT ON WHATSAPP', description: 'Frame banner text.' },
       { name: 'theme', aliases: ['mode'], type: 'string', default: 'light', description: '"light" or "dark".' },
       { name: 'raw', type: 'string', default: '', description: '"image", "svg", or "json".' },
       { name: 'embed', type: 'boolean', default: false, description: 'Set to true for widget mode.' },
-    ],
-    examples: [
-      { label: 'Customer Support', params: { code: '91', phone: '9876543210', message: 'Hello! I need assistance with...' } }
     ]
   },
   '/qr-scanner': {
@@ -85,10 +89,6 @@ export const TOOL_REGISTRY = {
       { name: 'mode', type: 'string', default: 'encode', description: 'Operation mode: "encode" or "decode".' },
       { name: 'raw', type: 'string', default: '', description: '"text" (pure output string) or "json".' },
       { name: 'embed', type: 'boolean', default: false, description: 'Embed mode.' }
-    ],
-    examples: [
-      { label: 'Encode String', params: { text: 'Hello World', mode: 'encode' } },
-      { label: 'Raw Decoded Text', params: { text: 'SGVsbG8gV29ybGQ=', mode: 'decode', raw: 'text' } }
     ]
   },
   '/url-encoder-decoder': {
@@ -112,9 +112,6 @@ export const TOOL_REGISTRY = {
       { name: 'text', aliases: ['input', 'q'], type: 'string', default: '', description: 'Input string to compute hashes for.' },
       { name: 'raw', type: 'string', default: '', description: '"text" (SHA-256) or "json" (all hashes).' },
       { name: 'embed', type: 'boolean', default: false, description: 'Embed mode.' }
-    ],
-    examples: [
-      { label: 'All Hashes in JSON', params: { text: 'SecurePassword123', raw: 'json' } }
     ]
   },
   '/uuid-generator': {
@@ -128,10 +125,6 @@ export const TOOL_REGISTRY = {
       { name: 'nodashes', aliases: ['raw'], type: 'boolean', default: false, description: 'Strip hyphens/dashes from output.' },
       { name: 'raw', type: 'string', default: '', description: '"text" (newline separated) or "json".' },
       { name: 'embed', type: 'boolean', default: false, description: 'Embed mode.' }
-    ],
-    examples: [
-      { label: 'Raw 5 UUIDs', params: { count: 5, raw: 'text' } },
-      { label: '10 Upper in JSON', params: { count: 10, uppercase: true, raw: 'json' } }
     ]
   },
   '/lorem-ipsum': {

@@ -16,26 +16,34 @@ export default function QRCodeSettings() {
   const [bgColor, setBgColor] = useState('#ffffff');
   const [fgColor, setFgColor] = useState('#000000');
   const [colorTheme, setColorTheme] = useState('light');
+  const [logo, setLogo] = useState('none');
+  const [dotStyle, setDotStyle] = useState('square');
+  const [cornerSquareStyle, setCornerSquareStyle] = useState('square');
+  const [cornerDotStyle, setCornerDotStyle] = useState('square');
+  const [frame, setFrame] = useState('none');
+  const [frameText, setFrameText] = useState('SCAN ME');
+  const [frameColor, setFrameColor] = useState('#000000');
+  
   const siblings = useCategorySiblings('/qr-code-generator');
 
-  // Load from query parameters on mount or url change
+  // Load from query parameters
   useEffect(() => {
     const dataParam = searchParams.get('data') || searchParams.get('text') || searchParams.get('url') || searchParams.get('q');
     const sizeParam = searchParams.get('size') || searchParams.get('s');
     const ecParam = searchParams.get('errorCorrectionLevel') || searchParams.get('ec') || searchParams.get('level');
-    const bgParam = searchParams.get('bg') || searchParams.get('bgColor') || searchParams.get('background');
-    const fgParam = searchParams.get('fg') || searchParams.get('fgColor') || searchParams.get('foreground');
-    const themeParam = searchParams.get('theme') || searchParams.get('colorTheme') || searchParams.get('mode');
+    const bgParam = searchParams.get('bg') || searchParams.get('bgColor');
+    const fgParam = searchParams.get('fg') || searchParams.get('fgColor');
+    const themeParam = searchParams.get('theme') || searchParams.get('colorTheme');
+    const logoParam = searchParams.get('logo') || searchParams.get('icon');
+    const dotsParam = searchParams.get('dotStyle') || searchParams.get('dots') || searchParams.get('pattern');
+    const eyeParam = searchParams.get('eyeFrame') || searchParams.get('corner') || searchParams.get('eye');
+    const frameParam = searchParams.get('frame') || searchParams.get('frameStyle');
+    const frameTxtParam = searchParams.get('frameText') || searchParams.get('cta');
+    const frameColParam = searchParams.get('frameColor') || searchParams.get('fc');
 
-    if (dataParam !== null && dataParam !== undefined) {
-      setQrData(dataParam);
-    }
-    if (sizeParam && !isNaN(sizeParam)) {
-      setSize(Number(sizeParam));
-    }
-    if (ecParam && ['L', 'M', 'Q', 'H'].includes(ecParam.toUpperCase())) {
-      setErrorCorrectionLevel(ecParam.toUpperCase());
-    }
+    if (dataParam !== null && dataParam !== undefined) setQrData(dataParam);
+    if (sizeParam && !isNaN(sizeParam)) setSize(Number(sizeParam));
+    if (ecParam && ['L', 'M', 'Q', 'H'].includes(ecParam.toUpperCase())) setErrorCorrectionLevel(ecParam.toUpperCase());
 
     if (themeParam) {
       setColorTheme(themeParam.toLowerCase());
@@ -49,21 +57,33 @@ export default function QRCodeSettings() {
     }
 
     if (bgParam) {
-      const formattedBg = bgParam.startsWith('#') ? bgParam : `#${bgParam}`;
-      setBgColor(formattedBg);
+      setBgColor(bgParam.startsWith('#') ? bgParam : `#${bgParam}`);
       setColorTheme('custom');
     }
     if (fgParam) {
-      const formattedFg = fgParam.startsWith('#') ? fgParam : `#${fgParam}`;
-      setFgColor(formattedFg);
+      setFgColor(fgParam.startsWith('#') ? fgParam : `#${fgParam}`);
       setColorTheme('custom');
     }
+
+    if (logoParam) setLogo(logoParam);
+    if (dotsParam) setDotStyle(dotsParam);
+    if (eyeParam) setCornerSquareStyle(eyeParam);
+    if (frameParam) setFrame(frameParam);
+    if (frameTxtParam) setFrameText(frameTxtParam);
+    if (frameColParam) setFrameColor(frameColParam.startsWith('#') ? frameColParam : `#${frameColParam}`);
   }, [searchParams]);
 
-  const handleColorChange = ({ bg, fg, theme }) => {
-    setBgColor(bg);
-    setFgColor(fg);
-    setColorTheme(theme);
+  const handleCustomization = (customs) => {
+    if (customs.bg) setBgColor(customs.bg);
+    if (customs.fg) setFgColor(customs.fg);
+    if (customs.theme) setColorTheme(customs.theme);
+    if (customs.logo) setLogo(customs.logo);
+    if (customs.dotStyle) setDotStyle(customs.dotStyle);
+    if (customs.cornerSquareStyle) setCornerSquareStyle(customs.cornerSquareStyle);
+    if (customs.cornerDotStyle) setCornerDotStyle(customs.cornerDotStyle);
+    if (customs.frame) setFrame(customs.frame);
+    if (customs.frameText) setFrameText(customs.frameText);
+    if (customs.frameColor) setFrameColor(customs.frameColor);
   };
 
   return (
@@ -80,6 +100,11 @@ export default function QRCodeSettings() {
         theme: colorTheme !== 'light' ? colorTheme : undefined,
         bg: colorTheme === 'custom' ? bgColor.replace('#', '') : undefined,
         fg: colorTheme === 'custom' ? fgColor.replace('#', '') : undefined,
+        logo: logo !== 'none' ? logo : undefined,
+        dots: dotStyle !== 'square' ? dotStyle : undefined,
+        corner: cornerSquareStyle !== 'square' ? cornerSquareStyle : undefined,
+        frame: frame !== 'none' ? frame : undefined,
+        frameText: frame !== 'none' ? frameText : undefined,
       }}
     >
       <div className="w-full">
@@ -131,13 +156,13 @@ export default function QRCodeSettings() {
                 <option value="L">Low (L - 7%)</option>
                 <option value="M">Medium (M - 15%)</option>
                 <option value="Q">Quartile (Q - 25%)</option>
-                <option value="H">High (H - 30%)</option>
+                <option value="H">High (H - 30% - Recommended for Logos)</option>
               </select>
             </div>
           </div>
         </div>
 
-        {/* QR Code Display with White/Black Color Theme Controls */}
+        {/* QR Code Display with Logo, Frames, Dots & Colors */}
         {qrData && (
           <QRCodeDisplay
             data={qrData}
@@ -147,7 +172,14 @@ export default function QRCodeSettings() {
             bgColor={bgColor}
             fgColor={fgColor}
             colorTheme={colorTheme}
-            onColorChange={handleColorChange}
+            logo={logo}
+            dotStyle={dotStyle}
+            cornerSquareStyle={cornerSquareStyle}
+            cornerDotStyle={cornerDotStyle}
+            frame={frame}
+            frameText={frameText}
+            frameColor={frameColor}
+            onCustomizationChange={handleCustomization}
           />
         )}
       </div>

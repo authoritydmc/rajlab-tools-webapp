@@ -4,6 +4,17 @@ All notable changes to **Rajlab Tools Webapp** are documented here, organized by
 
 ---
 
+## [2.3.0] — 2026-08-22
+
+### Added
+- **Advanced QR Code Customizer**: Brand center logos (Upload custom PNG/JPG/SVG + Built-in presets for UPI, GPay, PhonePe, Paytm, WhatsApp, Rajlabs, Link, WiFi).
+- **Custom Outer Frames & CTA Banners**: Bottom and Top Call-to-Action banner frames (e.g. "SCAN TO PAY", "CHAT ON WHATSAPP", "SCAN ME") with customizable colors and text.
+- **Pattern & Eye Styling**: Data dot shapes (Square, Rounded, Dots, Classy) and Corner Eye Shapes (Square, Rounded, Circular, Dot).
+- **URL Query Parameters & Raw Image Support**: Control brand logo, pattern, and outer frame directly via `logo=...`, `dots=...`, `frame=...`, `frameText=...`, and `?raw=image`.
+- **Integrated SEO Enhancements**: Dynamic client-side canonical tags, Open Graph cards, Twitter cards, and `schema.org/WebApplication` structured JSON-LD schemas.
+
+---
+
 ## [2.2.0] — 2026-08-22
 
 ### Added
