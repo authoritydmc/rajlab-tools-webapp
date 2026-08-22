@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
 import { FaClipboard, FaPalette } from 'react-icons/fa';
@@ -53,9 +54,23 @@ const PRESET_COLORS = [
 export default function ColorPicker() {
   const siblings = useCategorySiblings('/color-picker');
   const { isDarkMode } = useTheme();
+  const [searchParams] = useSearchParams();
   const [hex, setHex] = useState('#3B82F6');
   const [rgb, setRgb] = useState({ r: 59, g: 130, b: 246 });
   const [hsl, setHsl] = useState({ h: 217, s: 91, l: 60 });
+
+  useEffect(() => {
+    const qHex = searchParams.get('hex') || searchParams.get('color') || searchParams.get('c');
+    if (qHex) {
+      const formatted = qHex.startsWith('#') ? qHex : `#${qHex}`;
+      const parsedRgb = hexToRgb(formatted);
+      if (parsedRgb) {
+        setHex(formatted);
+        setRgb(parsedRgb);
+        setHsl(rgbToHsl(parsedRgb.r, parsedRgb.g, parsedRgb.b));
+      }
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     document.title = 'Color Picker | Rajlabs';
@@ -91,7 +106,14 @@ export default function ColorPicker() {
   };
 
   return (
-    <ToolPageLayout title="Color Picker & Converter" icon={<FaPalette />} siblings={siblings} currentPath="/color-picker" breadcrumb={[{label: 'Design Utilities', path: '/color-picker'}]}>
+    <ToolPageLayout 
+      title="Color Picker & Converter" 
+      icon={<FaPalette />} 
+      siblings={siblings} 
+      currentPath="/color-picker" 
+      breadcrumb={[{label: 'Design Utilities', path: '/color-picker'}]}
+      activeParams={{ hex: hex !== '#3B82F6' ? hex.replace('#', '') : undefined }}
+    >
       <Toaster />
       <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
         {/* Color Preview */}

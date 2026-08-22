@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
 import { FaClipboard, FaTrash, FaDownload, FaFileCsv } from 'react-icons/fa';
@@ -9,9 +10,15 @@ import Papa from 'papaparse';
 export default function JsonToCsv() {
   const siblings = useCategorySiblings('/json-to-csv');
   const { isDarkMode } = useTheme();
+  const [searchParams] = useSearchParams();
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const qJson = searchParams.get('json') || searchParams.get('input') || searchParams.get('data');
+    if (qJson) setInput(qJson);
+  }, [searchParams]);
 
   useEffect(() => {
     document.title = 'JSON to CSV | Rajlabs';
@@ -49,7 +56,14 @@ export default function JsonToCsv() {
   const handleClear = () => { setInput(''); setOutput(''); setError(''); };
 
   return (
-    <ToolPageLayout title="JSON to CSV" icon={<FaFileCsv />} siblings={siblings} currentPath="/json-to-csv" breadcrumb={[{label: 'JSON Utilities', path: '/json-viewer'}]}>
+    <ToolPageLayout 
+      title="JSON to CSV" 
+      icon={<FaFileCsv />} 
+      siblings={siblings} 
+      currentPath="/json-to-csv" 
+      breadcrumb={[{label: 'JSON Utilities', path: '/json-viewer'}]}
+      activeParams={{ json: input || undefined }}
+    >
       <Toaster />
       <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
         <div className="mb-4">

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
 import { FaClipboard, FaSync, FaClock, FaExchangeAlt } from 'react-icons/fa';
@@ -81,6 +82,7 @@ function formatDuration(ms) {
 export default function TimestampConverter() {
   const siblings = useCategorySiblings('/timestamp-converter');
   const { isDarkMode } = useTheme();
+  const [searchParams] = useSearchParams();
   
   // Main Converter
   const [input, setInput] = useState('');
@@ -94,6 +96,13 @@ export default function TimestampConverter() {
 
   const [now, setNow] = useState(new Date());
   const [targetTz, setTargetTz] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
+
+  useEffect(() => {
+    const qTs = searchParams.get('ts') || searchParams.get('time') || searchParams.get('t');
+    const qTz = searchParams.get('tz') || searchParams.get('timezone');
+    if (qTs) setInput(qTs);
+    if (qTz) setTargetTz(qTz);
+  }, [searchParams]);
 
   useEffect(() => {
     document.title = 'Advanced Timestamp Converter | Rajlabs';
@@ -163,6 +172,10 @@ export default function TimestampConverter() {
       breadcrumb={[{label: 'Developer Tools', path: '/timestamp-converter'}]}
       siblings={siblings} 
       currentPath="/timestamp-converter"
+      activeParams={{
+        ts: input || undefined,
+        tz: targetTz !== Intl.DateTimeFormat().resolvedOptions().timeZone ? targetTz : undefined,
+      }}
     >
       <div className={`max-w-[1600px] w-full mx-auto p-4 sm:p-6 lg:p-8 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
         

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
 import { FaClipboard, FaTrash, FaDownload, FaFileCode } from 'react-icons/fa';
@@ -9,10 +10,18 @@ import { XMLBuilder } from 'fast-xml-parser';
 export default function JsonToXml() {
   const siblings = useCategorySiblings('/json-to-xml');
   const { isDarkMode } = useTheme();
+  const [searchParams] = useSearchParams();
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [error, setError] = useState('');
   const [rootName, setRootName] = useState('root');
+
+  useEffect(() => {
+    const qJson = searchParams.get('json') || searchParams.get('input') || searchParams.get('data');
+    const qRoot = searchParams.get('root');
+    if (qJson) setInput(qJson);
+    if (qRoot) setRootName(qRoot);
+  }, [searchParams]);
 
   useEffect(() => {
     document.title = 'JSON to XML | Rajlabs';
@@ -55,7 +64,14 @@ export default function JsonToXml() {
   const handleClear = () => { setInput(''); setOutput(''); setError(''); };
 
   return (
-    <ToolPageLayout title="JSON to XML" icon={<FaFileCode />} siblings={siblings} currentPath="/json-to-xml" breadcrumb={[{label: 'JSON Utilities', path: '/json-viewer'}]}>
+    <ToolPageLayout 
+      title="JSON to XML" 
+      icon={<FaFileCode />} 
+      siblings={siblings} 
+      currentPath="/json-to-xml" 
+      breadcrumb={[{label: 'JSON Utilities', path: '/json-viewer'}]}
+      activeParams={{ json: input || undefined, root: rootName !== 'root' ? rootName : undefined }}
+    >
       <Toaster />
       <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
         <div className="mb-4">

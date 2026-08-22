@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { FaKey, FaCopy, FaTrash, FaCheckCircle, FaTimesCircle, FaTable } from "react-icons/fa";
 import { useTheme } from "../../themeContext";
 import Card from "../common/card";
@@ -282,6 +283,7 @@ const AnimatedIconButton = ({ icon, showFeedback, feedbackIcon, title, onClick, 
 
 export default function JwtDecoder() {
   const { isDarkMode } = useTheme();
+  const [searchParams] = useSearchParams();
   const [jwt, setJwt] = useState("");
   const [secret, setSecret] = useState("");
   const [decoded, setDecoded] = useState(null);
@@ -293,6 +295,14 @@ export default function JwtDecoder() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [signatureStatus, setSignatureStatus] = useState(null);
   const siblings = useCategorySiblings('/jwt-decoder');
+
+  // Load from query parameters
+  useEffect(() => {
+    const qJwt = searchParams.get('token') || searchParams.get('jwt') || searchParams.get('t');
+    const qSecret = searchParams.get('secret') || searchParams.get('s');
+    if (qJwt) setJwt(qJwt);
+    if (qSecret) setSecret(qSecret);
+  }, [searchParams]);
 
   const handleMouseMove = (e, part) => {
     setHoveredPart(part);
@@ -431,7 +441,17 @@ export default function JwtDecoder() {
   };
 
   return (
-    <ToolPageLayout title="JWT Decoder" icon={<FaKey />} breadcrumb={[{label: 'Encryption & Encoding Utilities', path: '/base64-encoder-decoder'}]} siblings={siblings} currentPath="/jwt-decoder">
+    <ToolPageLayout 
+      title="JWT Decoder" 
+      icon={<FaKey />} 
+      breadcrumb={[{label: 'Encryption & Encoding Utilities', path: '/base64-encoder-decoder'}]} 
+      siblings={siblings} 
+      currentPath="/jwt-decoder"
+      activeParams={{
+        token: jwt || undefined,
+        secret: secret || undefined,
+      }}
+    >
       <div className="w-full">
 <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">

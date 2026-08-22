@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { FaClipboard, FaTrash, FaKey } from 'react-icons/fa';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
@@ -8,6 +9,7 @@ import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 
 export default function PasswordGenerator() {
   const { isDarkMode } = useTheme(); // Access theme context
+  const [searchParams] = useSearchParams();
   const siblings = useCategorySiblings('/password-generator');
 
   // Define default settings
@@ -26,17 +28,34 @@ export default function PasswordGenerator() {
   const [settings, setSettings] = useState(initialSettings);
   const [generatedPasswords, setGeneratedPasswords] = useState([]); // Array to hold generated passwords
 
-  // Load settings from localStorage on component mount
+  // Load settings from URL query params or localStorage
   useEffect(() => {
+    const qLen = searchParams.get('length') || searchParams.get('len') || searchParams.get('l');
+    const qSym = searchParams.get('symbols');
+    const qNum = searchParams.get('numbers');
+    const qUpper = searchParams.get('uppercase');
+    const qLower = searchParams.get('lowercase');
+
+    if (qLen && !isNaN(qLen)) {
+      setSettings(prev => ({
+        ...prev,
+        passwordLength: Number(qLen),
+        includeSymbols: qSym !== null ? qSym === 'true' : prev.includeSymbols,
+        includeNumbers: qNum !== null ? qNum === 'true' : prev.includeNumbers,
+        includeUppercase: qUpper !== null ? qUpper === 'true' : prev.includeUppercase,
+        includeLowercase: qLower !== null ? qLower === 'true' : prev.includeLowercase,
+      }));
+      return;
+    }
+
     const savedSettings = JSON.parse(localStorage.getItem('passwordGeneratorSettings'));
     if (savedSettings) {
-    //   console.log("found saved settings: " + JSON.stringify(savedSettings));
       setSettings(prevSettings => ({
         ...prevSettings,
         ...savedSettings,
       }));
     }
-  }, []);
+  }, [searchParams]);
  // Set document title and fetch the description based on the key
 useEffect(() => {
     document.title = 'Strong Password Generator | Rajlabs'; // Set the document title
@@ -161,6 +180,13 @@ useEffect(() => {
       breadcrumb={[{ label: 'Encryption & Encoding Utilities', path: '/base64-encoder-decoder' }]}
       siblings={siblings}
       currentPath="/password-generator"
+      activeParams={{
+        length: settings.passwordLength !== 16 ? settings.passwordLength : undefined,
+        symbols: !settings.includeSymbols ? 'false' : undefined,
+        numbers: !settings.includeNumbers ? 'false' : undefined,
+        uppercase: !settings.includeUppercase ? 'false' : undefined,
+        lowercase: !settings.includeLowercase ? 'false' : undefined,
+      }}
     >
       <div className="w-full">
         <Toaster /> {/* Toast container */}

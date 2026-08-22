@@ -1,9 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
 import QRCodeStyling from 'qr-code-styling';
-import { FaClipboard, FaDownload, FaShareAlt, FaPrint, FaSun, FaMoon, FaPalette, FaImage, FaShapes, FaBorderAll, FaUpload, FaTrash } from 'react-icons/fa';
+import { FaClipboard, FaDownload, FaShareAlt, FaPrint, FaSun, FaMoon, FaPalette, FaImage, FaShapes, FaBorderAll, FaUpload, FaTrash, FaMagic } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
-import { PRESET_LOGOS, getPresetLogoUrl } from '../../utils/qrLogoPresets';
+import { PRESET_LOGOS, getPresetLogoUrl, detectBrandFromData } from '../../utils/qrLogoPresets';
 
 export default function QRCodeDisplay({
   data,
@@ -42,6 +42,7 @@ export default function QRCodeDisplay({
   const [fgColor, setFgColor] = useState(initialFgColor);
   const [logo, setLogo] = useState(initialLogo);
   const [customLogoUrl, setCustomLogoUrl] = useState('');
+  const [isManualLogoSelection, setIsManualLogoSelection] = useState(Boolean(initialLogo && initialLogo !== 'none'));
   const [dotStyle, setDotStyle] = useState(initialDotStyle);
   const [cornerSquareStyle, setCornerSquareStyle] = useState(initialCornerSquareStyle);
   const [cornerDotStyle, setCornerDotStyle] = useState(initialCornerDotStyle);
@@ -52,6 +53,19 @@ export default function QRCodeDisplay({
 
   const actualLogoUrl = customLogoUrl || getPresetLogoUrl(logo);
 
+  // Auto-detect brand logo based on QR data content if user hasn't manually locked a logo
+  useEffect(() => {
+    if (customLogoUrl || isManualLogoSelection) return;
+    const detected = detectBrandFromData(data);
+    if (detected) {
+      setLogo(detected);
+      notifyChange({ logo: detected });
+    } else if (!initialLogo || initialLogo === 'none') {
+      setLogo('none');
+      notifyChange({ logo: 'none' });
+    }
+  }, [data, isManualLogoSelection, customLogoUrl]);
+
   // Sync props to state
   useEffect(() => {
     if (initialBgColor) setBgColor(initialBgColor);
@@ -60,7 +74,10 @@ export default function QRCodeDisplay({
     if (initialDotStyle) setDotStyle(initialDotStyle);
     if (initialCornerSquareStyle) setCornerSquareStyle(initialCornerSquareStyle);
     if (initialCornerDotStyle) setCornerDotStyle(initialCornerDotStyle);
-    if (initialLogo) setLogo(initialLogo);
+    if (initialLogo) {
+      setLogo(initialLogo);
+      if (initialLogo !== 'none') setIsManualLogoSelection(true);
+    }
     if (initialFrame) setFrame(initialFrame);
     if (initialFrameText) setFrameText(initialFrameText);
   }, [initialBgColor, initialFgColor, initialColorTheme, initialDotStyle, initialCornerSquareStyle, initialCornerDotStyle, initialLogo, initialFrame, initialFrameText]);
@@ -164,6 +181,7 @@ export default function QRCodeDisplay({
         const base64 = uploadEvent.target.result;
         setCustomLogoUrl(base64);
         setLogo('custom');
+        setIsManualLogoSelection(true);
         notifyChange({ logo: base64 });
         toast.success('Custom logo applied!');
       };
@@ -174,7 +192,23 @@ export default function QRCodeDisplay({
   const clearLogo = () => {
     setCustomLogoUrl('');
     setLogo('none');
+    setIsManualLogoSelection(true);
     notifyChange({ logo: 'none' });
+  };
+
+  const handleAutoDetectLogo = () => {
+    setCustomLogoUrl('');
+    setIsManualLogoSelection(false);
+    const detected = detectBrandFromData(data);
+    if (detected) {
+      setLogo(detected);
+      notifyChange({ logo: detected });
+      toast.success(`Detected & applied ${detected.toUpperCase()} logo!`);
+    } else {
+      setLogo('none');
+      notifyChange({ logo: 'none' });
+      toast('No specific brand matched from QR content', { icon: 'ℹ️' });
+    }
   };
 
   // Download QR Code (Combines Frame & QR on offscreen canvas if framed)
@@ -420,7 +454,22 @@ export default function QRCodeDisplay({
             isDarkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'
           }`}>
             <div>
-              <span className="font-semibold block mb-2 text-slate-400">Preset Brand Icons:</span>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-semibold text-slate-400">Preset Brand Icons:</span>
+                <button
+                  type="button"
+                  onClick={handleAutoDetectLogo}
+                  className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium transition-all ${
+                    !isManualLogoSelection
+                      ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/40'
+                      : isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-slate-200' : 'bg-slate-200 text-slate-600 hover:text-slate-900'
+                  }`}
+                  title="Auto-detect brand icon based on QR content"
+                >
+                  <FaMagic size={10} />
+                  <span>Auto Match</span>
+                </button>
+              </div>
               <div className="grid grid-cols-4 gap-2">
                 {PRESET_LOGOS.map(p => {
                   const isSelected = (!customLogoUrl && logo === p.id) || (p.id === 'none' && !actualLogoUrl);
@@ -430,11 +479,12 @@ export default function QRCodeDisplay({
                       onClick={() => {
                         setCustomLogoUrl('');
                         setLogo(p.id);
+                        setIsManualLogoSelection(true);
                         notifyChange({ logo: p.id });
                       }}
                       className={`p-2 rounded-xl border flex flex-col items-center gap-1.5 transition-all ${
                         isSelected 
-                          ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 font-bold' 
+                          ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 font-bold shadow-sm' 
                           : isDarkMode ? 'bg-slate-900 border-slate-800 text-slate-400' : 'bg-white border-slate-200 text-slate-600'
                       }`}
                     >

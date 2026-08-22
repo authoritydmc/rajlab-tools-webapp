@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
 import { FaClipboard, FaTrash, FaSearch } from 'react-icons/fa';
@@ -26,11 +27,22 @@ const COMMON_PATTERNS = [
 export default function RegexTester() {
   const siblings = useCategorySiblings('/regex-tester');
   const { isDarkMode } = useTheme();
+  const [searchParams] = useSearchParams();
   const [pattern, setPattern] = useState('');
   const [testString, setTestString] = useState('Hello World! Test email: user@example.com, phone: (555) 123-4567');
   const [flags, setFlags] = useState(['g']);
   const [matches, setMatches] = useState([]);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const qPattern = searchParams.get('pattern') || searchParams.get('p') || searchParams.get('regex');
+    const qText = searchParams.get('text') || searchParams.get('str') || searchParams.get('input');
+    const qFlags = searchParams.get('flags') || searchParams.get('f');
+
+    if (qPattern) setPattern(qPattern);
+    if (qText) setTestString(qText);
+    if (qFlags) setFlags(qFlags.split(''));
+  }, [searchParams]);
 
   useEffect(() => {
     document.title = 'Regex Tester | Rajlabs';
@@ -84,7 +96,18 @@ export default function RegexTester() {
   const handleClear = () => { setPattern(''); setTestString(''); setMatches([]); setError(''); };
 
   return (
-    <ToolPageLayout title="Regex Tester" icon={<FaSearch />} breadcrumb={[{label: 'Developer Tools', path: '/regex-tester'}]} siblings={siblings} currentPath="/regex-tester">
+    <ToolPageLayout 
+      title="Regex Tester" 
+      icon={<FaSearch />} 
+      siblings={siblings} 
+      currentPath="/regex-tester" 
+      breadcrumb={[{label: 'Developer Tools', path: '/regex-tester'}]}
+      activeParams={{
+        pattern: pattern || undefined,
+        text: testString !== 'Hello World! Test email: user@example.com, phone: (555) 123-4567' ? testString : undefined,
+        flags: flags.join('') !== 'g' ? flags.join('') : undefined,
+      }}
+    >
     <div className={`transition-colors duration-300`}>
       
       <Toaster />

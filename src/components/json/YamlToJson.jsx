@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
 import { FaClipboard, FaTrash, FaDownload, FaExchangeAlt } from 'react-icons/fa';
@@ -9,10 +10,16 @@ import * as yaml from 'js-yaml';
 export default function YamlToJson() {
   const siblings = useCategorySiblings('/yaml-to-json');
   const { isDarkMode } = useTheme();
+  const [searchParams] = useSearchParams();
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [error, setError] = useState('');
   const [pretty, setPretty] = useState(true);
+
+  useEffect(() => {
+    const qYaml = searchParams.get('yaml') || searchParams.get('input') || searchParams.get('data');
+    if (qYaml) setInput(qYaml);
+  }, [searchParams]);
 
   useEffect(() => {
     document.title = 'YAML to JSON | Rajlabs';
@@ -47,7 +54,14 @@ export default function YamlToJson() {
   const handleClear = () => { setInput(''); setOutput(''); setError(''); };
 
   return (
-    <ToolPageLayout title="YAML to JSON" icon={<FaExchangeAlt />} siblings={siblings} currentPath="/yaml-to-json" breadcrumb={[{label: 'JSON Utilities', path: '/json-viewer'}]}>
+    <ToolPageLayout 
+      title="YAML to JSON" 
+      icon={<FaExchangeAlt />} 
+      siblings={siblings} 
+      currentPath="/yaml-to-json" 
+      breadcrumb={[{label: 'JSON Utilities', path: '/json-viewer'}]}
+      activeParams={{ yaml: input || undefined }}
+    >
       <Toaster />
       <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
         <div className="mb-4">

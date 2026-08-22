@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
 import { FaClipboard, FaRulerCombined } from 'react-icons/fa';
@@ -35,12 +36,20 @@ function convertToPx(value, unit, viewportWidth = 1920, viewportHeight = 1080) {
 
 export default function CssUnitConverter() {
   const { isDarkMode } = useTheme();
+  const [searchParams] = useSearchParams();
   const siblings = useCategorySiblings('/css-unit-converter');
   const [inputValue, setInputValue] = useState(16);
   const [inputUnit, setInputUnit] = useState('px');
   const [viewportWidth, setViewportWidth] = useState(1920);
   const [viewportHeight, setViewportHeight] = useState(1080);
   const [results, setResults] = useState({});
+
+  useEffect(() => {
+    const qVal = searchParams.get('val') || searchParams.get('value') || searchParams.get('v');
+    const qUnit = searchParams.get('unit') || searchParams.get('u');
+    if (qVal && !isNaN(qVal)) setInputValue(Number(qVal));
+    if (qUnit && UNITS.includes(qUnit.toLowerCase())) setInputUnit(qUnit.toLowerCase());
+  }, [searchParams]);
 
   useEffect(() => {
     document.title = 'CSS Unit Converter | Rajlabs';
@@ -67,9 +76,18 @@ export default function CssUnitConverter() {
   };
 
   return (
-    <ToolPageLayout title="CSS Unit Converter" icon={<FaRulerCombined />} breadcrumb={[{label: 'Developer Tools', path: '/regex-tester'}]} siblings={siblings} currentPath="/css-unit-converter">
-      <div className="w-full">
-<Toaster />
+    <ToolPageLayout 
+      title="CSS Unit Converter" 
+      icon={<FaRulerCombined />} 
+      siblings={siblings} 
+      currentPath="/css-unit-converter" 
+      breadcrumb={[{label: 'CSS Utilities', path: '/color-picker'}]}
+      activeParams={{
+        val: inputValue !== 16 ? inputValue : undefined,
+        unit: inputUnit !== 'px' ? inputUnit : undefined,
+      }}
+    >
+      <Toaster />
       <div className={`w-full mx-auto p-6 shadow-lg rounded-md ${isDarkMode ? 'bg-slate-900/60 border-slate-700/50 backdrop-blur-xl' : 'bg-white/60 border-slate-200/50 backdrop-blur-xl'} border`}>
         {/* Input */}
         <div className="mb-4">
@@ -109,8 +127,6 @@ export default function CssUnitConverter() {
           ))}
         </div>
       </div>
-    </div>
     </ToolPageLayout>
-
   );
 }

@@ -56,3 +56,49 @@ export function getPresetLogoUrl(idOrUrl) {
   if (preset) return preset.iconUrl;
   return idOrUrl; // If direct URL or Data URL
 }
+
+/**
+ * Automatically detect an appropriate brand logo based on QR data/content.
+ * Returns preset logo ID (e.g. 'whatsapp', 'wifi', 'gpay', 'phonepe', 'paytm', 'upi', 'rajlabs', 'link') or null.
+ */
+export function detectBrandFromData(data) {
+  if (!data || typeof data !== 'string') return null;
+  const trimmed = data.trim();
+  const lower = trimmed.toLowerCase();
+
+  // 1. UPI Payment Links or Handles
+  if (lower.startsWith('upi://') || lower.startsWith('gpay://') || lower.startsWith('phonepe://') || lower.startsWith('paytmmp://')) {
+    if (lower.includes('phonepe') || lower.includes('@ybl') || lower.includes('@ibl') || lower.includes('@axl')) return 'phonepe';
+    if (lower.includes('paytm') || lower.includes('@paytm')) return 'paytm';
+    if (lower.includes('gpay') || lower.includes('google') || lower.includes('@okhdfcbank') || lower.includes('@okaxis') || lower.includes('@oksbi') || lower.includes('@okicici')) return 'gpay';
+    return 'upi';
+  }
+
+  // 2. WhatsApp
+  if (
+    lower.startsWith('https://wa.me/') ||
+    lower.startsWith('http://wa.me/') ||
+    lower.includes('api.whatsapp.com') ||
+    lower.includes('chat.whatsapp.com') ||
+    lower.startsWith('whatsapp://')
+  ) {
+    return 'whatsapp';
+  }
+
+  // 3. WiFi Networks (e.g., WIFI:S:MyNetwork;T:WPA;P:password;;)
+  if (trimmed.toUpperCase().startsWith('WIFI:') || lower.startsWith('wifi://')) {
+    return 'wifi';
+  }
+
+  // 4. Rajlabs domains
+  if (lower.includes('rajlabs.in') || lower.includes('rajlabs.org') || lower.includes('rajlab')) {
+    return 'rajlabs';
+  }
+
+  // 5. General Web URLs
+  if (lower.startsWith('http://') || lower.startsWith('https://') || lower.startsWith('www.')) {
+    return 'link';
+  }
+
+  return null;
+}
