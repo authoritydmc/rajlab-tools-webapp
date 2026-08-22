@@ -5,9 +5,10 @@ import { useTheme } from '../../themeContext';
 import { FaClipboard, FaTrash, FaSync, FaRandom, FaDownload, FaCheck, FaSearch } from 'react-icons/fa';
 import ToolPageLayout from '../common/ToolPageLayout';
 import { useCategorySiblings } from '../../hooks/useCategorySiblings';
+import { triggerChaiModal } from '../../chaiModalContext';
 
 function generateUUID() { return crypto.randomUUID(); }
-function downloadBlob(content, filename, mime='text/plain'){ const blob=new Blob([content],{type:mime}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url); }
+function downloadBlob(content, filename, mime='text/plain'){ const blob=new Blob([content],{type:mime}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url); setTimeout(()=>triggerChaiModal('UUID Generator'),600); }
 function isValidUUID(s){ return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s) || /^[0-9a-f]{32}$/i.test(s) || /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/.test(s); }
 
 export default function UuidGenerator() {

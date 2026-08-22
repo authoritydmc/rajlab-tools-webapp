@@ -6,6 +6,7 @@ import { FaClipboard, FaTrash, FaDownload, FaExchangeAlt } from 'react-icons/fa'
 import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 import ToolPageLayout from '../common/ToolPageLayout';
 import * as yaml from 'js-yaml';
+import { triggerChaiModal } from '../../chaiModalContext';
 
 export default function JsonToYaml() {
   const siblings = useCategorySiblings('/json-to-yaml');
@@ -49,6 +50,8 @@ export default function JsonToYaml() {
     const a = document.createElement('a');
     a.href = url; a.download = 'data.yaml'; a.click();
     URL.revokeObjectURL(url);
+    toast.success('Downloaded!');
+    setTimeout(() => triggerChaiModal('JSON to YAML'), 600);
   };
 
   const handleClear = () => { setInput(''); setOutput(''); setError(''); };

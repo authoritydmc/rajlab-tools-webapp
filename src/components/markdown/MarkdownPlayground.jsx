@@ -11,6 +11,7 @@ import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 import ToolPageLayout from '../common/ToolPageLayout';
 import Editor from '@monaco-editor/react';
 import { marked } from 'marked';
+import { triggerChaiModal } from '../../chaiModalContext';
 
 const DEFAULT_MD = `# Hello World
 
@@ -60,6 +61,7 @@ function downloadBlob(content, filename, mime = 'text/plain') {
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
+  setTimeout(() => triggerChaiModal('Markdown Studio'), 600);
 }
 
 function buildStyledHtml(innerHtml, title = 'Markdown Export') {

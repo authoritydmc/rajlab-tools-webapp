@@ -6,6 +6,7 @@ import { FaClipboard, FaTrash, FaDownload, FaFileCode } from 'react-icons/fa';
 import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 import ToolPageLayout from '../common/ToolPageLayout';
 import { XMLBuilder } from 'fast-xml-parser';
+import { triggerChaiModal } from '../../chaiModalContext';
 
 export default function JsonToXml() {
   const siblings = useCategorySiblings('/json-to-xml');
@@ -59,6 +60,8 @@ export default function JsonToXml() {
     const a = document.createElement('a');
     a.href = url; a.download = 'data.xml'; a.click();
     URL.revokeObjectURL(url);
+    toast.success('Downloaded!');
+    setTimeout(() => triggerChaiModal('JSON to XML'), 600);
   };
 
   const handleClear = () => { setInput(''); setOutput(''); setError(''); };

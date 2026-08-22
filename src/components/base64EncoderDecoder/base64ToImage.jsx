@@ -4,6 +4,7 @@ import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
 import ToolPageLayout from '../common/ToolPageLayout';
 import { useCategorySiblings } from '../../hooks/useCategorySiblings';
+import { triggerChaiModal } from '../../chaiModalContext';
 
 function parseBase64Info(b64) {
   if (!b64) return { valid: false, mime: '', sizeKB: 0, dims: null };
@@ -71,6 +72,7 @@ export default function Base64ToImagePreviewGenerator() {
     link.download = `image.${ext}`;
     document.body.appendChild(link); link.click(); document.body.removeChild(link);
     toast.success('Downloaded');
+    setTimeout(() => triggerChaiModal('Base64 to Image'), 600);
   };
   const handleClear = () => { setBase64String(''); setImagePreview(''); setDims(null); setError(''); };
   const handleFile = (file) => {

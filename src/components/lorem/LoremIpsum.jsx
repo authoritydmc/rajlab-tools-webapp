@@ -5,6 +5,7 @@ import { useTheme } from '../../themeContext';
 import { FaClipboard, FaTrash, FaParagraph, FaDownload, FaRandom, FaCode, FaList, FaCopy } from 'react-icons/fa';
 import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 import ToolPageLayout from '../common/ToolPageLayout';
+import { triggerChaiModal } from '../../chaiModalContext';
 
 const WORDS = [
   'lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit',
@@ -32,7 +33,7 @@ function generateSentence(minWords = 8, maxWords = 20) {
   return sentence.join(' ') + '.';
 }
 function generateParagraph(sentences = 5) { return Array.from({ length: sentences }, () => generateSentence()).join(' '); }
-function downloadBlob(content, filename, mime='text/plain'){ const blob=new Blob([content],{type:mime}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url); }
+function downloadBlob(content, filename, mime='text/plain'){ const blob=new Blob([content],{type:mime}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url); setTimeout(()=>triggerChaiModal('Lorem Ipsum Generator'),600); }
 
 export default function LoremIpsum() {
   const siblings = useCategorySiblings('/lorem-ipsum');

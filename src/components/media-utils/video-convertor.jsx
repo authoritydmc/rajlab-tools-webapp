@@ -6,6 +6,7 @@ import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile } from "@ffmpeg/util";
 import ToolPageLayout from '../common/ToolPageLayout';
 import { useCategorySiblings } from '../../hooks/useCategorySiblings';
+import { triggerChaiModal } from '../../chaiModalContext';
 
 const CACHE_NAME = 'ffmpeg-wasm-cache-v1';
 
@@ -802,7 +803,7 @@ export default function FfmpegTool() {
                       <span className="font-mono">{downloadName} • {formatBytes(downloadSize)}</span>
                       {inputMeta && downloadSize && <span className={`px-2 py-1 rounded-full font-bold text-xs ${downloadSize < inputMeta.size ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}`}>{downloadSize < inputMeta.size ? `-${Math.round((1-downloadSize/inputMeta.size)*100)}%` : `+${Math.round((downloadSize/inputMeta.size-1)*100)}%`}</span>}
                     </div>
-                    <a href={downloadLink} download={downloadName} className="w-full py-3 rounded-xl font-bold text-sm bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center gap-2"><FaDownload /> Download {downloadName}</a>
+                    <a href={downloadLink} download={downloadName} onClick={() => setTimeout(() => triggerChaiModal('Video/Audio Converter'), 600)} className="w-full py-3 rounded-xl font-bold text-sm bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center gap-2 cursor-pointer"><FaDownload /> Download {downloadName}</a>
                   </div>
                 ) : (
                   <div className={`text-center py-6 border-2 border-dashed rounded-xl text-xs ${isDarkMode?'border-slate-700 text-slate-500 bg-slate-800/20':'border-slate-200 text-slate-400 bg-slate-50'}`}>

@@ -5,6 +5,7 @@ import { FaBalanceScale, FaCopy, FaTrash, FaExchangeAlt, FaDownload, FaUpload, F
 import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 import ToolPageLayout from '../common/ToolPageLayout';
 import { diffLines, diffWords, diffChars, diffTrimmedLines } from 'diff';
+import { triggerChaiModal } from '../../chaiModalContext';
 
 const SAMPLE_A = `Hello world
 This is the original text.
@@ -22,7 +23,7 @@ It has three lines.
 Duplicate line
 New line here`;
 
-function downloadBlob(c,f,m='text/plain'){const b=new Blob([c],{type:m});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=f;a.click();URL.revokeObjectURL(u);}
+function downloadBlob(c,f,m='text/plain'){const b=new Blob([c],{type:m});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=f;a.click();URL.revokeObjectURL(u);setTimeout(()=>triggerChaiModal('Text Diff Studio'),600);}
 
 export default function TextDiffStudio(){
   const siblings = useCategorySiblings('/text-diff');

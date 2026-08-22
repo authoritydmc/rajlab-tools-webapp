@@ -4,6 +4,7 @@ import { useTheme } from '../../themeContext';
 import { FaCode, FaCopy, FaTrash, FaDownload, FaMagic, FaCompress, FaExpand } from 'react-icons/fa';
 import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 import ToolPageLayout from '../common/ToolPageLayout';
+import { triggerChaiModal } from '../../chaiModalContext';
 import Editor from '@monaco-editor/react';
 
 function formatJson(str, indent=2){
@@ -117,7 +118,7 @@ export default function CodeFormatter(){
               <span>Output — {lang} beautified</span>
               <div className="flex gap-1">
                 <button onClick={()=>{ navigator.clipboard.writeText(output); toast.success('Copied'); }} className="px-2 py-1 rounded-lg text-xs bg-emerald-600 text-white">Copy</button>
-                <button onClick={()=>{ const b=new Blob([output],{type:'text/plain'}); const u=URL.createObjectURL(b); const a=document.createElement('a');a.href=u;a.download=`formatted.${lang==='json'?'json':lang==='html'?'html':lang==='css'?'css':'txt'}`;a.click();URL.revokeObjectURL(u);}} className={`p-1.5 rounded-lg ${isDarkMode?'bg-slate-700 text-white':'bg-white border border-slate-200'}`}><FaDownload size={11}/></button>
+                <button onClick={()=>{ const b=new Blob([output],{type:'text/plain'}); const u=URL.createObjectURL(b); const a=document.createElement('a');a.href=u;a.download=`formatted.${lang==='json'?'json':lang==='html'?'html':lang==='css'?'css':'txt'}`;a.click();URL.revokeObjectURL(u); setTimeout(()=>triggerChaiModal('Code Formatter'),600);}} className={`p-1.5 rounded-lg ${isDarkMode?'bg-slate-700 text-white':'bg-white border border-slate-200'}`}><FaDownload size={11}/></button>
               </div>
             </div>
             <div className="flex-1 min-h-0 overflow-hidden">

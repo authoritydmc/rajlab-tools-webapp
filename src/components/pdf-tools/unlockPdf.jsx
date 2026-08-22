@@ -5,6 +5,7 @@ import { FaFilePdf, FaDownload, FaUpload, FaUnlockAlt } from 'react-icons/fa';
 import { toast, Toaster } from 'react-hot-toast';
 import ToolPageLayout from '../common/ToolPageLayout';
 import { useCategorySiblings } from '../../hooks/useCategorySiblings';
+import { triggerChaiModal } from '../../chaiModalContext';
 
 export default function UnlockPdfTool() {
   const { isDarkMode } = useTheme();
@@ -110,8 +111,8 @@ export default function UnlockPdfTool() {
                 <a
                   href={unlockedPdfUrl}
                   download="unlocked_document.pdf"
-                  onClick={(e) => e.stopPropagation()}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-md transition-colors ${isDarkMode ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-purple-500 hover:bg-purple-600 text-white'}`}
+                  onClick={() => setTimeout(() => triggerChaiModal('Unlock PDF'), 600)}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-md transition-colors cursor-pointer ${isDarkMode ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-purple-500 hover:bg-purple-600 text-white'}`}
                 >
                   <FaDownload /> Download Unlocked PDF
                 </a>

@@ -5,6 +5,7 @@ import { FaTrash, FaDownload, FaImage, FaCompressAlt, FaExchangeAlt, FaFileImage
 import imageCompression from 'browser-image-compression';
 import ToolPageLayout from '../common/ToolPageLayout';
 import { useCategorySiblings } from '../../hooks/useCategorySiblings';
+import { triggerChaiModal } from '../../chaiModalContext';
 
 function formatBytes(bytes) {
   if (bytes === 0) return '0 B';
@@ -130,6 +131,7 @@ export default function ImageCompressor() {
     a.download = `compressed_${originalFile.name.replace(/\.[^.]+$/, '')}.${ext}`;
     a.click();
     URL.revokeObjectURL(url);
+    setTimeout(() => triggerChaiModal('Image Compressor'), 600);
   };
 
   const handleClear = () => {

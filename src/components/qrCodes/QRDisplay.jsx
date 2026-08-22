@@ -5,6 +5,7 @@ import { toast } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
 import { PRESET_LOGOS, getPresetLogoUrl, detectBrandFromData } from '../../utils/qrLogoPresets';
 import { loadQRPrefs, saveQRPrefs, hasQRCustomQueryOverride } from '../../utils/qrPrefs';
+import { triggerChaiModal } from '../../chaiModalContext';
 
 export default function QRCodeDisplay({
   data,
@@ -328,6 +329,7 @@ export default function QRCodeDisplay({
       if (frame === 'none') {
         await qrCodeInstance.current.download({ name: 'qr-code', extension: 'png' });
         toast.success('QR Code downloaded!');
+        setTimeout(() => triggerChaiModal(shareTitle || 'QR Code Generator'), 600);
         return;
       }
 
@@ -385,6 +387,7 @@ export default function QRCodeDisplay({
       link.click();
       document.body.removeChild(link);
       toast.success('Framed QR Code downloaded!');
+      setTimeout(() => triggerChaiModal(shareTitle || 'QR Code Generator'), 600);
     } catch (err) {
       toast.error('Failed to download QR code.');
     }

@@ -17,7 +17,11 @@ import {
   FaTrash,
   FaCheck,
   FaLayerGroup,
+  FaArrowsAltH,
+  FaFilePdf,
+  FaFileImage,
 } from 'react-icons/fa';
+import { triggerChaiModal } from '../chaiModalContext';
 
 // Paper sizes in mm
 const PAPER_SIZES: Record<string, { widthMm: number; heightMm: number; label: string }> = {
@@ -220,6 +224,7 @@ function PassportGrid() {
         link.download = `passport_grid_${paper}_${Date.now()}.pdf`;
         link.click();
         URL.revokeObjectURL(link.href);
+        setTimeout(() => triggerChaiModal('Passport Photo Sheet (PDF)'), 600);
       } else {
         // PNG generation
         const canvas = document.createElement('canvas');
@@ -279,6 +284,7 @@ function PassportGrid() {
           link.download = `passport_grid_${paper}_${Date.now()}.png`;
           link.click();
           URL.revokeObjectURL(link.href);
+          setTimeout(() => triggerChaiModal('Passport Photo Sheet (PNG)'), 600);
         }, 'image/png');
       }
     } catch (err) {

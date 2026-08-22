@@ -6,6 +6,7 @@ import { FaClipboard, FaTrash, FaDownload, FaFileCsv } from 'react-icons/fa';
 import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 import ToolPageLayout from '../common/ToolPageLayout';
 import Papa from 'papaparse';
+import { triggerChaiModal } from '../../chaiModalContext';
 
 export default function CsvToJson() {
   const siblings = useCategorySiblings('/csv-to-json');
@@ -55,6 +56,7 @@ export default function CsvToJson() {
     a.href = url; a.download = 'data.json'; a.click();
     URL.revokeObjectURL(url);
     toast.success('Downloaded!');
+    setTimeout(() => triggerChaiModal('CSV to JSON'), 600);
   };
 
   const handleClear = () => { setInput(''); setOutput(''); setError(''); };

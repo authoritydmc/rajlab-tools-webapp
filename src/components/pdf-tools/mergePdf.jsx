@@ -5,6 +5,7 @@ import { FaFilePdf, FaTrash, FaDownload, FaPlus, FaObjectGroup } from 'react-ico
 import { toast, Toaster } from 'react-hot-toast';
 import ToolPageLayout from '../common/ToolPageLayout';
 import { useCategorySiblings } from '../../hooks/useCategorySiblings';
+import { triggerChaiModal } from '../../chaiModalContext';
 
 export default function MergePdfTool() {
   const { isDarkMode } = useTheme();
@@ -120,8 +121,8 @@ export default function MergePdfTool() {
               <a
                 href={mergedPdfUrl}
                 download="merged_document.pdf"
-                onClick={(e) => e.stopPropagation()}
-                className={`flex items-center gap-2 px-6 py-3 rounded-md transition-colors ${isDarkMode ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-purple-500 hover:bg-purple-600 text-white'}`}
+                onClick={() => setTimeout(() => triggerChaiModal('Merge PDF'), 600)}
+                className={`flex items-center gap-2 px-6 py-3 rounded-md transition-colors cursor-pointer ${isDarkMode ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-purple-500 hover:bg-purple-600 text-white'}`}
               >
                 <FaDownload /> Download Merged PDF
               </a>

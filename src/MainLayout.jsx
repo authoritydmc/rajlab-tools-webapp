@@ -4,6 +4,7 @@ import { FaGithub, FaHeart } from 'react-icons/fa';
 import { HiHome, HiSun, HiMoon } from 'react-icons/hi2';
 import SoundToggle from './components/common/SoundToggle';
 import FlipClock from './components/common/FlipClock';
+import FloatingChaiButton from './components/common/FloatingChaiButton';
 
 function MainLayout() {
   const { isDarkMode, toggleDarkMode } = useTheme();
@@ -78,7 +79,8 @@ function MainLayout() {
         <Outlet />
       </main>
 
-      {/* Sound Toggle */}
+      {/* Sound Toggle & Floating Chai Button */}
+      <FloatingChaiButton />
       <SoundToggle />
 
       {/* Footer */}
