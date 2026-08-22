@@ -4,6 +4,20 @@ All notable changes to **Rajlab Tools Webapp** are documented here, organized by
 
 ---
 
+## [2.8.1] — 2026-08-22
+
+### Changed
+- **Markdown to Word Converter (`/markdown-to-word`)**: Replaced `html-docx-js` with the `docx` library for Word document generation. The new approach parses HTML via DOM and builds native docx elements (Paragraphs, TextRuns, Tables, ExternalHyperlinks) directly, producing cleaner and more reliable .docx output. Supports headings, bold/italic/strikethrough, inline code with Courier New font and shading, code blocks with monospace background, hyperlinks, bullet and numbered lists (including nested), blockquotes with left border and indent, tables with header shading and borders, horizontal rules, and line breaks. Font family, font size, and line height settings are applied throughout the document.
+
+---
+
+## [2.8.0] — 2026-08-22
+
+### Added
+- **Markdown to Word Converter (`/markdown-to-word`)**: Convert Markdown documents to Word (.docx) files entirely in the browser. Features a Monaco code editor with live HTML preview in split view, a formatting toolbar with quick-insert buttons for bold, italic, lists, tables, blockquotes, code blocks, links, and images. Includes configurable DOCX export settings (font family, font size, line height), multiple export formats (.docx, .html, .md, .txt), clipboard copy, print/PDF, drag-and-drop file import, and keyboard shortcut (Ctrl+S) for instant Word download.
+
+---
+
 ## [2.7.0] — 2026-08-22
 
 ### Added

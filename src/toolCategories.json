@@ -37,6 +37,13 @@
         "iconName": "FaBalanceScale",
         "isEnabled": true,
         "description": "Compare two texts side-by-side or inline — line/word/char diff with stats and export."
+      },
+      {
+        "name": "Markdown to Word Converter",
+        "link": "/markdown-to-word",
+        "iconName": "FaFileWord",
+        "isEnabled": true,
+        "description": "Convert Markdown documents to Word (.docx) files with customizable font, size, and line height. Features live preview, formatting toolbar, and multiple export formats."
       }
     ]
   },
