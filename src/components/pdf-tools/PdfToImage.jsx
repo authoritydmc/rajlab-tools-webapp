@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import JSZip from 'jszip';
 import { useTheme } from '../../themeContext';
-import { FaFilePdf, FaUpload, FaDownload, FaImages, FaFileArchive, FaCheck } from 'react-icons/fa';
+import { FaFilePdf, FaUpload, FaDownload, FaImages, FaFileArchive, FaCheck, FaFile } from 'react-icons/fa';
 import { toast, Toaster } from 'react-hot-toast';
 import ToolPageLayout from '../common/ToolPageLayout';
 import { useCategorySiblings } from '../../hooks/useCategorySiblings';
@@ -16,6 +16,16 @@ export default function PdfToImage() {
   const [imageFormat, setImageFormat] = useState('image/png'); // 'image/png' | 'image/jpeg'
   const [isProcessing, setIsProcessing] = useState(false);
   const [zipBlobUrl, setZipBlobUrl] = useState(null);
+  const [zipSize, setZipSize] = useState(null);
+  const [downloadFilename, setDownloadFilename] = useState('images.zip');
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+  };
 
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
@@ -28,6 +38,8 @@ export default function PdfToImage() {
     setRenderedImages([]);
     if (zipBlobUrl) URL.revokeObjectURL(zipBlobUrl);
     setZipBlobUrl(null);
+    setZipSize(null);
+    setDownloadFilename(`${file.name.replace('.pdf', '')}_images.zip`);
   };
 
   const convertPdfToImages = async () => {
@@ -37,6 +49,7 @@ export default function PdfToImage() {
     setRenderedImages([]);
     if (zipBlobUrl) URL.revokeObjectURL(zipBlobUrl);
     setZipBlobUrl(null);
+    setZipSize(null);
 
     try {
       const arrayBuffer = await pdfFile.arrayBuffer();
@@ -76,6 +89,7 @@ export default function PdfToImage() {
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       const url = URL.createObjectURL(zipBlob);
       setZipBlobUrl(url);
+      setZipSize(zipBlob.size);
 
       toast.success(`Successfully rendered ${images.length} pages to images!`);
     } catch (err) {
@@ -161,7 +175,7 @@ export default function PdfToImage() {
             {zipBlobUrl && (
               <a
                 href={zipBlobUrl}
-                download={`${pdfFile?.name?.replace('.pdf', '') || 'pages'}_images.zip`}
+                download={downloadFilename.endsWith('.zip') ? downloadFilename : `${downloadFilename}.zip`}
                 onClick={() => setTimeout(() => triggerChaiModal('PDF to Image'), 600)}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-600/20 transition-all"
               >
@@ -189,30 +203,86 @@ export default function PdfToImage() {
         )}
 
         {renderedImages.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4 rounded-2xl border border-slate-700/40 bg-slate-950/20">
-            {renderedImages.map((img) => (
-              <div
-                key={img.pageNum}
-                className={`flex flex-col items-center p-3 rounded-xl border transition-all ${
-                  isDarkMode ? 'bg-slate-900/80 border-slate-700/70' : 'bg-white border-slate-200 shadow-sm'
-                }`}
-              >
-                <div className="w-full flex items-center justify-between text-xs font-semibold mb-2">
-                  <span>Page {img.pageNum}</span>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4 rounded-2xl border border-slate-700/40 bg-slate-950/20">
+              {renderedImages.map((img) => (
+                <div
+                  key={img.pageNum}
+                  className={`flex flex-col items-center p-3 rounded-xl border transition-all ${
+                    isDarkMode ? 'bg-slate-900/80 border-slate-700/70' : 'bg-white border-slate-200 shadow-sm'
+                  }`}
+                >
+                  <div className="w-full flex items-center justify-between text-xs font-semibold mb-2">
+                    <span>Page {img.pageNum}</span>
+                    <a
+                      href={img.dataUrl}
+                      download={`page_${img.pageNum}.${img.ext}`}
+                      className="flex items-center gap-1 text-indigo-400 hover:text-indigo-300"
+                    >
+                      <FaDownload size={11} /> Download
+                    </a>
+                  </div>
+                  <div className="w-full h-56 flex items-center justify-center overflow-hidden rounded bg-slate-950/40 p-1">
+                    <img src={img.dataUrl} alt={`Page ${img.pageNum}`} className="max-h-full max-w-full object-contain rounded shadow" />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Download Section */}
+            {zipBlobUrl && (
+              <div className={`mt-6 p-5 rounded-2xl border animate-fade-in ${
+                isDarkMode ? 'bg-emerald-900/20 border-emerald-700/50' : 'bg-emerald-50 border-emerald-200'
+              }`}>
+                <div className="flex items-center gap-2 mb-4">
+                  <FaCheck className="text-emerald-500" />
+                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">Images Converted Successfully!</span>
+                </div>
+
+                <div className={`p-4 rounded-xl border ${
+                  isDarkMode ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-100 border-slate-300'
+                }`}>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                        Filename
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <FaFile className="text-slate-400" />
+                        <input
+                          type="text"
+                          value={downloadFilename}
+                          onChange={(e) => setDownloadFilename(e.target.value)}
+                          className={`flex-1 px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                            isDarkMode ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-slate-300 text-slate-900'
+                          }`}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                        ZIP Size
+                      </label>
+                      <div className={`px-3 py-2 rounded-lg border text-sm font-mono ${
+                        isDarkMode ? 'bg-slate-700 border-slate-600 text-slate-300' : 'bg-white border-slate-300 text-slate-700'
+                      }`}>
+                        {zipSize ? formatFileSize(zipSize) : 'Calculating...'}
+                      </div>
+                    </div>
+                  </div>
+
                   <a
-                    href={img.dataUrl}
-                    download={`page_${img.pageNum}.${img.ext}`}
-                    className="flex items-center gap-1 text-indigo-400 hover:text-indigo-300"
+                    href={zipBlobUrl}
+                    download={downloadFilename.endsWith('.zip') ? downloadFilename : `${downloadFilename}.zip`}
+                    onClick={() => setTimeout(() => triggerChaiModal('PDF to Image'), 600)}
+                    className="w-full py-3.5 rounded-2xl font-bold flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white shadow-xl shadow-purple-600/25 transition-all"
                   >
-                    <FaDownload size={11} /> Download
+                    <FaFileArchive /> Download All Images (ZIP)
                   </a>
                 </div>
-                <div className="w-full h-56 flex items-center justify-center overflow-hidden rounded bg-slate-950/40 p-1">
-                  <img src={img.dataUrl} alt={`Page ${img.pageNum}`} className="max-h-full max-w-full object-contain rounded shadow" />
-                </div>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
     </ToolPageLayout>

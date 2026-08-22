@@ -1,17 +1,18 @@
 {
   "name": "rajlab-tools-webapp",
   "private": true,
-  "version": "3.1.3",
+  "version": "3.1.5",
   "type": "module",
   "scripts": {
-    "prebuild": "node scripts/copy-ffmpeg-wasm.js",
-    "predev": "node scripts/copy-ffmpeg-wasm.js",
+    "prebuild": "node scripts/sync-tool-categories.js && node scripts/copy-ffmpeg-wasm.js",
+    "predev": "node scripts/sync-tool-categories.js && node scripts/copy-ffmpeg-wasm.js",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@cantoo/pdf-lib": "^2.9.1",
     "@ffmpeg/ffmpeg": "^0.12.10",
     "@ffmpeg/util": "^0.12.1",
     "@monaco-editor/react": "^4.7.0",

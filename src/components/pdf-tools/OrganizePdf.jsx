@@ -3,7 +3,7 @@ import { PDFDocument, degrees } from 'pdf-lib';
 import { useTheme } from '../../themeContext';
 import { 
   FaFilePdf, FaUpload, FaDownload, FaRedo, FaUndo, 
-  FaTrash, FaArrowUp, FaArrowDown, FaPlus, FaCheck, FaLayerGroup 
+  FaTrash, FaArrowUp, FaArrowDown, FaPlus, FaCheck, FaLayerGroup, FaFile, FaEye 
 } from 'react-icons/fa';
 import { toast, Toaster } from 'react-hot-toast';
 import ToolPageLayout from '../common/ToolPageLayout';
@@ -17,12 +17,23 @@ export default function OrganizePdf() {
   const [pages, setPages] = useState([]); // [{ originalIndex, rotation, thumbnail, isDeleted }]
   const [isProcessing, setIsProcessing] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState(null);
+  const [downloadSize, setDownloadSize] = useState(null);
+  const [downloadFilename, setDownloadFilename] = useState('organized_document.pdf');
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     return () => {
       if (downloadUrl) URL.revokeObjectURL(downloadUrl);
     };
   }, [downloadUrl]);
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+  };
 
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
@@ -34,7 +45,9 @@ export default function OrganizePdf() {
     setIsProcessing(true);
     if (downloadUrl) URL.revokeObjectURL(downloadUrl);
     setDownloadUrl(null);
+    setDownloadSize(null);
     setPdfFile(file);
+    setDownloadFilename(`organized_${file.name.replace('.pdf', '')}.pdf`);
     setPages([]);
 
     try {
@@ -134,6 +147,7 @@ export default function OrganizePdf() {
       if (downloadUrl) URL.revokeObjectURL(downloadUrl);
       const url = URL.createObjectURL(blob);
       setDownloadUrl(url);
+      setDownloadSize(pdfBytes.length);
       toast.success('Organized PDF ready for download!');
     } catch (err) {
       console.error('Save organized PDF error:', err);
@@ -203,7 +217,7 @@ export default function OrganizePdf() {
               {downloadUrl && (
                 <a
                   href={downloadUrl}
-                  download={`organized_${pdfFile?.name || 'document.pdf'}`}
+                  download={downloadFilename.endsWith('.pdf') ? downloadFilename : `${downloadFilename}.pdf`}
                   onClick={() => setTimeout(() => triggerChaiModal('Organize PDF'), 600)}
                   className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-600/20 transition-all"
                 >
@@ -303,6 +317,94 @@ export default function OrganizePdf() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Download Section with Preview */}
+        {downloadUrl && (
+          <div className={`mt-6 p-5 rounded-2xl border animate-fade-in ${
+            isDarkMode ? 'bg-emerald-900/20 border-emerald-700/50' : 'bg-emerald-50 border-emerald-200'
+          }`}>
+            <div className="flex items-center gap-2 mb-4">
+              <FaCheck className="text-emerald-500" />
+              <span className="font-semibold text-emerald-600 dark:text-emerald-400">PDF Organized Successfully!</span>
+            </div>
+
+            {/* Preview Section */}
+            <div className="mb-5">
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  Preview
+                </label>
+                <button
+                  onClick={() => setShowPreview(!showPreview)}
+                  className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${
+                    showPreview 
+                      ? 'bg-indigo-600 text-white' 
+                      : isDarkMode 
+                        ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' 
+                        : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                  }`}
+                >
+                  {showPreview ? 'Hide Preview' : 'Show Preview'}
+                </button>
+              </div>
+              
+              {showPreview && (
+                <div className={`rounded-xl overflow-hidden border ${
+                  isDarkMode ? 'border-slate-700 bg-slate-800' : 'border-slate-300 bg-slate-100'
+                }`}>
+                  <iframe
+                    src={downloadUrl}
+                    className="w-full h-96"
+                    title="Organized PDF Preview"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Download Section */}
+            <div className={`p-4 rounded-xl border ${
+              isDarkMode ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-100 border-slate-300'
+            }`}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                    Filename
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <FaFile className="text-slate-400" />
+                    <input
+                      type="text"
+                      value={downloadFilename}
+                      onChange={(e) => setDownloadFilename(e.target.value)}
+                      className={`flex-1 px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                        isDarkMode ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-slate-300 text-slate-900'
+                      }`}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                    File Size
+                  </label>
+                  <div className={`px-3 py-2 rounded-lg border text-sm font-mono ${
+                    isDarkMode ? 'bg-slate-700 border-slate-600 text-slate-300' : 'bg-white border-slate-300 text-slate-700'
+                  }`}>
+                    {downloadSize ? formatFileSize(downloadSize) : 'Calculating...'}
+                  </div>
+                </div>
+              </div>
+
+              <a
+                href={downloadUrl}
+                download={downloadFilename.endsWith('.pdf') ? downloadFilename : `${downloadFilename}.pdf`}
+                onClick={() => setTimeout(() => triggerChaiModal('Organize PDF'), 600)}
+                className="w-full py-3.5 rounded-2xl font-bold flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white shadow-xl shadow-purple-600/25 transition-all"
+              >
+                <FaDownload /> Download Organized PDF
+              </a>
+            </div>
           </div>
         )}
       </div>

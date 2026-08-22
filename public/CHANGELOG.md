@@ -4,7 +4,27 @@ All notable changes to **Rajlab Tools Webapp** are documented here, organized by
 
 ---
 
-## [3.1.3] — 2026-08-24
+## [3.1.5] — 2026-08-23
+
+### Fixed
+- **PDF Password Protection (`/protect-pdf`)**: Fixed broken PDF encryption by using pdf-lib's direct `encrypt()` method instead of reloading the document. The tool now correctly applies password protection with user/owner passwords and configurable permissions (printing, modifying, copying, annotating, filling forms, content accessibility).
+
+### Added
+- **PDF Tools Live Preview (`/protect-pdf`, `/merge-pdf`, `/split-pdf`, `/organize-pdf`, `/image-to-pdf`)**: Added toggleable live preview using iframe embed for all PDF generation tools. Users can now preview the processed PDF before downloading with a single click to show/hide the preview pane.
+- **Editable Download Filenames**: All PDF tools now include an editable filename input field before download, allowing users to customize the output filename. Default filenames are intelligently generated based on the operation (e.g., `protected_document.pdf`, `merged_document.pdf`, `extracted_pages.pdf`).
+- **File Size Preview**: All PDF tools now display the processed file size in a human-readable format (Bytes, KB, MB, GB) before download, helping users understand the output file size at a glance.
+- **Enhanced Download Section**: Redesigned download sections across all PDF tools with a cleaner card layout showing filename editor, file size display, and prominent download button with consistent styling and success indicators.
+
+### Changed
+- **PDF Tools UI Polish**: Unified the user experience across all PDF tools with consistent success state cards, preview toggles, and download sections. The protected/merged/extracted PDFs now display in a dedicated success card with green accents and clear visual hierarchy.
+- **Unlock PDF (`/unlock-pdf`)**: Added editable filename and file size display to match the enhanced download experience of other PDF tools.
+
+### Fixed
+- **Chai/UPI Support Modal Frequency (`/` all tools)**: Implemented localStorage-based backoff mechanism to limit the support modal popup to maximum 2 times per day with a minimum 10-minute gap between displays. The modal now tracks display count, last shown timestamp, and date, resetting automatically at midnight. This prevents the popup from appearing repeatedly after multiple downloads while still allowing occasional prompts for user support.
+
+---
+
+## [3.1.3] — 2026-08-23
 
 ### Changed
 - **Zero-Deploy Tool Analytics (`firestore.rules`, `.agents/skills/add-new-tool/SKILL.md`)**: Replaced hardcoded `isValidSlug` whitelist with a pattern check `^[a-z0-9-]{2,60}$` (2–60 chars). New tools now auto-create `tool_usage/{slug}` on first open with no `firestore.rules` deploy needed — enforcement stays at the API layer via App Check → Enforced, so garbage slugs are still blocked but you no longer need to whitelist each tool manually.
