@@ -113,9 +113,13 @@ export default function MarkdownPlayground() {
   const initialFromUrl = searchParams.get('text') || searchParams.get('md') || searchParams.get('content') || '';
   const [input, setInput] = useState(initialFromUrl || DEFAULT_MD);
   const [html, setHtml] = useState('');
-  const [viewMode, setViewMode] = useState('split'); // split | edit | preview
+  const [viewMode, setViewMode] = useState(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) return 'edit';
+    return 'split';
+  }); // split | edit | preview
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showToc, setShowToc] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 1024 : false);
   const [dragOver, setDragOver] = useState(false);
   const [docTitle, setDocTitle] = useState('document');
   const [headerDropdownOpen, setHeaderDropdownOpen] = useState(false);
@@ -129,6 +133,18 @@ export default function MarkdownPlayground() {
     document.title = 'Markdown Playground | Rajlabs';
     return () => { document.title = 'Utilities || Rajlabs'; };
   }, []);
+
+  // Track mobile breakpoint and auto-switch split → edit on small screens
+  useEffect(() => {
+    const check = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (mobile && viewMode === 'split') setViewMode('edit');
+    };
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewMode]);
 
   useEffect(() => {
     if (initialFromUrl && initialFromUrl !== input) setInput(initialFromUrl);
@@ -351,7 +367,7 @@ export default function MarkdownPlayground() {
   const previewContent = (
     <div
       ref={previewRef}
-      className={`prose prose-sm max-w-none p-4 overflow-auto h-full ${isDarkMode ? 'prose-invert' : ''}`}
+      className={`prose prose-sm max-w-none p-4 ${isDarkMode ? 'prose-invert' : ''}`}
       // eslint-disable-next-line react/no-danger
       dangerouslySetInnerHTML={{ __html: html || '<p class="text-slate-400">Nothing to preview — start typing…</p>' }}
     />
@@ -439,10 +455,10 @@ export default function MarkdownPlayground() {
               )}
             </div>
 
-            <div className={`hidden md:block h-6 w-px ${isDarkMode ? 'bg-slate-700' : 'bg-slate-200'}`} />
+            <div className={`hidden lg:block h-6 w-px ${isDarkMode ? 'bg-slate-700' : 'bg-slate-200'}`} />
 
-            {/* Format / Blocks / Insert groups */}
-            <div className="flex flex-wrap items-center gap-1">
+            {/* Format / Blocks / Insert groups — horizontally scrollable on mobile */}
+            <div className="flex flex-nowrap items-center gap-1 overflow-x-auto scrollbar-thin pb-1 lg:pb-0 flex-1 min-w-0">
               {toolbarGroups.map((group) => (
                 <div key={group.name} className={`inline-flex rounded-xl border overflow-hidden ${isDarkMode ? 'border-slate-700' : 'border-slate-200'}`}>
                   {group.items.map((a, idx) => (
@@ -463,7 +479,7 @@ export default function MarkdownPlayground() {
               <div className={`inline-flex rounded-xl border p-1 ${isDarkMode ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'}`}>
                 {[
                   { id: 'edit', icon: <FaEdit />, label: 'Edit' },
-                  { id: 'split', icon: <FaColumns />, label: 'Split' },
+                  ...(!isMobile ? [{ id: 'split', icon: <FaColumns />, label: 'Split' }] : []),
                   { id: 'preview', icon: <FaEye />, label: 'Preview' },
                 ].map(m => (
                   <button
@@ -541,15 +557,15 @@ export default function MarkdownPlayground() {
           </div>
         </div>
 
-        {/* Editor + Preview — both panes independently scrollable */}
-        <div className={`flex-1 grid min-h-[520px] h-[58vh] sm:h-[640px] ${viewMode === 'split' ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'} ${isFullscreen ? '!h-[calc(100vh-140px)] !max-h-none' : ''} overflow-hidden`}>
+        {/* Editor + Preview — fixed height with internal scrollbars (matches fullscreen behavior) */}
+        <div className={`grid shrink-0 h-[560px] sm:h-[620px] lg:h-[660px] ${viewMode === 'split' ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'} ${isFullscreen ? '!h-[calc(100vh-140px)] lg:!h-[calc(100vh-140px)]' : ''} overflow-hidden border-t ${isDarkMode ? 'border-slate-700/30' : 'border-slate-200/50'}`}>
           {(viewMode === 'edit' || viewMode === 'split') && (
             <div className={`flex flex-col border-r ${isDarkMode ? 'border-slate-700/50' : 'border-slate-200/50'} min-h-0`}>
               <div className={`px-3 py-2 text-xs font-bold uppercase tracking-wider flex items-center justify-between border-b ${isDarkMode ? 'bg-slate-800/50 text-slate-300 border-slate-700/50' : 'bg-slate-50 text-slate-600 border-slate-200'}`}>
                 <span className="inline-flex items-center gap-2"><FaEdit className="text-indigo-400" /> Markdown {activeHeaderLevel ? `• H${activeHeaderLevel}` : '• Paragraph'}</span>
                 <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${isDarkMode ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-600'}`}>md</span>
               </div>
-              <div className="flex-1 min-h-[300px]">
+              <div className="flex-1 min-h-0 overflow-hidden">
                 <Editor
                   height="100%"
                   language="markdown"
@@ -576,7 +592,7 @@ export default function MarkdownPlayground() {
           )}
 
           {(viewMode === 'preview' || viewMode === 'split') && (
-            <div className="flex flex-col min-h-0">
+            <div className="flex flex-col min-h-0 overflow-hidden">
               <div className={`px-3 py-2 text-xs font-bold uppercase tracking-wider flex items-center justify-between border-b ${isDarkMode ? 'bg-slate-800/50 text-slate-300 border-slate-700/50' : 'bg-slate-50 text-slate-600 border-slate-200'}`}>
                 <span className="inline-flex items-center gap-2"><FaEye className="text-emerald-400" /> Preview</span>
                 <button onClick={() => handleCopy(html, 'HTML copied!')} className={`px-2 py-1 rounded-lg text-[11px] font-semibold inline-flex items-center gap-1 ${isDarkMode ? 'bg-slate-700 text-slate-200 hover:bg-slate-600' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
