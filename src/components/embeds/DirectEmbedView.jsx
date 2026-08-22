@@ -15,7 +15,7 @@ const UuidGenerator = lazy(() => import('../uuid/UuidGenerator'));
 const LoremIpsum = lazy(() => import('../lorem/LoremIpsum'));
 const SanitizeText = lazy(() => import('../text-Sanitize/text-Sanitize'));
 const TextFormatter = lazy(() => import('../text-formatter/text-formatter'));
-const MarkdownPreview = lazy(() => import('../markdown/MarkdownPreview'));
+const MarkdownPlayground = lazy(() => import('../markdown/MarkdownPlayground'));
 const JsonViewer = lazy(() => import('../json/JsonViewer'));
 const JwtDecoder = lazy(() => import('../json/JwtDecoder'));
 const JsonDiffChecker = lazy(() => import('../json/JsonDiffChecker'));
@@ -53,7 +53,7 @@ const COMPONENT_MAP = {
   'lorem-ipsum': LoremIpsum,
   'sanitize-text': SanitizeText,
   'format-text': TextFormatter,
-  'markdown-preview': MarkdownPreview,
+  'markdown-playground': MarkdownPlayground,
   'json-viewer': JsonViewer,
   'jwt-decoder': JwtDecoder,
   'json-diff-checker': JsonDiffChecker,

@@ -38,7 +38,7 @@ const XmlToJson = lazy(() => import('./components/json/XmlToJson'));
 const JsonToYaml = lazy(() => import('./components/json/JsonToYaml'));
 const YamlToJson = lazy(() => import('./components/json/YamlToJson'));
 const ColorPicker = lazy(() => import('./components/color/ColorPicker'));
-const MarkdownPreview = lazy(() => import('./components/markdown/MarkdownPreview'));
+const MarkdownPlayground = lazy(() => import('./components/markdown/MarkdownPlayground'));
 const LoremIpsum = lazy(() => import('./components/lorem/LoremIpsum'));
 const RegexTester = lazy(() => import('./components/regex/RegexTester'));
 const UuidGenerator = lazy(() => import('./components/uuid/UuidGenerator'));
@@ -101,8 +101,7 @@ export const router = createBrowserRouter([
             { path: "json-to-yaml", element: <S fallback={<Loading />}><JsonToYaml /></S> },
             { path: "yaml-to-json", element: <S fallback={<Loading />}><YamlToJson /></S> },
             { path: "color-picker", element: <S fallback={<Loading />}><ColorPicker /></S> },
-            { path: "markdown-preview", element: <S fallback={<Loading />}><MarkdownPreview /></S> },
-            { path: "markdown-playground", element: <S fallback={<Loading />}><MarkdownPreview /></S> },
+            { path: "markdown-playground", element: <S fallback={<Loading />}><MarkdownPlayground /></S> },
             { path: "lorem-ipsum", element: <S fallback={<Loading />}><LoremIpsum /></S> },
             { path: "regex-tester", element: <S fallback={<Loading />}><RegexTester /></S> },
             { path: "uuid-generator", element: <S fallback={<Loading />}><UuidGenerator /></S> },

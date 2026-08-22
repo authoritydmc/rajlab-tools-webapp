@@ -90,7 +90,7 @@ function buildStyledHtml(innerHtml, title = 'Markdown Export') {
 <body>
 ${innerHtml}
 <hr style="margin-top:40px" />
-<p style="font-size:12px; color:#94a3b8">Exported from <a href="https://utility.rajlabs.in/markdown-preview">Rajlabs Markdown Preview</a> — ${new Date().toLocaleString()}</p>
+<p style="font-size:12px; color:#94a3b8">Exported from <a href="https://utility.rajlabs.in/markdown-playground">Rajlabs Markdown Playground</a> — ${new Date().toLocaleString()}</p>
 </body>
 </html>`;
 }
@@ -102,12 +102,12 @@ function stripMarkdownToText(md) {
   return (tmp.textContent || tmp.innerText || '').replace(/\n{3,}/g, '\n\n').trim();
 }
 
-function slugify(text) {
-  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+function slugify(v) {
+  return String(v ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 }
 
-export default function MarkdownPreview() {
-  const siblings = useCategorySiblings('/markdown-preview');
+export default function MarkdownPlayground() {
+  const siblings = useCategorySiblings('/markdown-playground');
   const { isDarkMode } = useTheme();
   const [searchParams] = useSearchParams();
   const initialFromUrl = searchParams.get('text') || searchParams.get('md') || searchParams.get('content') || '';
@@ -115,7 +115,7 @@ export default function MarkdownPreview() {
   const [html, setHtml] = useState('');
   const [viewMode, setViewMode] = useState('split'); // split | edit | preview
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showToc, setShowToc] = useState(true);
+  const [showToc, setShowToc] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [docTitle, setDocTitle] = useState('document');
   const [headerDropdownOpen, setHeaderDropdownOpen] = useState(false);
@@ -136,16 +136,30 @@ export default function MarkdownPreview() {
   }, []);
 
   useEffect(() => {
-    marked.setOptions({ gfm: true, breaks: true, headerIds: true });
-    // add ids to headings for TOC linking via custom renderer
+    // Local renderer — handles both legacy (text,level,raw) and new token-object API (marked >=12)
+    // Keeps third-party usage minimal: only `marked`, no extra deps
     const renderer = new marked.Renderer();
-    const baseHeading = renderer.heading.bind(renderer);
-    renderer.heading = (text, level, raw) => {
-      const id = slugify(raw || text);
-      return `<h${level} id="${id}">${text} <a href="#${id}" style="opacity:0.25; text-decoration:none; font-weight:400; margin-left:6px">#</a></h${level}>`;
+    renderer.heading = function (arg1, arg2, arg3) {
+      if (arg1 && typeof arg1 === 'object' && 'depth' in arg1) {
+        const token = arg1;
+        const level = token.depth;
+        const raw = token.raw || token.text || '';
+        const id = slugify(String(raw).replace(/^#{1,6}\s+/, ''));
+        const inner = token.tokens ? this.parser.parseInline(token.tokens) : String(token.text || '');
+        return `<h${level} id="${id}">${inner} <a href="#${id}" style="opacity:0.25; text-decoration:none; font-weight:400; margin-left:6px">#</a></h${level}>`;
+      }
+      const text = arg1;
+      const level = arg2;
+      const raw = arg3;
+      const id = slugify(String(raw || text).replace(/^#{1,6}\s+/, ''));
+      return `<h${level} id="${id}">${String(text)} <a href="#${id}" style="opacity:0.25; text-decoration:none; font-weight:400; margin-left:6px">#</a></h${level}>`;
     };
-    marked.use({ renderer });
-    setHtml(marked.parse(input || ''));
+    try {
+      const htmlWithIds = marked.parse(input || '', { gfm: true, breaks: true, headerIds: false, renderer });
+      setHtml(htmlWithIds);
+    } catch {
+      setHtml(marked.parse(input || '', { gfm: true, breaks: true }));
+    }
   }, [input]);
 
   useEffect(() => {
@@ -350,7 +364,7 @@ export default function MarkdownPreview() {
       title="Markdown Playground"
       icon={<FaMarkdown />}
       siblings={siblings}
-      currentPath="/markdown-preview"
+      currentPath="/markdown-playground"
       breadcrumb={[{ label: 'Text Utilities', path: '/format-text' }]}
       activeParams={{ text: input.slice(0, 200) }}
     >
@@ -527,8 +541,8 @@ export default function MarkdownPreview() {
           </div>
         </div>
 
-        {/* Editor + Preview */}
-        <div className={`flex-1 grid min-h-[520px] max-h-[70vh] ${viewMode === 'split' ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'} ${isFullscreen ? '!max-h-none' : ''} overflow-hidden`}>
+        {/* Editor + Preview — both panes independently scrollable */}
+        <div className={`flex-1 grid min-h-[520px] h-[58vh] sm:h-[640px] ${viewMode === 'split' ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'} ${isFullscreen ? '!h-[calc(100vh-140px)] !max-h-none' : ''} overflow-hidden`}>
           {(viewMode === 'edit' || viewMode === 'split') && (
             <div className={`flex flex-col border-r ${isDarkMode ? 'border-slate-700/50' : 'border-slate-200/50'} min-h-0`}>
               <div className={`px-3 py-2 text-xs font-bold uppercase tracking-wider flex items-center justify-between border-b ${isDarkMode ? 'bg-slate-800/50 text-slate-300 border-slate-700/50' : 'bg-slate-50 text-slate-600 border-slate-200'}`}>

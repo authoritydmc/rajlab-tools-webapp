@@ -237,8 +237,8 @@ export default function MainToolListPage() {
         {/* Masonry Grid of Categories */}
         <Masonry
           breakpointCols={breakpointColumnsObj}
-          className="flex w-auto gap-4"
-          columnClassName="bg-clip-padding flex flex-col gap-4"
+          className="flex w-auto -ml-4"
+          columnClassName="pl-4 bg-clip-padding flex flex-col gap-4"
         >
           {filteredCategories.map((category, catIdx) => {
             const style = CATEGORY_STYLE[category.title] || CATEGORY_STYLE['Text Utilities'];

@@ -59,7 +59,7 @@
 
 | Category | Tools |
 |---|---|
-| **Text Utilities** | Sanitize Text (`/sanitize-text`), Text Formatter (`/format-text`), Lorem Ipsum Generator (`/lorem-ipsum`), Markdown Preview (`/markdown-preview`) |
+| **Text Utilities** | Sanitize Text (`/sanitize-text`), Text Formatter (`/format-text`), Lorem Ipsum Generator (`/lorem-ipsum`), Markdown Playground (`/markdown-playground`) |
 | **PDF Tools** | Merge PDF (`/merge-pdf`), Split PDF (`/split-pdf`), Unlock PDF (`/unlock-pdf`) — powered by `pdf-lib` |
 | **Calculators** | Print Cost Estimator (`/print-cost-estimator`) with currency selector & UPI QR share |
 | **Encryption & Encoding** | Base64 Encode/Decode (`/base64-encoder-decoder`), Password Generator (`/password-generator`), JWT Decoder (`/jwt-decoder`), BCrypt Hashing (`/bcrypt-hashing`), Hash Generator (`/hash-generator` MD5/SHA-1/256/384/512 via `crypto-js`), Image ↔ Base64 (`/image-to-base64`, `/base64-to-image`), URL Encoder/Decoder (`/url-encoder-decoder`) |
