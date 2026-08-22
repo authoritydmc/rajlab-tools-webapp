@@ -52,12 +52,17 @@ export async function incrementToolUsage(linkOrSlug, meta = {}) {
   incrementedThisSession._timestamps[key] = Date.now();
 
   const ref = doc(db, COLLECTION, slug);
-  // TEMP DEBUG — log AppCheck token presence at write time (remove after stable)
+  // TEMP DEBUG + ensure AppCheck token is ready before write (fixes race where Firestore channel opened before token)
   try {
     const { appCheck } = await import('../firebaseConfig');
     if (appCheck) {
       const { getToken } = await import('firebase/app-check');
-      getToken(appCheck, false).then(({ token }) => console.log(`[toolUsage DEBUG] ${slug} AppCheck token OK len=${token.length}`)).catch((e) => console.warn(`[toolUsage DEBUG] ${slug} AppCheck getToken FAILED`, e?.code, e?.message));
+      try {
+        const { token } = await getToken(appCheck, false);
+        console.log(`[toolUsage DEBUG] ${slug} AppCheck token OK len=${token.length} — waiting ensures X-Firebase-AppCheck header attached`);
+      } catch (e) {
+        console.warn(`[toolUsage DEBUG] ${slug} AppCheck getToken FAILED`, e?.code, e?.message, '— write will be sent without token and may be rejected if rules enforce request.app');
+      }
     } else {
       console.warn(`[toolUsage DEBUG] ${slug} appCheck is null — rules with request.app will fail`);
     }
@@ -74,9 +79,9 @@ export async function incrementToolUsage(linkOrSlug, meta = {}) {
       },
       { merge: true }
     );
-    console.log(`[toolUsage DEBUG] ${slug} increment OK`);
+    console.log(`[toolUsage DEBUG] ${slug} increment OK — Firestore 200, request.app validated`);
   } catch (err) {
-    console.warn('[toolUsage] increment failed for', slug, err?.message, 'code=', err?.code);
+    console.warn('[toolUsage] increment failed for', slug, err?.message, 'code=', err?.code, '— if enforced rules, publish relaxed rules OR ensure Firebase App Check secret for 6LfUX...Kfk is correct and token time synced');
     // allow retry next time by clearing cooldown
     if (incrementedThisSession._timestamps) delete incrementedThisSession._timestamps[key];
     throw err;
