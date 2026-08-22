@@ -17,11 +17,10 @@ service cloud.firestore {
     }
 
     // ── User feedback & ratings — anonymous creates only ───────────
-    // Reads blocked (view in Console). Hardened with App Check (reCAPTCHA v3) — free, invisible, score-based.
-    // Client must present valid App Check token (initialized in src/firebaseConfig.jsx).
+    // Reads blocked (view in Console). Whitelist + server timestamp. App Check ready — uncomment request.app line after VITE_RECAPTCHA_V3_SITE_KEY is set.
     match /feedback/{docId} {
-      allow create: if request.app != null
-                    && request.resource.data.keys().hasOnly(["rating","comment","tool","path","url","userAgent","createdAt","clientTimestamp"])
+      allow create: if request.resource.data.keys().hasOnly(["rating","comment","tool","path","url","userAgent","createdAt","clientTimestamp"])
+                    // && request.app != null  // enable after App Check site key configured (uncomment to enforce)
                     && request.resource.data.rating is int && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
                     && request.resource.data.comment is string && request.resource.data.comment.size() <= 500
                     && request.resource.data.tool is string && request.resource.data.tool.size() >= 1 && request.resource.data.tool.size() <= 120
@@ -39,12 +38,12 @@ service cloud.firestore {
     //  • docId MUST == slug, link MUST == "/"+slug (prevents spoof)
     //  • create: count MUST be 1, updatedAt MUST be server time (prevents seeding huge numbers)
     //  • update: count MUST be previous+1 (prevents jump to 1M), other fields immutable, +10M cap
-    //  • 2s client throttle in toolUsageService.js + App Check token required
+    //  • 2s client throttle in toolUsageService.js (+ App Check when VITE_RECAPTCHA_V3_SITE_KEY is set — uncomment request.app line)
     match /tool_usage/{slug} {
       allow read: if true;
 
-      allow create: if request.app != null
-                    && slug == request.resource.data.slug
+      allow create: if slug == request.resource.data.slug
+                    // && request.app != null  // enable after App Check key configured
                     && isValidSlug(slug)
                     && request.resource.data.keys().hasOnly(["slug","link","title","count","updatedAt"])
                     && request.resource.data.link == "/" + slug
@@ -53,8 +52,8 @@ service cloud.firestore {
                     && request.resource.data.count == 1
                     && request.resource.data.updatedAt == request.time;
 
-      allow update: if request.app != null
-                    && slug == resource.data.slug
+      allow update: if slug == resource.data.slug
+                    // && request.app != null  // enable after App Check key configured
                     && isValidSlug(slug)
                     && request.resource.data.keys().hasOnly(["slug","link","title","count","updatedAt"])
                     && request.resource.data.slug == resource.data.slug
