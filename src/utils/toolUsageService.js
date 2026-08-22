@@ -9,6 +9,23 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 
+// ── Debug helper: write to _debug collection (no App Check required) ───────
+async function writeDebugDoc(data) {
+  try {
+    const debugRef = doc(db, '_debug', `${data.slug}-${data.phase}-${Date.now()}`);
+    await setDoc(debugRef, {
+      ts: new Date().toISOString(),
+      host: typeof window !== 'undefined' ? window.location.hostname : 'ssr',
+      isDev: typeof import.meta !== 'undefined' ? !!import.meta.env.DEV : false,
+      env: typeof import.meta !== 'undefined' ? (import.meta.env.MODE || 'unknown') : 'ssr',
+      ...data,
+    });
+  } catch (e) {
+    // Debug write itself failed — likely rules not deployed yet. Log to console only.
+    console.warn('[toolUsage DEBUG] _debug write failed (rules not deployed?):', e?.message);
+  }
+}
+
 const COLLECTION = 'tool_usage';
 
 // Throttle in-memory so a single session doesn't spam counts on re-renders.
@@ -52,21 +69,50 @@ export async function incrementToolUsage(linkOrSlug, meta = {}) {
   incrementedThisSession._timestamps[key] = Date.now();
 
   const ref = doc(db, COLLECTION, slug);
-  // TEMP DEBUG + ensure AppCheck token is ready before write (fixes race where Firestore channel opened before token)
+
+  // ── Gather App Check diagnostic info before the write ──────────────
+  let acInfo = { appCheckPresent: false, tokenLen: 0, tokenPrefix: '', provider: 'none', siteKey: '', error: '' };
   try {
     const { appCheck } = await import('../firebaseConfig');
+    const siteKey = import.meta.env?.VITE_RECAPTCHA_ENTERPRISE_SITE_KEY?.trim()
+      || import.meta.env?.VITE_RECAPTCHA_V3_SITE_KEY?.trim()
+      || '6LfUX5Mt...9-p';
+    const isEnterprise = !!import.meta.env?.VITE_RECAPTCHA_ENTERPRISE_SITE_KEY && !import.meta.env?.VITE_RECAPTCHA_V3_SITE_KEY;
+
+    acInfo.siteKey = siteKey;
+    acInfo.provider = isEnterprise ? 'Enterprise' : 'V3';
+    acInfo.appCheckPresent = !!appCheck;
+
     if (appCheck) {
       const { getToken } = await import('firebase/app-check');
       try {
-        const { token } = await getToken(appCheck, false);
-        console.log(`[toolUsage DEBUG] ${slug} AppCheck token OK len=${token.length} — waiting ensures X-Firebase-AppCheck header attached`);
+        const { token, expireTimeMillis, attemptsCount } = await getToken(appCheck, false);
+        acInfo.tokenLen = token.length;
+        acInfo.tokenPrefix = token.slice(0, 20);
+        acInfo.expireTime = new Date(expireTimeMillis).toISOString();
+        acInfo.attemptsCount = attemptsCount;
+        acInfo.error = '';
+        console.log(`[toolUsage DEBUG] ${slug} AppCheck token OK len=${token.length} prefix=${token.slice(0,12)}... attempts=${attemptsCount}`);
       } catch (e) {
-        console.warn(`[toolUsage DEBUG] ${slug} AppCheck getToken FAILED`, e?.code, e?.message, '— write will be sent without token and may be rejected if rules enforce request.app');
+        acInfo.error = `${e?.code || 'unknown'}: ${e?.message || 'no message'}`;
+        console.warn(`[toolUsage DEBUG] ${slug} AppCheck getToken FAILED`, e?.code, e?.message);
       }
     } else {
-      console.warn(`[toolUsage DEBUG] ${slug} appCheck is null — rules with request.app will fail`);
+      acInfo.error = 'appCheck object is null — init failed?';
+      console.warn(`[toolUsage DEBUG] ${slug} appCheck is null`);
     }
-  } catch {}
+
+    // Also try to inspect what the SDK will actually attach
+    // The Firebase SDK checks internal state; log what we can access
+    acInfo.internalState = typeof appCheck?.getUid === 'function' ? 'has getUid' : 'no getUid';
+  } catch (e) {
+    acInfo.error = `import/setup failed: ${e?.message}`;
+  }
+
+  // ── Pre-write debug doc (phase=pre-write) ──────────────────────────
+  await writeDebugDoc({ slug, phase: 'pre-write', ...acInfo });
+
+  // ── Attempt the Firestore write ────────────────────────────────────
   try {
     await setDoc(
       ref,
@@ -79,9 +125,27 @@ export async function incrementToolUsage(linkOrSlug, meta = {}) {
       },
       { merge: true }
     );
-    console.log(`[toolUsage DEBUG] ${slug} increment OK — Firestore 200, request.app validated`);
+    console.log(`[toolUsage DEBUG] ${slug} increment OK — Firestore 200`);
+
+    // Success debug doc — we now know request.app was validated
+    await writeDebugDoc({ slug, phase: 'success', ...acInfo, error: '' });
   } catch (err) {
-    console.warn('[toolUsage] increment failed for', slug, err?.message, 'code=', err?.code, '— if enforced rules, publish relaxed rules OR ensure Firebase App Check secret for 6LfUX...Kfk is correct and token time synced');
+    console.warn('[toolUsage] increment failed for', slug, err?.message, 'code=', err?.code);
+
+    // Failure debug doc — capture EVERYTHING: what we sent, what failed
+    await writeDebugDoc({
+      slug,
+      phase: 'failure',
+      ...acInfo,
+      error: `${err?.code || 'unknown'}: ${err?.message || 'no message'}`,
+      // extra detail about the failure
+      fullErrorCode: err?.code || '',
+      fullErrorMsg: err?.message || '',
+      // What Firestore rules expect vs what we sent
+      ruleExpectation: 'request.app != null (App Check token must be verified server-side)',
+      hint: 'If appCheckPresent=true and tokenLen>0 but still permission-denied, the Firebase Console secret key does NOT match the site key. Go to Firebase Console > Project Settings > App Check > reCAPTCHA and verify.',
+    });
+
     // allow retry next time by clearing cooldown
     if (incrementedThisSession._timestamps) delete incrementedThisSession._timestamps[key];
     throw err;
