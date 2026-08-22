@@ -10,7 +10,7 @@ import { getPresetLogoUrl, detectBrandFromData } from '../../utils/qrLogoPresets
 export default function DeveloperEmbedGuide({ currentPath, activeParams = {} }) {
   const { isDarkMode } = useTheme();
   const [copiedKey, setCopiedKey] = useState(null);
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('img'); // 'img' | 'ai' | 'iframe' | 'react' | 'curl' | 'markdown' | 'raw'
   const [previewSize, setPreviewSize] = useState(null);
   const [previewMargin, setPreviewMargin] = useState(null);
