@@ -23,6 +23,17 @@ export default function ToolPageLayout({
   const [searchParams] = useSearchParams();
   const [openDropdown, setOpenDropdown] = useState(null);
   const dropdownRef = useRef(null);
+  const hoverTimeoutRef = useRef(null);
+
+  const handleDropdownEnter = (i) => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setOpenDropdown(i);
+  };
+  const handleDropdownLeave = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = setTimeout(() => setOpenDropdown(null), 220);
+  };
+  useEffect(() => () => { if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current); }, []);
 
   const isEmbed = searchParams.get('embed') === 'true' || searchParams.get('direct') === '1' || searchParams.get('embed') === '1';
   const rawParam = searchParams.get('raw') || searchParams.get('format');
@@ -132,8 +143,12 @@ export default function ToolPageLayout({
                         {crumb.label}
                       </span>
                     ) : isCategory ? (
-                      /* Category with dropdown */
-                      <div className="relative">
+                      /* Category with dropdown - hover (with bridge) + click support for touch */
+                      <div
+                        className="relative"
+                        onMouseEnter={() => handleDropdownEnter(i)}
+                        onMouseLeave={handleDropdownLeave}
+                      >
                         <button
                           onClick={() => setOpenDropdown(openDropdown === i ? null : i)}
                           className={`flex items-center gap-1 shrink-0 transition-colors ${
@@ -144,11 +159,16 @@ export default function ToolPageLayout({
                           <HiChevronDown size={10} className={`transition-transform ${openDropdown === i ? 'rotate-180' : ''}`} />
                         </button>
 
-                        {/* Dropdown */}
+                        {/* Dropdown with hover bridge (pt-2) to prevent gap flicker */}
                         {openDropdown === i && (
-                          <div className={`absolute top-full left-0 mt-2 w-64 sm:w-72 rounded-xl border shadow-2xl overflow-hidden z-[9999] animate-fade-in-up ${
-                            isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-                          }`}>
+                          <div
+                            className="absolute top-full left-0 pt-2 w-64 sm:w-72 z-[9999] animate-fade-in-up"
+                            onMouseEnter={() => handleDropdownEnter(i)}
+                            onMouseLeave={handleDropdownLeave}
+                          >
+                            <div className={`w-full rounded-xl border shadow-2xl overflow-hidden ${
+                              isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+                            }`}>
                             <div className={`px-3 py-2 text-[10px] sm:text-xs font-semibold uppercase tracking-wider border-b ${
                               isDarkMode ? 'text-slate-500 bg-slate-900 border-slate-700' : 'text-slate-400 bg-slate-50 border-slate-100'
                             }`}>
@@ -184,6 +204,7 @@ export default function ToolPageLayout({
                                   </Link>
                                 );
                               })}
+                            </div>
                             </div>
                           </div>
                         )}
@@ -230,7 +251,7 @@ export default function ToolPageLayout({
       </div>
 
       {/* Page Content */}
-      <div className="relative z-10 max-w-[1600px] w-full mx-auto px-3 sm:px-4 lg:px-8 pt-3 pb-8 sm:pt-5 sm:pb-10">
+      <div className="relative max-w-[1600px] w-full mx-auto px-3 sm:px-4 lg:px-8 pt-3 pb-8 sm:pt-5 sm:pb-10">
         {/* Mobile title */}
         <div className="flex items-center gap-2 mb-3 sm:mb-4 md:hidden">
           {icon && <span className={`text-lg ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>{icon}</span>}

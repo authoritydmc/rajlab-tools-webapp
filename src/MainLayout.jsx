@@ -1,5 +1,5 @@
 import { useTheme } from "./themeContext";
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useSearchParams } from 'react-router-dom';
 import { FaGithub, FaHeart } from 'react-icons/fa';
 import { HiHome, HiSun, HiMoon } from 'react-icons/hi2';
 import SoundToggle from './components/common/SoundToggle';
@@ -7,6 +7,14 @@ import FlipClock from './components/common/FlipClock';
 
 function MainLayout() {
   const { isDarkMode, toggleDarkMode } = useTheme();
+  const [searchParams] = useSearchParams();
+  const rawParam = searchParams.get('raw') || searchParams.get('format');
+  const isRawMode = Boolean(rawParam);
+
+  // Raw mode: absolutely no header, footer, or mesh chrome — just the raw content
+  if (isRawMode) {
+    return <Outlet />;
+  }
 
   return (
     <div className={`flex flex-col min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-mesh-dark bg-noise text-slate-100' : 'bg-mesh-light bg-noise text-slate-900'}`}>
@@ -66,7 +74,7 @@ function MainLayout() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 relative z-10">
+      <main className="flex-1 relative">
         <Outlet />
       </main>
 
@@ -74,7 +82,7 @@ function MainLayout() {
       <SoundToggle />
 
       {/* Footer */}
-      <footer className={`relative z-10 border-t transition-colors duration-300 ${isDarkMode ? 'border-white/5' : 'border-slate-200/60'}`}>
+      <footer className={`relative border-t transition-colors duration-300 ${isDarkMode ? 'border-white/5' : 'border-slate-200/60'}`}>
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
           <div className="flex flex-col items-center gap-2.5">
             <p className="text-sm sm:text-base flex flex-wrap items-center justify-center gap-1.5">

@@ -6,5 +6,6 @@ export const KEYS = {
   PRINT_RATE_SETTINGS: 'printRateSettings',
   UPI_NAME: 'upiName',
   UPI_ADDRESS: 'upiAddress',
+  QR_CUSTOM_PREFS: 'qr_custom_prefs_v1',
   // Add more keys as needed
 };

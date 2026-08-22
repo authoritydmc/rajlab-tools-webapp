@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useTheme } from '../../themeContext';
 import { Toaster } from 'react-hot-toast';
 import { FaQrcode } from 'react-icons/fa';
+import { loadQRPrefs, saveQRPrefs } from '../../utils/qrPrefs';
 import QRCodeDisplay from './QRDisplay';
 import ToolPageLayout from '../common/ToolPageLayout';
 import { useCategorySiblings } from '../../hooks/useCategorySiblings';
@@ -26,7 +27,7 @@ export default function QRCodeSettings() {
   
   const siblings = useCategorySiblings('/qr-code-generator');
 
-  // Load from query parameters
+  // Load from query parameters – preserve saved prefs unless query overrides
   useEffect(() => {
     const dataParam = searchParams.get('data') || searchParams.get('text') || searchParams.get('url') || searchParams.get('q');
     const sizeParam = searchParams.get('size') || searchParams.get('s');
@@ -37,9 +38,11 @@ export default function QRCodeSettings() {
     const logoParam = searchParams.get('logo') || searchParams.get('icon');
     const dotsParam = searchParams.get('dotStyle') || searchParams.get('dots') || searchParams.get('pattern');
     const eyeParam = searchParams.get('eyeFrame') || searchParams.get('corner') || searchParams.get('eye');
+    const eyeDotParam = searchParams.get('cornerDotStyle');
     const frameParam = searchParams.get('frame') || searchParams.get('frameStyle');
     const frameTxtParam = searchParams.get('frameText') || searchParams.get('cta');
     const frameColParam = searchParams.get('frameColor') || searchParams.get('fc');
+    const hasCustomQuery = Boolean(bgParam || fgParam || themeParam || logoParam || dotsParam || eyeParam || eyeDotParam || frameParam || frameTxtParam || frameColParam);
 
     if (dataParam !== null && dataParam !== undefined) setQrData(dataParam);
     if (sizeParam && !isNaN(sizeParam)) setSize(Number(sizeParam));
@@ -68,22 +71,44 @@ export default function QRCodeSettings() {
     if (logoParam) setLogo(logoParam);
     if (dotsParam) setDotStyle(dotsParam);
     if (eyeParam) setCornerSquareStyle(eyeParam);
+    if (eyeDotParam) setCornerDotStyle(eyeDotParam);
     if (frameParam) setFrame(frameParam);
     if (frameTxtParam) setFrameText(frameTxtParam);
     if (frameColParam) setFrameColor(frameColParam.startsWith('#') ? frameColParam : `#${frameColParam}`);
+
+    if (!hasCustomQuery) {
+      const saved = loadQRPrefs();
+      if (saved) {
+        if (saved.bgColor && !bgParam) setBgColor(saved.bgColor);
+        if (saved.fgColor && !fgParam) setFgColor(saved.fgColor);
+        if (saved.colorTheme && !themeParam && !bgParam && !fgParam) {
+          setColorTheme(saved.colorTheme);
+          if (saved.colorTheme === 'custom' && saved.bgColor) { setBgColor(saved.bgColor); setFgColor(saved.fgColor || '#000000'); }
+        }
+        if (saved.logo && !logoParam) setLogo(saved.logo);
+        if (saved.dotStyle && !dotsParam) setDotStyle(saved.dotStyle);
+        if (saved.cornerSquareStyle && !eyeParam) setCornerSquareStyle(saved.cornerSquareStyle);
+        if (saved.cornerDotStyle && !eyeDotParam) setCornerDotStyle(saved.cornerDotStyle);
+        if (saved.frame && !frameParam) setFrame(saved.frame);
+        if (saved.frameText && !frameTxtParam) setFrameText(saved.frameText);
+        if (saved.frameColor && !frameColParam) setFrameColor(saved.frameColor);
+      }
+    }
   }, [searchParams]);
 
   const handleCustomization = (customs) => {
-    if (customs.bg) setBgColor(customs.bg);
-    if (customs.fg) setFgColor(customs.fg);
-    if (customs.theme) setColorTheme(customs.theme);
-    if (customs.logo) setLogo(customs.logo);
-    if (customs.dotStyle) setDotStyle(customs.dotStyle);
-    if (customs.cornerSquareStyle) setCornerSquareStyle(customs.cornerSquareStyle);
-    if (customs.cornerDotStyle) setCornerDotStyle(customs.cornerDotStyle);
-    if (customs.frame) setFrame(customs.frame);
-    if (customs.frameText) setFrameText(customs.frameText);
-    if (customs.frameColor) setFrameColor(customs.frameColor);
+    const next = {};
+    if (customs.bg) { setBgColor(customs.bg); next.bgColor = customs.bg; }
+    if (customs.fg) { setFgColor(customs.fg); next.fgColor = customs.fg; }
+    if (customs.theme) { setColorTheme(customs.theme); next.colorTheme = customs.theme; }
+    if (customs.logo) { setLogo(customs.logo); next.logo = customs.logo; }
+    if (customs.dotStyle) { setDotStyle(customs.dotStyle); next.dotStyle = customs.dotStyle; }
+    if (customs.cornerSquareStyle) { setCornerSquareStyle(customs.cornerSquareStyle); next.cornerSquareStyle = customs.cornerSquareStyle; }
+    if (customs.cornerDotStyle) { setCornerDotStyle(customs.cornerDotStyle); next.cornerDotStyle = customs.cornerDotStyle; }
+    if (customs.frame) { setFrame(customs.frame); next.frame = customs.frame; }
+    if (customs.frameText) { setFrameText(customs.frameText); next.frameText = customs.frameText; }
+    if (customs.frameColor) { setFrameColor(customs.frameColor); next.frameColor = customs.frameColor; }
+    if (Object.keys(next).length) saveQRPrefs(next);
   };
 
   return (

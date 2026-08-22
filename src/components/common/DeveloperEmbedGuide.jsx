@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaCode, FaGithub, FaCopy, FaCheck, FaExternalLinkAlt, FaTerminal, FaChevronDown, FaChevronUp, FaImage, FaLayerGroup, FaReact, FaMarkdown } from 'react-icons/fa';
+import { FaCode, FaGithub, FaCopy, FaCheck, FaExternalLinkAlt, FaTerminal, FaChevronDown, FaChevronUp, FaImage, FaLayerGroup, FaReact, FaMarkdown, FaRobot, FaMagic, FaSparkles } from 'react-icons/fa';
 import { SiPostman } from 'react-icons/si';
 import { toast } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
@@ -33,8 +33,35 @@ export default function DeveloperEmbedGuide({ currentPath, activeParams = {} }) 
   const rawImageUrl = `${origin}${currentPath}?${queryString ? `${queryString}&` : ''}raw=image`;
   const rawSvgUrl = `${origin}${currentPath}?${queryString ? `${queryString}&` : ''}raw=svg`;
   const rawJsonUrl = `${origin}${currentPath}?${queryString ? `${queryString}&` : ''}raw=json`;
+  const rawTextUrl = `${origin}${currentPath}?${queryString ? `${queryString}&` : ''}raw=text`;
 
-  const isQrTool = currentPath.includes('qr');
+  const IMAGE_TOOLS = ['/qr-code-generator', '/upi-code-generator', '/whatsapp-qr-code'];
+  const isImageTool = IMAGE_TOOLS.includes(currentPath);
+  // Legacy alias for older code branches
+  const isQrTool = isImageTool;
+  const hasRawParam = toolInfo.queryParams?.some(p => p.name === 'raw');
+  const hasImageRaw = isImageTool;
+  const hasJsonRaw = hasRawParam && !['/qr-scanner','/json-diff-checker','/regex-tester','/timestamp-converter','/css-unit-converter','/color-picker','/markdown-preview','/image-to-base64','/base64-to-image','/print-cost-estimator','/image-compressor','/video-converter','/merge-pdf','/split-pdf','/unlock-pdf','/unlock-excel'].includes(currentPath);
+
+  const extractOptions = (typeStr) => {
+    if (!typeStr) return [];
+    const quoted = typeStr.match(/"([^"]+)"/g);
+    if (quoted) return quoted.map(s => s.replace(/"/g, '')).slice(0, 8);
+    // fallback for boolean / number hints
+    if (typeStr.includes('boolean')) return ['true','false'];
+    return [];
+  };
+  const isParamActive = (name, aliases = []) => {
+    if (activeParams[name] !== undefined) return true;
+    return aliases.some(a => activeParams[a] !== undefined);
+  };
+  const getRawUrlWithSize = (sz, margin) => {
+    const sp = new URLSearchParams(searchParams.toString());
+    sp.set('size', String(sz));
+    if (margin !== undefined) sp.set('margin', String(margin));
+    sp.set('raw', 'image');
+    return `${origin}${currentPath}?${sp.toString()}`;
+  };
 
   // Interactive Embed & API Snippets
   const imgTagSnippet = `<!-- Embed live branded QR image directly into any website or email -->
@@ -84,23 +111,74 @@ export function EmbeddedTool() {
   );
 }`;
 
-  const curlSnippet = `# Fetch raw image via cURL / CLI
+  const curlSnippet = hasImageRaw
+    ? `# Fetch raw image via cURL / CLI
 curl -o qr-code.png "${rawImageUrl}"
 
 # Or fetch JSON payload with metadata
-curl -X GET "${rawJsonUrl}"`;
+curl -X GET "${rawJsonUrl}"`
+    : hasJsonRaw
+    ? `# Fetch raw output via cURL
+curl -X GET "${rawJsonUrl}"
+# For plain text
+curl -X GET "${rawTextUrl}"`
+    : `# Embed via iframe
+curl -X GET "${embedUrl}"`;
 
-  const markdownSnippet = isQrTool 
+  const markdownSnippet = hasImageRaw 
     ? `<!-- Markdown Image Embed (Works in GitHub READMEs, Notion, Obsidian) -->
 ![${toolInfo.title}](${rawImageUrl})`
     : `[![${toolInfo.title}](${origin}/logo_raj_light.png)](${directToolUrl})`;
 
-  const fetchJsonSnippet = `// Direct Client/Server Fetch
+  const fetchJsonSnippet = hasImageRaw
+    ? `// Fetch branded QR image metadata
 async function getToolOutput() {
   const res = await fetch("${rawJsonUrl}");
   const data = await res.json();
   console.log("Output Payload:", data);
-}`;
+}`
+    : hasJsonRaw
+    ? `// Direct Client/Server Fetch
+async function getToolOutput() {
+  const res = await fetch("${rawJsonUrl}");
+  const data = await res.json();
+  console.log("Output Payload:", data);
+}`
+    : `// Embed the tool via iframe
+// src="${embedUrl}"`;
+
+  // AI Prompt for integration — copy-paste into ChatGPT/Claude/Cursor to let AI integrate this tool
+  const aiPromptSnippet = `You are an expert developer assistant. Integrate the Rajlabs Utilities tool "${toolInfo.title}" (${toolInfo.description}) into my app.
+
+Tool URL: ${origin}${currentPath}
+Current live example (with my current inputs):
+- Interactive UI: ${directToolUrl}
+- Embed iframe: ${embedUrl}
+${hasImageRaw ? `- Raw branded image (for <img> / email / popup): ${rawImageUrl}
+  Query controls: size=32..1024 (popup: 64-96, tooltip: 128, card: 256, print: 512) , margin=0..40 (whitespace, 0=tight), logo=upi/gpay/phonepe/paytm/whatsapp/rajlabs/link/wifi/none, frame=none/banner-bottom/banner-top, frameText, theme=light/dark, bg/fg hex without #, dots=square/rounded/dots/classy, corner=square/extra-rounded/dot
+  Variants: small popup: ${getRawUrlWithSize(64, 0)} | tooltip: ${getRawUrlWithSize(128, 2)} | hi-res: ${getRawUrlWithSize(512, 10)}
+  HTML: <img src="${rawImageUrl}" width="${activeParams.size || 256}" height="${activeParams.size || 256}" loading="lazy" alt="${toolInfo.title}" />
+  React: <img src="${rawImageUrl}" width={${activeParams.size || 256}} height={${activeParams.size || 256}} />
+  cURL: curl -o qr.png "${rawImageUrl}"
+  SVG: ${rawSvgUrl}
+  JSON metadata: ${rawJsonUrl}` : hasJsonRaw ? `- Raw JSON API: ${rawJsonUrl}
+- Raw text: ${rawTextUrl}
+- Embed iframe: ${embedUrl}
+- cURL: curl "${rawJsonUrl}"` : `- Embed iframe: ${embedUrl}`}
+
+Supported query params:
+${toolInfo.queryParams?.map(p => `- ${p.name} (${p.aliases?.join(', ')||'no alias'}): ${p.type} — ${p.description}`).join('\n')}
+
+Instructions for you (AI):
+1. Generate production-ready code (React / Next.js / Vue / plain HTML + JS / Python) that calls the raw endpoint with proper query encoding.
+2. Respect size/margin for responsive popups vs print.
+3. Handle CORS (same-origin fetch allowed) and show error handling.
+4. Do NOT use the interactive UI URL for <img> — use ?raw=image for images, ?raw=json for data.
+5. Provide copy-pasteable snippet + explanation.
+
+Current queryString: "${queryString || '(none — using defaults)'}"
+Source: ${githubUrl}
+`;
 
   const copyToClipboard = (text, key) => {
     navigator.clipboard.writeText(text);
@@ -117,7 +195,8 @@ async function getToolOutput() {
       case 'curl': return curlSnippet;
       case 'markdown': return markdownSnippet;
       case 'raw': return fetchJsonSnippet;
-      default: return imgTagSnippet;
+      case 'ai': return aiPromptSnippet;
+      default: return hasImageRaw ? imgTagSnippet : iframeSnippet;
     }
   };
 
@@ -154,7 +233,7 @@ async function getToolOutput() {
               </span>
             </h3>
             <p className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-              Direct branded image links (?raw=image), preset logos, frames, dot styles, iframes, and cURL commands.
+              {hasImageRaw ? 'Direct branded image links (?raw=image), preset logos, frames, dot styles, iframes, and cURL commands.' : hasJsonRaw ? 'Direct raw JSON/text endpoints (?raw=json), iframe embeds, and cURL/JS fetch snippets — live URLs update as you type.' : 'Iframe embeds, live URLs, and code snippets — parameters update dynamically.'}
             </p>
           </div>
         </div>
@@ -209,22 +288,50 @@ async function getToolOutput() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/40">
-                    {toolInfo.queryParams.map((param, pIdx) => (
-                      <tr key={pIdx} className={isDarkMode ? 'hover:bg-slate-800/30' : 'hover:bg-slate-50'}>
-                        <td className="px-3.5 py-2.5 font-mono font-bold text-indigo-400">
-                          {param.name}
-                        </td>
-                        <td className="px-3.5 py-2.5 font-mono text-slate-400">
-                          {param.aliases && param.aliases.length > 0 ? param.aliases.join(', ') : '-'}
-                        </td>
-                        <td className="px-3.5 py-2.5 text-amber-400/90 font-mono text-[11px]">
-                          {param.type}
-                        </td>
-                        <td className={`px-3.5 py-2.5 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-                          {param.description}
-                        </td>
-                      </tr>
-                    ))}
+                    {toolInfo.queryParams.map((param, pIdx) => {
+                      const active = isParamActive(param.name, param.aliases);
+                      const opts = extractOptions(param.type);
+                      return (
+                        <tr key={pIdx} className={`${active ? (isDarkMode ? 'bg-indigo-500/10' : 'bg-indigo-50/70') : ''} ${isDarkMode ? 'hover:bg-slate-800/30' : 'hover:bg-slate-50'} transition-colors`}>
+                          <td className="px-3.5 py-2.5 font-mono font-bold">
+                            <button
+                              onClick={() => copyToClipboard(`${param.name}=${param.default !== undefined && param.default !== '' ? param.default : 'value'}`, `param-${pIdx}`)}
+                              className={`px-1.5 py-0.5 rounded text-xs font-bold transition-colors ${active ? 'bg-indigo-600 text-white' : 'text-indigo-400 hover:bg-indigo-500/20'}`}
+                              title="Click to copy param example"
+                            >
+                              {param.name}
+                            </button>
+                            {active && <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" title="Active in current URL" />}
+                          </td>
+                          <td className="px-3.5 py-2.5 font-mono text-slate-400 text-[11px]">
+                            {param.aliases && param.aliases.length > 0 ? param.aliases.join(', ') : '-'}
+                          </td>
+                          <td className="px-3.5 py-2.5">
+                            <div className="text-amber-400/90 font-mono text-[11px] mb-1">{param.type}</div>
+                            {opts.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {opts.map(opt => {
+                                  const isOptActive = String(activeParams[param.name]) === opt || (param.aliases||[]).some(a => String(activeParams[a])===opt);
+                                  return (
+                                    <button
+                                      key={opt}
+                                      onClick={() => copyToClipboard(`${param.name}=${opt}`, `opt-${pIdx}-${opt}`)}
+                                      className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold border transition-all ${isOptActive ? 'bg-indigo-600 text-white border-indigo-500' : isDarkMode ? 'bg-slate-800 text-slate-300 border-slate-700 hover:border-indigo-500/50 hover:text-white' : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-300'}`}
+                                      title={`Copy ${param.name}=${opt}`}
+                                    >
+                                      {copiedKey === `opt-${pIdx}-${opt}` ? '✓' : ''} {opt}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </td>
+                          <td className={`px-3.5 py-2.5 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
+                            {param.description}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -243,7 +350,7 @@ async function getToolOutput() {
                   {directToolUrl}
                 </div>
               </div>
-              <div className="flex items-center gap-2 pt-2 border-t border-slate-800/40">
+              <div className="flex items-center gap-2 pt-2 border-t border-slate-800/40 flex-wrap">
                 <button
                   onClick={() => copyToClipboard(directToolUrl, 'live-url')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
@@ -253,11 +360,35 @@ async function getToolOutput() {
                   {copiedKey === 'live-url' ? <FaCheck size={11} /> : <FaCopy size={11} />}
                   <span>Copy Page URL</span>
                 </button>
+                {hasImageRaw && (
+                  <button
+                    onClick={() => copyToClipboard(rawImageUrl, 'live-raw-url')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                      copiedKey === 'live-raw-url' ? 'bg-emerald-600 text-white' : isDarkMode ? 'bg-indigo-900/40 text-indigo-300 hover:bg-indigo-800/60 border border-indigo-500/20' : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                    }`}
+                    title="Copy RAW image URL (?raw=image) for direct <img> embedding"
+                  >
+                    {copiedKey === 'live-raw-url' ? <FaCheck size={11} /> : <FaImage size={11} />}
+                    <span>Copy RAW URL</span>
+                  </button>
+                )}
+                {hasJsonRaw && !hasImageRaw && (
+                  <button
+                    onClick={() => copyToClipboard(rawJsonUrl, 'live-raw-url')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                      copiedKey === 'live-raw-url' ? 'bg-emerald-600 text-white' : isDarkMode ? 'bg-emerald-900/30 text-emerald-300 hover:bg-emerald-800/50 border border-emerald-500/20' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    }`}
+                    title="Copy RAW JSON URL (?raw=json)"
+                  >
+                    {copiedKey === 'live-raw-url' ? <FaCheck size={11} /> : <FaCopy size={11} />}
+                    <span>Copy RAW URL</span>
+                  </button>
+                )}
               </div>
             </div>
 
-            {/* Direct Image / Asset URL */}
-            {isQrTool && (
+            {/* Direct Image / Raw Data Endpoint - only show if tool supports raw */}
+            {hasImageRaw ? (
               <div className={`p-3.5 rounded-xl border flex flex-col justify-between ${isDarkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                 <div>
                   <span className={`text-[11px] font-semibold uppercase tracking-wider block mb-1 text-indigo-400`}>
@@ -288,15 +419,66 @@ async function getToolOutput() {
                   </a>
                 </div>
               </div>
-            )}
+            ) : hasJsonRaw ? (
+              <div className={`p-3.5 rounded-xl border flex flex-col justify-between ${isDarkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+                <div>
+                  <span className={`text-[11px] font-semibold uppercase tracking-wider block mb-1 text-emerald-400`}>
+                    Direct Raw Data Endpoint (?raw=json)
+                  </span>
+                  <div className="font-mono text-xs text-emerald-300 break-all select-all mb-2">
+                    {rawJsonUrl}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 pt-2 border-t border-slate-800/40">
+                  <button
+                    onClick={() => copyToClipboard(rawJsonUrl, 'raw-json-url')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                      copiedKey === 'raw-json-url' ? 'bg-emerald-600 text-white' : isDarkMode ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-white text-slate-700 border border-slate-200'
+                    }`}
+                  >
+                    {copiedKey === 'raw-json-url' ? <FaCheck size={11} /> : <FaCopy size={11} />}
+                    <span>Copy JSON Link</span>
+                  </button>
+                  <a
+                    href={rawJsonUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-sm"
+                  >
+                    <FaExternalLinkAlt size={10} />
+                    <span>View JSON</span>
+                  </a>
+                </div>
+              </div>
+            ) : null}
           </div>
+
+          {/* Live realtime preview for image tools */}
+          {hasImageRaw && (
+            <div className={`p-3 rounded-xl border flex items-center gap-4 ${isDarkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+              <div className={`w-24 h-24 rounded-xl overflow-hidden border flex items-center justify-center shrink-0 ${isDarkMode ? 'bg-white border-slate-700' : 'bg-white border-slate-200'}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={rawImageUrl} alt="Live QR preview" className="w-full h-full object-contain p-1.5" onError={(e) => { e.target.style.display='none'; }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className={`text-xs font-bold flex items-center gap-1.5 ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>
+                  <FaImage className="text-indigo-400" size={12} />
+                  Live Realtime Preview
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-700'}`}>auto-updates</span>
+                </div>
+                <p className={`text-[11px] mt-1 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>Updates instantly as you change inputs above — copy the RAW URL for direct embedding.</p>
+                <div className="font-mono text-[11px] text-indigo-400 break-all mt-1 select-all">{rawImageUrl}</div>
+              </div>
+              <a href={rawImageUrl} target="_blank" rel="noopener noreferrer" className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white">Open</a>
+            </div>
+          )}
 
           {/* Ready-to-use Code Generator Tabs */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <div className="flex flex-wrap gap-1.5">
                 {[
-                  ...(isQrTool ? [{ id: 'img', label: 'HTML <img>' }] : []),
+                  ...(hasImageRaw ? [{ id: 'img', label: 'HTML <img>' }] : []),
                   { id: 'iframe', label: 'HTML <iframe>' },
                   { id: 'react', label: 'React JSX' },
                   { id: 'curl', label: 'cURL / Shell' },

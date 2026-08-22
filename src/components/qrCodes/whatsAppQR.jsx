@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useTheme } from '../../themeContext';
 import toast, { Toaster } from 'react-hot-toast';
 import { FaWhatsapp } from 'react-icons/fa';
+import { loadQRPrefs, saveQRPrefs } from '../../utils/qrPrefs';
 import QRCodeDisplay from './QRDisplay';
 import CountryCodeDropdown from '../common/countryCodeSelector';
 import ToolPageLayout from '../common/ToolPageLayout';
@@ -40,9 +41,13 @@ export default function WhatsAppQr() {
     const fgParam = searchParams.get('fg') || searchParams.get('fgColor');
     const themeParam = searchParams.get('theme') || searchParams.get('colorTheme');
     const logoParam = searchParams.get('logo') || searchParams.get('icon');
+    const dotsParam = searchParams.get('dotStyle') || searchParams.get('dots') || searchParams.get('pattern');
+    const eyeParam = searchParams.get('eyeFrame') || searchParams.get('corner') || searchParams.get('eye') || searchParams.get('cornerSquareStyle');
+    const eyeDotParam = searchParams.get('cornerDotStyle');
     const frameParam = searchParams.get('frame');
     const frameTxtParam = searchParams.get('frameText') || searchParams.get('cta');
     const frameColParam = searchParams.get('frameColor') || searchParams.get('fc');
+    const hasCustomQuery = Boolean(bgParam || fgParam || themeParam || logoParam || dotsParam || eyeParam || eyeDotParam || frameParam || frameTxtParam || frameColParam);
 
     if (qCode) setCountryCode(qCode);
     if (qPhone) {
@@ -74,9 +79,31 @@ export default function WhatsAppQr() {
     }
 
     if (logoParam) setLogo(logoParam);
+    if (dotsParam) setDotStyle(dotsParam);
+    if (eyeParam) setCornerSquareStyle(eyeParam);
+    if (eyeDotParam) setCornerDotStyle(eyeDotParam);
     if (frameParam) setFrame(frameParam);
     if (frameTxtParam) setFrameText(frameTxtParam);
     if (frameColParam) setFrameColor(frameColParam.startsWith('#') ? frameColParam : `#${frameColParam}`);
+
+    if (!hasCustomQuery) {
+      const saved = loadQRPrefs();
+      if (saved) {
+        if (saved.bgColor && !bgParam) setBgColor(saved.bgColor);
+        if (saved.fgColor && !fgParam) setFgColor(saved.fgColor);
+        if (saved.colorTheme && !themeParam && !bgParam && !fgParam) {
+          setColorTheme(saved.colorTheme);
+          if (saved.colorTheme === 'custom' && saved.bgColor) { setBgColor(saved.bgColor); setFgColor(saved.fgColor || '#000000'); }
+        }
+        if (saved.logo && !logoParam) setLogo(saved.logo);
+        if (saved.dotStyle && !dotsParam) setDotStyle(saved.dotStyle);
+        if (saved.cornerSquareStyle && !eyeParam) setCornerSquareStyle(saved.cornerSquareStyle);
+        if (saved.cornerDotStyle && !eyeDotParam) setCornerDotStyle(saved.cornerDotStyle);
+        if (saved.frame && !frameParam) setFrame(saved.frame);
+        if (saved.frameText && !frameTxtParam) setFrameText(saved.frameText);
+        if (saved.frameColor && !frameColParam) setFrameColor(saved.frameColor);
+      }
+    }
   }, [searchParams]);
 
   useEffect(() => {
@@ -221,16 +248,18 @@ export default function WhatsAppQr() {
                 frameText={frameText}
                 frameColor={frameColor}
                 onCustomizationChange={(c) => {
-                  if (c.bg) setBgColor(c.bg);
-                  if (c.fg) setFgColor(c.fg);
-                  if (c.theme) setColorTheme(c.theme);
-                  if (c.logo) setLogo(c.logo);
-                  if (c.dotStyle) setDotStyle(c.dotStyle);
-                  if (c.cornerSquareStyle) setCornerSquareStyle(c.cornerSquareStyle);
-                  if (c.cornerDotStyle) setCornerDotStyle(c.cornerDotStyle);
-                  if (c.frame) setFrame(c.frame);
-                  if (c.frameText) setFrameText(c.frameText);
-                  if (c.frameColor) setFrameColor(c.frameColor);
+                  const next = {};
+                  if (c.bg) { setBgColor(c.bg); next.bgColor = c.bg; }
+                  if (c.fg) { setFgColor(c.fg); next.fgColor = c.fg; }
+                  if (c.theme) { setColorTheme(c.theme); next.colorTheme = c.theme; }
+                  if (c.logo) { setLogo(c.logo); next.logo = c.logo; }
+                  if (c.dotStyle) { setDotStyle(c.dotStyle); next.dotStyle = c.dotStyle; }
+                  if (c.cornerSquareStyle) { setCornerSquareStyle(c.cornerSquareStyle); next.cornerSquareStyle = c.cornerSquareStyle; }
+                  if (c.cornerDotStyle) { setCornerDotStyle(c.cornerDotStyle); next.cornerDotStyle = c.cornerDotStyle; }
+                  if (c.frame) { setFrame(c.frame); next.frame = c.frame; }
+                  if (c.frameText) { setFrameText(c.frameText); next.frameText = c.frameText; }
+                  if (c.frameColor) { setFrameColor(c.frameColor); next.frameColor = c.frameColor; }
+                  if (Object.keys(next).length) saveQRPrefs(next);
                 }}
               />
             ) : (

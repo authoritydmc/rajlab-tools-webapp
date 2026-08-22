@@ -1,28 +1,76 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import QRCodeStyling from 'qr-code-styling';
-import { FaDownload, FaCopy, FaCheck, FaExternalLinkAlt } from 'react-icons/fa';
 import CryptoJS from 'crypto-js';
 import * as yaml from 'js-yaml';
 import Papa from 'papaparse';
 import { getPresetLogoUrl, detectBrandFromData } from '../../utils/qrLogoPresets';
 
+const QR_SLUGS = ['qr-code-generator', 'upi-code-generator', 'whatsapp-qr-code'];
+const IMAGE_MODES = ['image', 'png', 'jpg', 'jpeg', 'svg', 'canvas'];
+
+function isQrSlug(slug) {
+  if (!slug) return false;
+  return QR_SLUGS.includes(slug) || slug.includes('qr');
+}
+
+function getQrDataForSlug(slug, searchParams, fallbackInput) {
+  if (slug === 'upi-code-generator') {
+    const pa = searchParams.get('pa') || searchParams.get('upi') || searchParams.get('vpa');
+    if (pa) {
+      const pn = searchParams.get('pn') || searchParams.get('name');
+      const am = searchParams.get('am') || searchParams.get('amount');
+      let upiLink = `upi://pay?pa=${encodeURIComponent(pa)}&cu=INR`;
+      if (pn && pn.trim()) upiLink += `&pn=${encodeURIComponent(pn.trim())}`;
+      if (am) upiLink += `&am=${encodeURIComponent(am)}`;
+      return upiLink;
+    }
+    return fallbackInput || 'upi://pay?pa=example@upi&cu=INR';
+  }
+  if (slug === 'whatsapp-qr-code') {
+    const phone = searchParams.get('phone') || searchParams.get('number') || searchParams.get('p');
+    const code = searchParams.get('code') || searchParams.get('cc') || searchParams.get('country') || '91';
+    const message = searchParams.get('message') || searchParams.get('msg') || searchParams.get('text') || '';
+    if (phone) {
+      const cleanPhone = phone.replace(/\s+/g, '');
+      const encodedMsg = message ? `?text=${encodeURIComponent(message)}` : '';
+      return `https://wa.me/${code}${cleanPhone}${encodedMsg}`;
+    }
+    return fallbackInput || 'https://wa.me/919876543210';
+  }
+  // generic qr
+  return fallbackInput || 'https://rajlabs.in';
+}
+
 export default function RawResultView() {
   const { toolSlug } = useParams();
   const [searchParams] = useSearchParams();
-  const [copied, setCopied] = useState(false);
   const containerRef = useRef(null);
   const qrInstance = useRef(null);
+  const [qrReady, setQrReady] = useState(false);
 
-  const slug = (toolSlug || '').replace(/^\//, '');
-  const rawMode = (searchParams.get('raw') || searchParams.get('format') || (slug.includes('qr') ? 'image' : 'json')).toLowerCase();
+  // Derive slug from params or current pathname (supports ?raw= on normal tool route)
+  let pathnameSlug = '';
+  if (typeof window !== 'undefined') {
+    const path = window.location.pathname;
+    if (path.startsWith('/raw/')) pathnameSlug = path.replace(/^\/raw\//, '').split('/')[0].split('?')[0];
+    else pathnameSlug = path.replace(/^\//, '').split('/')[0].split('?')[0];
+  }
+  const rawSlug = (toolSlug || pathnameSlug || '').replace(/^\//, '').split('?')[0];
+  const slug = rawSlug || '';
+
+  const isQr = isQrSlug(slug);
+  const rawParamRaw = searchParams.get('raw') || searchParams.get('format') || '';
+  const rawMode = (rawParamRaw ? rawParamRaw.toLowerCase() : (isQr ? 'image' : 'json'));
   const shouldDownload = searchParams.get('download') === 'true' || searchParams.get('download') === '1';
+  const isImageMode = IMAGE_MODES.includes(rawMode);
 
-  // Common inputs
-  const inputData = searchParams.get('data') || searchParams.get('text') || searchParams.get('input') || searchParams.get('q') || searchParams.get('url') || searchParams.get('json') || searchParams.get('csv') || searchParams.get('xml') || searchParams.get('yaml') || '';
+  // Common inputs fallback
+  const inputDataFallback = searchParams.get('data') || searchParams.get('text') || searchParams.get('input') || searchParams.get('q') || searchParams.get('url') || searchParams.get('json') || searchParams.get('csv') || searchParams.get('xml') || searchParams.get('yaml') || '';
+  const qrData = isQr ? getQrDataForSlug(slug, searchParams, inputDataFallback) : inputDataFallback;
 
   // QR Parameters
-  const size = parseInt(searchParams.get('size') || searchParams.get('s') || 300);
+  const size = parseInt(searchParams.get('size') || searchParams.get('s') || 256);
   const ec = searchParams.get('errorCorrectionLevel') || searchParams.get('ec') || 'M';
   const theme = (searchParams.get('theme') || searchParams.get('mode') || 'light').toLowerCase();
   let defaultBg = theme === 'dark' ? '#0f172a' : '#ffffff';
@@ -34,9 +82,10 @@ export default function RawResultView() {
   const fgColor = customFg ? (customFg.startsWith('#') ? customFg : `#${customFg}`) : defaultFg;
 
   const logoParam = searchParams.get('logo') || searchParams.get('icon');
+  // For QR, resolved logo based on actual qrData if auto
   const resolvedLogo = (logoParam && logoParam !== 'auto') 
     ? logoParam 
-    : (detectBrandFromData(inputData) || 'none');
+    : (isQr ? (detectBrandFromData(qrData) || 'none') : 'none');
   const dotStyle = searchParams.get('dotStyle') || searchParams.get('dots') || searchParams.get('pattern') || 'square';
   const cornerSquareStyle = searchParams.get('eyeFrame') || searchParams.get('corner') || searchParams.get('eye') || 'square';
   const cornerDotStyle = searchParams.get('eyeBall') || searchParams.get('eyeball') || 'square';
@@ -46,19 +95,27 @@ export default function RawResultView() {
 
   const logoUrl = getPresetLogoUrl(resolvedLogo);
 
-  // Render QR Canvas if QR tool and image mode
+  // Render QR Canvas - plain image mode
   useEffect(() => {
-    if (!containerRef.current || !slug.includes('qr') || rawMode === 'json' || rawMode === 'text') return;
+    if (!containerRef.current || !isQr || !isImageMode) return;
+
+    // Allow developer full control: 32px (tiny popup) up to 1024px (print). No longer clamped to 160.
+    const rawSizeNum = Number(size);
+    const qrSize = Number.isFinite(rawSizeNum) && rawSizeNum > 0 ? Math.max(32, Math.min(1024, rawSizeNum)) : 256;
+    // Optional margin param (0-40) to let popup be tight
+    const marginParam = parseInt(searchParams.get('margin') || searchParams.get('m') || '10', 10);
+    const qrMargin = Number.isFinite(marginParam) ? Math.max(0, Math.min(40, marginParam)) : 10;
+    const effectiveEc = logoUrl ? 'H' : ec;
 
     const options = {
-      width: size,
-      height: size,
-      data: inputData || 'https://rajlabs.in',
-      margin: 10,
+      width: qrSize,
+      height: qrSize,
+      data: qrData || 'https://rajlabs.in',
+      margin: qrMargin,
       qrOptions: {
         typeNumber: 0,
         mode: 'Byte',
-        errorCorrectionLevel: logoUrl ? 'H' : ec,
+        errorCorrectionLevel: effectiveEc,
       },
       imageOptions: {
         hideBackgroundDots: true,
@@ -88,12 +145,21 @@ export default function RawResultView() {
       qrInstance.current = new QRCodeStyling(options);
       containerRef.current.innerHTML = '';
       qrInstance.current.append(containerRef.current);
+      setQrReady(true);
     } else {
       qrInstance.current.update(options);
     }
-  }, [inputData, size, ec, bgColor, fgColor, dotStyle, cornerSquareStyle, cornerDotStyle, logoUrl, rawMode, slug]);
 
-  // Compute tool results dynamically
+    // auto download if requested
+    if (shouldDownload && qrInstance.current) {
+      const ext = rawMode === 'svg' ? 'svg' : 'png';
+      setTimeout(() => qrInstance.current?.download({ name: slug || 'qr-code', extension: ext }), 400);
+    }
+  }, [qrData, size, ec, bgColor, fgColor, dotStyle, cornerSquareStyle, cornerDotStyle, logoUrl, isImageMode, isQr, slug, shouldDownload, rawMode]);
+
+  // Also update when rawMode switches to svg - handle extension
+
+  // Compute tool results for non-QR or json modes
   const computeResult = () => {
     switch (slug) {
       case 'password-generator': {
@@ -107,7 +173,6 @@ export default function RawResultView() {
         }
         return { text: pwd, json: { success: true, length, password: pwd } };
       }
-
       case 'uuid-generator': {
         const count = parseInt(searchParams.get('count') || searchParams.get('n') || 5);
         const uppercase = searchParams.get('uppercase') === 'true';
@@ -120,9 +185,8 @@ export default function RawResultView() {
         });
         return { text: uuids.join('\n'), json: { success: true, count, uuids } };
       }
-
       case 'hash-generator': {
-        const text = inputData || 'Hello World';
+        const text = inputDataFallback || 'Hello World';
         const hashes = {
           md5: CryptoJS.MD5(text).toString(),
           sha1: CryptoJS.SHA1(text).toString(),
@@ -131,9 +195,8 @@ export default function RawResultView() {
         };
         return { text: hashes.sha256, json: { success: true, input: text, hashes } };
       }
-
       case 'jwt-decoder': {
-        const token = searchParams.get('token') || searchParams.get('jwt') || inputData;
+        const token = searchParams.get('token') || searchParams.get('jwt') || inputDataFallback;
         try {
           const parts = token.split('.');
           if (parts.length < 2) throw new Error('Invalid JWT format');
@@ -144,27 +207,24 @@ export default function RawResultView() {
           return { text: 'Invalid JWT Token', json: { success: false, error: e.message } };
         }
       }
-
       case 'base64-encoder-decoder': {
         const mode = searchParams.get('mode') || 'encode';
         try {
-          const res = mode === 'decode' ? atob(inputData) : btoa(inputData);
-          return { text: res, json: { success: true, mode, input: inputData, output: res } };
+          const res = mode === 'decode' ? atob(inputDataFallback) : btoa(inputDataFallback);
+          return { text: res, json: { success: true, mode, input: inputDataFallback, output: res } };
         } catch (e) {
           return { text: 'Base64 operation failed', json: { success: false, error: e.message } };
         }
       }
-
       case 'url-encoder-decoder': {
         const mode = searchParams.get('mode') || 'encode';
-        const res = mode === 'decode' ? decodeURIComponent(inputData) : encodeURIComponent(inputData);
-        return { text: res, json: { success: true, mode, input: inputData, output: res } };
+        const res = mode === 'decode' ? decodeURIComponent(inputDataFallback) : encodeURIComponent(inputDataFallback);
+        return { text: res, json: { success: true, mode, input: inputDataFallback, output: res } };
       }
-
       case 'timestamp-converter': {
         const tsParam = searchParams.get('ts') || searchParams.get('time') || Date.now();
         let num = Number(tsParam);
-        if (num < 10000000000) num *= 1000; // convert seconds to ms
+        if (num < 10000000000) num *= 1000;
         const d = new Date(num);
         const res = {
           epochSeconds: Math.floor(d.getTime() / 1000),
@@ -175,7 +235,6 @@ export default function RawResultView() {
         };
         return { text: d.toISOString(), json: { success: true, ...res } };
       }
-
       case 'css-unit-converter': {
         const val = parseFloat(searchParams.get('val') || searchParams.get('v') || 16);
         const basePx = parseFloat(searchParams.get('base') || 16);
@@ -188,45 +247,40 @@ export default function RawResultView() {
         };
         return { text: `${val / basePx}rem`, json: { success: true, input: val, basePx, conversions } };
       }
-
       case 'json-to-csv': {
         try {
-          const parsed = JSON.parse(inputData || '[]');
+          const parsed = JSON.parse(inputDataFallback || '[]');
           const csv = Papa.unparse(parsed);
           return { text: csv, json: { success: true, csv } };
         } catch (e) {
           return { text: 'Invalid JSON', json: { success: false, error: e.message } };
         }
       }
-
       case 'csv-to-json': {
         try {
-          const parsed = Papa.parse(inputData || '', { header: true });
+          const parsed = Papa.parse(inputDataFallback || '', { header: true });
           return { text: JSON.stringify(parsed.data, null, 2), json: { success: true, data: parsed.data } };
         } catch (e) {
           return { text: 'Invalid CSV', json: { success: false, error: e.message } };
         }
       }
-
       case 'json-to-yaml': {
         try {
-          const parsed = JSON.parse(inputData || '{}');
+          const parsed = JSON.parse(inputDataFallback || '{}');
           const yml = yaml.dump(parsed);
           return { text: yml, json: { success: true, yaml: yml } };
         } catch (e) {
           return { text: 'Invalid JSON', json: { success: false, error: e.message } };
         }
       }
-
       case 'yaml-to-json': {
         try {
-          const parsed = yaml.load(inputData || '');
+          const parsed = yaml.load(inputDataFallback || '');
           return { text: JSON.stringify(parsed, null, 2), json: { success: true, data: parsed } };
         } catch (e) {
           return { text: 'Invalid YAML', json: { success: false, error: e.message } };
         }
       }
-
       case 'lorem-ipsum': {
         const count = parseInt(searchParams.get('count') || searchParams.get('n') || 3);
         const loremSentences = [
@@ -239,103 +293,73 @@ export default function RawResultView() {
         const res = Array.from({ length: count }, (_, i) => loremSentences[i % loremSentences.length]).join(' ');
         return { text: res, json: { success: true, count, lorem: res } };
       }
-
+      case 'qr-code-generator':
+      case 'upi-code-generator':
+      case 'whatsapp-qr-code': {
+        // For QR tools, json mode should return metadata + data
+        return { text: qrData, json: { success: true, tool: slug, data: qrData, size, logo: resolvedLogo, frame, frameText } };
+      }
       default:
-        return { text: inputData, json: { success: true, tool: slug, data: inputData } };
+        return { text: inputDataFallback, json: { success: true, tool: slug || 'unknown', data: inputDataFallback } };
     }
   };
 
   const { text: resultText, json: resultJson } = computeResult();
 
-  const copyToClipboard = async (content) => {
-    await navigator.clipboard.writeText(content);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  // --- Raw Plaintext Mode ---
-  if (rawMode === 'text' || rawMode === 'plain' || rawMode === 'csv' || rawMode === 'yaml' || rawMode === 'xml') {
+  // --- Raw Plaintext Mode (text / csv / yaml / xml) ---
+  if (['text','plain','csv','yaml','xml'].includes(rawMode)) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 p-6 font-mono text-sm whitespace-pre select-all">
+      <pre style={{ margin: 0, padding: '1rem', fontFamily: 'monospace', whiteSpace: 'pre-wrap', wordBreak: 'break-all', background: '#ffffff', color: '#0f172a' }}>
         {resultText}
-      </div>
+      </pre>
     );
   }
 
-  // --- Raw JSON Mode ---
-  if (rawMode === 'json' || !slug.includes('qr')) {
+  // --- Raw JSON Mode - truly raw JSON without HTML chrome (header already hidden by MainLayout) ---
+  if (rawMode === 'json' || (!isQr && !isImageMode)) {
     return (
-      <div className="min-h-screen bg-slate-950 text-emerald-400 p-6 font-mono text-xs overflow-auto select-all">
-        <pre>{JSON.stringify(resultJson, null, 2)}</pre>
-      </div>
+      <pre style={{ margin: 0, padding: '1rem', fontFamily: 'monospace', fontSize: '12px', whiteSpace: 'pre-wrap', wordBreak: 'break-all', background: '#ffffff', color: '#0f172a' }}>
+        {JSON.stringify(resultJson, null, 2)}
+      </pre>
     );
   }
 
-  // --- QR Code Canvas Mode ---
-  return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-slate-950 select-none relative group">
-      {/* Floating Toolbar */}
-      <div className="absolute top-4 right-4 flex items-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity bg-slate-900/80 backdrop-blur-md border border-slate-800 p-1.5 rounded-xl shadow-xl z-20">
-        <button
-          onClick={() => copyToClipboard(inputData)}
-          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-1.5 transition-all"
-        >
-          {copied ? <FaCheck className="text-emerald-400" size={11} /> : <FaCopy size={11} />}
-          <span>{copied ? 'Copied' : 'Copy'}</span>
-        </button>
-
-        <button
-          onClick={() => qrInstance.current?.download({ name: slug || 'qr-code', extension: 'png' })}
-          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-1.5 transition-all shadow-sm"
-        >
-          <FaDownload size={11} />
-          <span>Download</span>
-        </button>
-
-        <a
-          href={`/${slug}${window.location.search}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-all"
-          title="Open in Full Editor"
-        >
-          <FaExternalLinkAlt size={12} />
-        </a>
-      </div>
-
-      {/* Branded QR Container */}
-      <div 
-        className="transition-all duration-300 flex flex-col items-center justify-center shadow-2xl rounded-3xl overflow-hidden"
-        style={{
-          backgroundColor: frame !== 'none' ? frameColor : bgColor,
-          padding: frame !== 'none' ? '18px 18px' : '8px',
-        }}
+  // --- QR Code Plain Image Mode - no toolbar/chrome, just centered QR ---
+  // Developer can control exact pixel size via ?size= (32-1024) and whitespace via ?margin= (0-40, alias ?m=)
+  // Use ?size=64&margin=0 for tiny popup, ?size=128 for tooltip, ?size=512 for print
+  if (isQr && isImageMode) {
+    const outerBg = frame !== 'none' ? frameColor : '#ffffff';
+    const isSmall = qrSize <= 128;
+    return (
+      <div
+        className="w-full flex flex-col items-center justify-center select-none"
+        style={{ backgroundColor: outerBg, margin: 0, padding: frame !== 'none' ? (isSmall ? '6px' : '8px') : '0', minHeight: '100vh', minWidth: '100vw' }}
       >
         {frame === 'banner-top' && (
-          <div className="text-white font-extrabold text-sm uppercase tracking-wider mb-2 px-4 text-center">
+          <div className="text-white font-extrabold uppercase tracking-wider px-4 text-center" style={{ color: '#ffffff', fontSize: isSmall ? '11px' : '13px', marginBottom: isSmall ? '4px' : '6px' }}>
             {frameText}
           </div>
         )}
-
-        <div 
+        <div
           ref={containerRef}
-          className="rounded-2xl overflow-hidden flex items-center justify-center p-2"
-          style={{ backgroundColor: bgColor }}
+          className="flex items-center justify-center"
+          style={{ backgroundColor: bgColor, padding: 0, borderRadius: frame !== 'none' ? '10px' : '0', lineHeight: 0, display: 'inline-flex' }}
         />
-
         {frame === 'banner-bottom' && (
-          <div className="text-white font-extrabold text-sm uppercase tracking-wider mt-2 px-4 text-center">
+          <div className="text-white font-extrabold uppercase tracking-wider px-4 text-center" style={{ color: '#ffffff', fontSize: isSmall ? '11px' : '13px', marginTop: isSmall ? '4px' : '6px' }}>
             {frameText}
           </div>
         )}
+        {/* Hidden but ensures canvas renders even before useEffect */}
+        {!qrReady && <span className="sr-only">Generating QR...</span>}
       </div>
+    );
+  }
 
-      {/* Info Label */}
-      <div className="mt-4 text-center">
-        <span className="text-[11px] font-mono text-slate-500">
-          {logoParam ? `${logoParam.toUpperCase()} Logo &bull; ` : ''}{dotStyle} dots &bull; {size}x{size}px
-        </span>
-      </div>
+  // Fallback
+  return (
+    <div className="min-h-screen bg-white text-slate-900 p-4 font-mono text-xs">
+      <pre>{JSON.stringify(resultJson, null, 2)}</pre>
     </div>
   );
 }
