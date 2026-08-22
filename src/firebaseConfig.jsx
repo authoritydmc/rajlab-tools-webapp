@@ -61,9 +61,9 @@ if (recaptchaSiteKey && typeof window !== "undefined") {
       // @ts-ignore
       window.__APPCHECK_DEBUG = { appCheck, getToken: () => getAppCheckToken(appCheck, false), key: recaptchaSiteKey, isEnterprise, testSuccess: () => console.log('[AppCheck DEBUG] ✅ manual getToken test — if you see this with token length, reCAPTCHA passed') };
 
-      // TEMP DEBUG: intercept Firestore fetches to log X-Firebase-AppCheck header actually sent
+      // TEMP DEBUG: intercept Firestore fetches to log X-Firebase-AppCheck header actually sent (fixed recursion)
       try {
-        const origFetch = window.fetch;
+        const origFetch = window.fetch.bind(window);
         window.fetch = async (input, init) => {
           const url = typeof input === 'string' ? input : input.url;
           const isFirestore = typeof url === 'string' && url.includes('firestore.googleapis.com');
@@ -72,45 +72,44 @@ if (recaptchaSiteKey && typeof window !== "undefined") {
             let headerVal = '';
             if (headers) {
               if (headers instanceof Headers) headerVal = headers.get('X-Firebase-AppCheck') || headers.get('x-firebase-appcheck') || '';
-              else if (Array.isArray(headers)) headerVal = headers.find(([k]) => k.toLowerCase() === 'x-firebase-appcheck')?.[1] || '';
+              else if (Array.isArray(headers)) headerVal = headers.find(([k]) => String(k).toLowerCase() === 'x-firebase-appcheck')?.[1] || '';
               else if (typeof headers === 'object') headerVal = headers['X-Firebase-AppCheck'] || headers['x-firebase-appcheck'] || '';
             }
-            if (url.includes('/Write/') || url.includes('/google.firestore.v1.Firestore/Write')) {
-              console.log(`[Firestore DEBUG] Write fetch url=${url.slice(0,80)}... hasAppCheckHeader=${!!headerVal} len=${headerVal.length} tokenPrefix=${headerVal.slice(0,12)}...`);
-              if (!headerVal) console.warn(`[Firestore DEBUG] ❌ Write WITHOUT X-Firebase-AppCheck — will be rejected by enforced rules!`);
+            if (url.includes('/Write/') || url.includes('/google.firestore.v1.Firestore/Write') || url.includes('Write/channel')) {
+              console.log(`[Firestore DEBUG] Write fetch url=${String(url).slice(0,80)}... hasAppCheckHeader=${!!headerVal} len=${headerVal.length} tokenPrefix=${String(headerVal).slice(0,12)}...`);
+              if (!headerVal) console.warn(`[Firestore DEBUG] ❌ Write WITHOUT X-Firebase-AppCheck — will be rejected by enforced rules! Firestore may be using XHR/WebChannel instead of fetch - check XHR log below`);
               else console.log(`[Firestore DEBUG] ✅ Write WITH X-Firebase-AppCheck — should pass request.app check`);
             }
           }
           return origFetch(input, init);
         };
-        // also patch XHR for Listen channel
-        const origOpen = XMLHttpRequest.prototype.open;
-        const origSend = XMLHttpRequest.prototype.send;
-        const xhrHeaders = new WeakMap();
-        XMLHttpRequest.prototype.open = function(...args) { this._url = args[1]; return origOpen.apply(this, args); };
-        XMLHttpRequest.prototype.setRequestHeader = function(k, v) {
-          if (!xhrHeaders.has(this)) xhrHeaders.set(this, {});
-          xhrHeaders.get(this)[k.toLowerCase()] = v;
-          return XMLHttpRequest.prototype.setRequestHeader.apply ? XMLHttpRequest.prototype.setRequestHeader.apply(this, arguments) : undefined;
+        // patch XHR correctly - save original once
+        const origXHROpen = XMLHttpRequest.prototype.open;
+        const origXHRSend = XMLHttpRequest.prototype.send;
+        const origXHRSetHeader = XMLHttpRequest.prototype.setRequestHeader;
+        const xhrUrlMap = new WeakMap();
+        const xhrHeaderMap = new WeakMap();
+        XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+          xhrUrlMap.set(this, String(url));
+          return origXHROpen.call(this, method, url, ...rest);
         };
-        // monkey patch via override
-        const origSetHeader = XMLHttpRequest.prototype.setRequestHeader;
         XMLHttpRequest.prototype.setRequestHeader = function(k, v) {
-          if (!xhrHeaders.has(this)) xhrHeaders.set(this, {});
-          xhrHeaders.get(this)[k.toLowerCase()] = v;
-          return origSetHeader.call(this, k, v);
+          if (!xhrHeaderMap.has(this)) xhrHeaderMap.set(this, {});
+          xhrHeaderMap.get(this)[String(k).toLowerCase()] = String(v);
+          return origXHRSetHeader.call(this, k, v);
         };
         XMLHttpRequest.prototype.send = function(...args) {
-          if (this._url && typeof this._url === 'string' && this._url.includes('firestore.googleapis.com')) {
-            const hdrs = xhrHeaders.get(this) || {};
+          const url = xhrUrlMap.get(this) || '';
+          if (url.includes('firestore.googleapis.com')) {
+            const hdrs = xhrHeaderMap.get(this) || {};
             const val = hdrs['x-firebase-appcheck'] || '';
-            if (this._url.includes('Write') || this._url.includes('channel')) {
-              console.log(`[Firestore DEBUG] XHR ${this._url.slice(0,70)}... hasAppCheck=${!!val} len=${val.length}`);
+            if (url.includes('Write') || url.includes('channel') || url.includes('google.firestore')) {
+              console.log(`[Firestore DEBUG] XHR ${url.slice(0,80)}... hasAppCheck=${!!val} len=${val.length} ${val ? '✅' : '❌'}`);
             }
           }
-          return origSend.apply(this, args);
+          return origXHRSend.apply(this, args);
         };
-      } catch (e) { console.warn('[Firestore DEBUG] fetch intercept failed', e); }
+      } catch (e) { console.warn('[Firestore DEBUG] fetch/XHR intercept failed', e); }
     }
 
     // Gracefully surface the 400 that happens async (token exchange). Don't crash the app;
