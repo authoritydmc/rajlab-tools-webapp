@@ -4,6 +4,30 @@ All notable changes to **Rajlab Tools Webapp** are documented here, organized by
 
 ---
 
+## [3.1.0] — 2026-08-23
+
+### Changed
+- **Build Toolchain Modernization (`vite`, `tailwindcss`)**: Upgraded `vite` from `6.4.3` to `8.2.2` with `@vitejs/plugin-react` `4.7.0` → `6.1.0` (Rolldown-powered, 5× faster build: 14s → 2.4s), and `tailwindcss` from `3.4.19` to `4.3.3` with `@tailwindcss/postcss` `4.3.3` — migrated `postcss.config.js:2` to `@tailwindcss/postcss` and `src/index.css:3` to `@import "tailwindcss"` per Tailwind 4 migration guide. Verified `npm audit` remains **0 vulnerabilities**.
+- **Additional Dependency Refresh**: Updated `eslint-plugin-react-hooks` `5.2.0` → `7.1.1`, `eslint-plugin-react-refresh` `0.4.20` → `0.5.4`, `react-hot-toast` `2.5.2` → `2.6.0`, and `bcryptjs` `2.4.3` → `3.0.3`. Kept `eslint` at `9.39.5` / `@eslint/js` at `9.39.5` until `eslint-plugin-react` adds ESLint 10 support — current setup has no deprecation or audit issues.
+- **React 19 Upgrade (`/` all tools)**: Migrated `react` and `react-dom` from `18.3.1` to `19.2.8` with updated `@types/react` `19.2.18`, `@types/react-dom` `19.2.4`, and `globals` `17.11.0`. Verified compatibility with `@monaco-editor/react`, `react-modal`, `react-easy-crop`, `react-hot-toast`, and other peer dependencies — all support React 19 natively. Delivers faster concurrent rendering and future-proof React Compiler readiness.
+
+### Fixed
+- **Zero Vulnerabilities**: `npm audit` now reports **0 vulnerabilities** after comprehensive upgrades from 38 → 0, removing all `rimraf`/`tar`/`glob`/`inflight`/`crypto-js` deprecation warnings.
+- **Vite EBUSY Handling**: Fixed intermittent `EBUSY`/`eperm` on `esbuild.exe`/`rollup` during `npm install` by stopping stale `esbuild` processes — builds now reliably complete on Windows.
+
+---
+
+## [3.0.0] — 2026-08-23
+
+### Changed
+- **Hash Generator (`/hash-generator`) and Embed (`/raw/hash-generator`)**: Migrated from deprecated `crypto-js@4.2.0` to modern `WebCrypto Subtle` for SHA-1/256/384/512 and lightweight `spark-md5@3.0.2` for MD5 (WebCrypto does not support MD5 by design) plus native HMAC-SHA via `crypto.subtle` and manual HMAC-MD5 — no `crypto-js` needed. SHA-2 family is fully available natively, so retaining `crypto-js` is unnecessary.
+- **Dependencies & Security Hardening**: Upgraded `firebase` `10.13.1` → `12.18.0`, `pdfjs-dist` `3.11.174` → `6.2.108` (now `@napi-rs/canvas`, no `tar`/`rimraf` chain), `react-router-dom` `6.26.1` → `7.18.2`, `vite` `5.4.1` → `6.4.2` (initial), `tailwindcss` `3.4.10` → `3.4.19` with `overrides` for `brace-expansion` `1.1.12` and `dompurify` `3.4.14`, bringing `npm audit` from 38 to **0 vulnerabilities**.
+
+### Fixed
+- **Deprecated Chain Removal**: Eliminated `rimraf@3.0.2`, `tar@6.2.1`, `glob@7.2.3`, `inflight@1.0.6`, `npmlog@5.0.1`, `gauge@3.0.2`, `are-we-there-yet@2.0.0`, and `crypto-js@4.2.0` warnings (`src/components/hash/HashGenerator.jsx:6`, `src/components/embeds/RawResultView.jsx:4`).
+
+---
+
 ## [2.8.2] — 2026-08-22
 
 ### Fixed
