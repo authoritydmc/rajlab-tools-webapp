@@ -1,15 +1,21 @@
-import React, { useState } from 'react';
-import { FaCode, FaGithub, FaCopy, FaCheck, FaExternalLinkAlt, FaTerminal, FaChevronDown, FaChevronUp, FaImage, FaLayerGroup, FaReact, FaMarkdown, FaRobot, FaMagic, FaSparkles } from 'react-icons/fa';
+import React, { useState, useRef, useEffect } from 'react';
+import { FaCode, FaGithub, FaCopy, FaCheck, FaExternalLinkAlt, FaTerminal, FaChevronDown, FaChevronUp, FaImage, FaLayerGroup, FaReact, FaMarkdown, FaRobot, FaMagic } from 'react-icons/fa';
 import { SiPostman } from 'react-icons/si';
 import { toast } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
 import { getToolInfo, getGitHubUrl } from '../../utils/toolRegistry';
+import QRCodeStyling from 'qr-code-styling';
+import { getPresetLogoUrl, detectBrandFromData } from '../../utils/qrLogoPresets';
 
 export default function DeveloperEmbedGuide({ currentPath, activeParams = {} }) {
   const { isDarkMode } = useTheme();
   const [copiedKey, setCopiedKey] = useState(null);
   const [isExpanded, setIsExpanded] = useState(true);
-  const [activeTab, setActiveTab] = useState('img'); // 'img' | 'iframe' | 'react' | 'curl' | 'markdown' | 'raw'
+  const [activeTab, setActiveTab] = useState('img'); // 'img' | 'ai' | 'iframe' | 'react' | 'curl' | 'markdown' | 'raw'
+  const [previewSize, setPreviewSize] = useState(null);
+  const [previewMargin, setPreviewMargin] = useState(null);
+  const previewRef = useRef(null);
+  const previewQrRef = useRef(null);
 
   const toolInfo = getToolInfo(currentPath);
   const githubUrl = getGitHubUrl(currentPath);
@@ -62,6 +68,57 @@ export default function DeveloperEmbedGuide({ currentPath, activeParams = {} }) 
     sp.set('raw', 'image');
     return `${origin}${currentPath}?${sp.toString()}`;
   };
+  const effectivePreviewSize = previewSize ?? (activeParams.size ? Number(activeParams.size) : 256);
+  const effectivePreviewMargin = previewMargin ?? 10;
+  const effectivePreviewUrl = getRawUrlWithSize(effectivePreviewSize, effectivePreviewMargin);
+
+  // Build QR data for live canvas preview (so <img> not needed)
+  const getPreviewQrData = () => {
+    if (currentPath === '/upi-code-generator') {
+      const pa = activeParams.pa || activeParams.upi || activeParams.vpa || 'demo@ybl';
+      let link = `upi://pay?pa=${encodeURIComponent(pa)}&cu=INR`;
+      if (activeParams.pn) link += `&pn=${encodeURIComponent(activeParams.pn)}`;
+      if (activeParams.am || activeParams.amount) link += `&am=${encodeURIComponent(activeParams.am || activeParams.amount)}`;
+      return link;
+    }
+    if (currentPath === '/whatsapp-qr-code') {
+      const phone = activeParams.phone || activeParams.number || activeParams.p || '919876543210';
+      const code = activeParams.code || activeParams.cc || '91';
+      const msg = activeParams.message || activeParams.msg || '';
+      const cleanPhone = String(phone).replace(/\s+/g, '');
+      return `https://wa.me/${code}${cleanPhone}${msg ? `?text=${encodeURIComponent(msg)}` : ''}`;
+    }
+    return activeParams.data || activeParams.text || activeParams.url || activeParams.q || 'https://rajlabs.in';
+  };
+  const previewQrData = hasImageRaw ? getPreviewQrData() : '';
+
+  useEffect(() => {
+    if (!hasImageRaw || !previewRef.current) return;
+    const logo = activeParams.logo || activeParams.icon || 'none';
+    const logoUrl = getPresetLogoUrl(logo !== 'auto' ? logo : (detectBrandFromData(previewQrData) || 'none'));
+    const bg = activeParams.bg ? `#${String(activeParams.bg).replace('#','')}` : (activeParams.theme==='dark' ? '#0f172a' : '#ffffff');
+    const fg = activeParams.fg ? `#${String(activeParams.fg).replace('#','')}` : (activeParams.theme==='dark' ? '#ffffff' : '#000000');
+    const opts = {
+      width: Math.max(32, Math.min(256, effectivePreviewSize)),
+      height: Math.max(32, Math.min(256, effectivePreviewSize)),
+      data: previewQrData,
+      margin: effectivePreviewMargin,
+      qrOptions: { typeNumber: 0, mode: 'Byte', errorCorrectionLevel: logoUrl ? 'H' : 'M' },
+      imageOptions: { hideBackgroundDots: true, imageSize: 0.3, margin: 4, crossOrigin: 'anonymous' },
+      dotsOptions: { color: fg, type: activeParams.dots || activeParams.dotStyle || 'square' },
+      backgroundOptions: { color: bg },
+      cornersSquareOptions: { color: fg, type: activeParams.corner || activeParams.eyeFrame || 'square' },
+      cornersDotOptions: { color: fg, type: 'square' },
+      image: logoUrl || undefined,
+    };
+    if (!previewQrRef.current) {
+      previewQrRef.current = new QRCodeStyling(opts);
+      previewRef.current.innerHTML = '';
+      previewQrRef.current.append(previewRef.current);
+    } else {
+      previewQrRef.current.update(opts);
+    }
+  }, [hasImageRaw, previewQrData, effectivePreviewSize, effectivePreviewMargin, activeParams]);
 
   // Interactive Embed & API Snippets
   const imgTagSnippet = `<!-- Embed live branded QR image directly into any website or email -->
@@ -453,23 +510,44 @@ Source: ${githubUrl}
             ) : null}
           </div>
 
-          {/* Live realtime preview for image tools */}
+          {/* Live realtime preview for image tools — canvas-based, no <img> */}
           {hasImageRaw && (
-            <div className={`p-3 rounded-xl border flex items-center gap-4 ${isDarkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-              <div className={`w-24 h-24 rounded-xl overflow-hidden border flex items-center justify-center shrink-0 ${isDarkMode ? 'bg-white border-slate-700' : 'bg-white border-slate-200'}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={rawImageUrl} alt="Live QR preview" className="w-full h-full object-contain p-1.5" onError={(e) => { e.target.style.display='none'; }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className={`text-xs font-bold flex items-center gap-1.5 ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>
-                  <FaImage className="text-indigo-400" size={12} />
-                  Live Realtime Preview
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-700'}`}>auto-updates</span>
+            <div className={`p-4 rounded-xl border space-y-3 ${isDarkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+              <div className="flex items-center gap-4">
+                <div className={`w-24 h-24 rounded-xl overflow-hidden border flex items-center justify-center shrink-0 p-1 ${isDarkMode ? 'bg-white border-slate-700' : 'bg-white border-slate-200'}`}>
+                  <div ref={previewRef} className="w-full h-full flex items-center justify-center [&>canvas]:max-w-full [&>canvas]:max-h-full [&>canvas]:w-auto [&>canvas]:h-auto" />
                 </div>
-                <p className={`text-[11px] mt-1 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>Updates instantly as you change inputs above — copy the RAW URL for direct embedding.</p>
-                <div className="font-mono text-[11px] text-indigo-400 break-all mt-1 select-all">{rawImageUrl}</div>
+                <div className="flex-1 min-w-0">
+                  <div className={`text-xs font-bold flex items-center gap-1.5 flex-wrap ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>
+                    <FaImage className="text-indigo-400" size={12} />
+                    Live Realtime Preview
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-700'}`}>auto-updates</span>
+                    <span className={`text-[10px] ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>size via ?size= & ?margin=</span>
+                    {(previewSize || previewMargin!==null) && <button onClick={() => { setPreviewSize(null); setPreviewMargin(null); }} className="text-[10px] px-2 py-0.5 rounded-full bg-slate-700 text-slate-200 hover:bg-slate-600">Reset</button>}
+                  </div>
+                  <p className={`text-[11px] mt-1 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>Developer controls size: <code className="font-mono bg-slate-800/50 px-1 rounded">size=32..1024</code> (popup 64, tooltip 128), whitespace <code className="font-mono bg-slate-800/50 px-1 rounded">margin=0..40</code> (0 = tight). Now {effectivePreviewSize}×{effectivePreviewSize} margin {effectivePreviewMargin}</p>
+                  <div className="font-mono text-[11px] text-indigo-400 break-all mt-1 select-all">{effectivePreviewUrl}</div>
+                </div>
+                <a href={effectivePreviewUrl} target="_blank" rel="noopener noreferrer" className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white">Open</a>
               </div>
-              <a href={rawImageUrl} target="_blank" rel="noopener noreferrer" className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white">Open</a>
+              <div className="flex flex-wrap gap-1.5 pt-2 border-t border-slate-700/20">
+                <span className={`text-[11px] font-semibold self-center ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Quick sizes:</span>
+                {[
+                  { sz: 64, label: '64 popup', margin: 0 },
+                  { sz: 96, label: '96 small', margin: 1 },
+                  { sz: 128, label: '128 tooltip', margin: 2 },
+                  { sz: 256, label: '256 card', margin: 10 },
+                  { sz: 512, label: '512 print', margin: 10 },
+                ].map(({sz, label, margin}) => {
+                  const isSel = effectivePreviewSize===sz && effectivePreviewMargin===margin;
+                  return (
+                    <button key={sz} onClick={() => { setPreviewSize(sz); setPreviewMargin(margin); copyToClipboard(getRawUrlWithSize(sz, margin), `size-${sz}`); }} className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border transition-all ${isSel ? 'bg-indigo-600 text-white border-indigo-500 shadow' : copiedKey===`size-${sz}` ? 'bg-emerald-600 text-white border-emerald-500' : isDarkMode ? 'bg-slate-800 text-slate-300 border-slate-700 hover:border-amber-500/40 hover:text-amber-300' : 'bg-white text-slate-600 border-slate-200 hover:border-amber-400'}`} title={`Preview + copy ${sz}px`}>
+                      {isSel ? '● ' : copiedKey===`size-${sz}` ? '✓ ' : ''}{label}
+                    </button>
+                  );
+                })}
+                <button onClick={() => { setPreviewSize(64); setPreviewMargin(0); copyToClipboard(getRawUrlWithSize(64,0), 'size-tight'); }} className={`px-2 py-1 rounded-full text-[11px] font-mono border ${previewMargin===0 && previewSize===64 ? 'bg-amber-500 text-slate-900 border-amber-400' : isDarkMode ? 'bg-amber-500/10 text-amber-300 border-amber-500/30' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>tight: &margin=0</button>
+              </div>
             </div>
           )}
 
@@ -479,28 +557,51 @@ Source: ${githubUrl}
               <div className="flex flex-wrap gap-1.5">
                 {[
                   ...(hasImageRaw ? [{ id: 'img', label: 'HTML <img>' }] : []),
+                  { id: 'ai', label: '✨ AI Prompt', isAi: true },
                   { id: 'iframe', label: 'HTML <iframe>' },
                   { id: 'react', label: 'React JSX' },
                   { id: 'curl', label: 'cURL / Shell' },
                   { id: 'markdown', label: 'Markdown' },
                   { id: 'raw', label: 'Fetch / JSON API' },
-                ].map(tab => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                      activeTab === tab.id
-                        ? isDarkMode
-                          ? 'bg-indigo-600 text-white shadow-md font-bold'
-                          : 'bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold'
-                        : isDarkMode
-                          ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-                          : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
+                ].map(tab => {
+                  const isAi = tab.isAi;
+                  const isActive = activeTab === tab.id;
+                  if (isAi) {
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 border relative overflow-hidden ${
+                          isActive
+                            ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-900 border-amber-300 shadow-[0_0_18px_rgba(251,191,36,0.7)] animate-pulse'
+                            : 'bg-gradient-to-r from-amber-500/15 via-yellow-400/15 to-amber-500/15 text-amber-300 border-amber-500/40 hover:from-amber-500/25 hover:via-yellow-400/25 hover:to-amber-500/25 hover:border-amber-400 hover:shadow-[0_0_12px_rgba(251,191,36,0.5)]'
+                        }`}
+                        style={{ boxShadow: isActive ? '0 0 20px rgba(251,191,36,0.6), 0 0 40px rgba(251,191,36,0.3)' : undefined }}
+                      >
+                        <FaRobot size={12} />
+                        {tab.label}
+                        {!isActive && <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_2s_infinite]" style={{ backgroundSize: '200% 100%' }} />}
+                      </button>
+                    );
+                  }
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                        isActive
+                          ? isDarkMode
+                            ? 'bg-indigo-600 text-white shadow-md font-bold'
+                            : 'bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold'
+                          : isDarkMode
+                            ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                            : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  );
+                })}
               </div>
 
               <button

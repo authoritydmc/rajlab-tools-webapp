@@ -71,6 +71,11 @@ export default function RawResultView() {
 
   // QR Parameters
   const size = parseInt(searchParams.get('size') || searchParams.get('s') || 256);
+  // Allow developer full control: 32px (tiny popup) up to 1024px (print)
+  const rawSizeNum = Number(size);
+  const qrSize = Number.isFinite(rawSizeNum) && rawSizeNum > 0 ? Math.max(32, Math.min(1024, rawSizeNum)) : 256;
+  const marginParam = parseInt(searchParams.get('margin') || searchParams.get('m') || '10', 10);
+  const qrMargin = Number.isFinite(marginParam) ? Math.max(0, Math.min(40, marginParam)) : 10;
   const ec = searchParams.get('errorCorrectionLevel') || searchParams.get('ec') || 'M';
   const theme = (searchParams.get('theme') || searchParams.get('mode') || 'light').toLowerCase();
   let defaultBg = theme === 'dark' ? '#0f172a' : '#ffffff';
@@ -99,12 +104,6 @@ export default function RawResultView() {
   useEffect(() => {
     if (!containerRef.current || !isQr || !isImageMode) return;
 
-    // Allow developer full control: 32px (tiny popup) up to 1024px (print). No longer clamped to 160.
-    const rawSizeNum = Number(size);
-    const qrSize = Number.isFinite(rawSizeNum) && rawSizeNum > 0 ? Math.max(32, Math.min(1024, rawSizeNum)) : 256;
-    // Optional margin param (0-40) to let popup be tight
-    const marginParam = parseInt(searchParams.get('margin') || searchParams.get('m') || '10', 10);
-    const qrMargin = Number.isFinite(marginParam) ? Math.max(0, Math.min(40, marginParam)) : 10;
     const effectiveEc = logoUrl ? 'H' : ec;
 
     const options = {
@@ -155,7 +154,7 @@ export default function RawResultView() {
       const ext = rawMode === 'svg' ? 'svg' : 'png';
       setTimeout(() => qrInstance.current?.download({ name: slug || 'qr-code', extension: ext }), 400);
     }
-  }, [qrData, size, ec, bgColor, fgColor, dotStyle, cornerSquareStyle, cornerDotStyle, logoUrl, isImageMode, isQr, slug, shouldDownload, rawMode]);
+  }, [qrData, size, qrSize, qrMargin, ec, bgColor, fgColor, dotStyle, cornerSquareStyle, cornerDotStyle, logoUrl, isImageMode, isQr, slug, shouldDownload, rawMode]);
 
   // Also update when rawMode switches to svg - handle extension
 
