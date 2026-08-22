@@ -2,37 +2,67 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ── User feedback & ratings ──────────────────────────────────
-    // Anonymous writes allowed with strict validation.
-    // Reads are blocked for public (view in Firebase Console only).
+    // ── Helpers ─────────────────────────────────────────────────────
+    function isValidSlug(slug) {
+      return slug in [
+        "sanitize-text", "format-text", "lorem-ipsum", "markdown-playground", "text-diff",
+        "pdf-editor", "merge-pdf", "split-pdf", "organize-pdf", "pdf-to-image", "image-to-pdf", "protect-pdf", "unlock-pdf",
+        "print-cost-estimator",
+        "base64-encoder-decoder", "password-generator", "jwt-decoder", "bcrypt-hashing", "hash-generator", "image-to-base64", "base64-to-image", "url-encoder-decoder",
+        "qr-code-generator", "upi-code-generator", "whatsapp-qr-code", "qr-scanner",
+        "json-viewer", "json-diff-checker", "json-to-csv", "csv-to-json", "json-to-xml", "xml-to-json", "json-to-yaml", "yaml-to-json",
+        "regex-tester", "uuid-generator", "timestamp-converter", "css-unit-converter", "html-entity", "url-lab", "code-formatter",
+        "unlock-excel", "color-picker", "video-converter", "image-compressor", "passport-grid"
+      ];
+    }
+
+    // ── User feedback & ratings — anonymous creates only ───────────
+    // Reads blocked (view in Console). Flood mitigation: hard limits + server timestamp + key whitelist.
+    // Next hardening: enable App Check (reCAPTCHA Enterprise) then uncomment `request.app != null`.
     match /feedback/{docId} {
-      allow create: if request.resource.data.rating is int
-                    && request.resource.data.rating >= 1
-                    && request.resource.data.rating <= 5
-                    && request.resource.data.comment is string
-                    && request.resource.data.comment.size() <= 500
-                    && request.resource.data.tool is string
-                    && request.resource.data.tool.size() <= 120
-                    && request.resource.data.clientTimestamp is string
-                    // optional fields — if present must be correct type
-                    && (!('path' in request.resource.data) || request.resource.data.path is string)
-                    && (!('url' in request.resource.data) || request.resource.data.url is string)
-                    && (!('userAgent' in request.resource.data) || request.resource.data.userAgent is string);
+      allow create: if request.resource.data.keys().hasOnly(["rating","comment","tool","path","url","userAgent","createdAt","clientTimestamp"])
+                    && request.resource.data.rating is int && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
+                    && request.resource.data.comment is string && request.resource.data.comment.size() <= 500
+                    && request.resource.data.tool is string && request.resource.data.tool.size() >= 1 && request.resource.data.tool.size() <= 120
+                    && request.resource.data.path is string && request.resource.data.path.size() <= 500
+                    && request.resource.data.url is string && request.resource.data.url.size() <= 1000
+                    && request.resource.data.userAgent is string && request.resource.data.userAgent.size() <= 500
+                    && request.resource.data.createdAt == request.time
+                    && request.resource.data.clientTimestamp is string && request.resource.data.clientTimestamp.size() <= 50;
+                    // && request.app != null
       allow read, update, delete: if false;
     }
 
-    // ── Community tool usage counters ─────────────────────────────
-    // One doc per tool, id = slug without leading slash (e.g. "merge-pdf").
-    // Public read = true so homepage can rank & badge every tool.
-    // Public create/update = true with guardrails on count to prevent abuse.
+    // ── Community tool usage counters — ONE doc per tool ──────────
+    // Strategy:
+    //  • Whitelisted slug only (prevents arbitrary collection pollution)
+    //  • docId MUST == slug, link MUST == "/"+slug (prevents spoof)
+    //  • create: count MUST be 1, updatedAt MUST be server time (prevents seeding huge numbers)
+    //  • update: count MUST be previous+1 (prevents jump to 1M), other fields immutable, +10M cap
+    //  • 2s client throttle in toolUsageService.js + this rule makes mass spam expensive
+    //  • Future: enable App Check + Cloud Function rate-limit (per-IP 1/min) for stronger abuse resistance
     match /tool_usage/{slug} {
       allow read: if true;
-      allow create, update: if request.resource.data.count is int
-                    && request.resource.data.count >= 0
-                    && request.resource.data.count <= 100000000
-                    && (!('slug' in request.resource.data) || request.resource.data.slug is string)
-                    && (!('link' in request.resource.data) || request.resource.data.link is string)
-                    && (!('title' in request.resource.data) || request.resource.data.title is string);
+
+      allow create: if slug == request.resource.data.slug
+                    && isValidSlug(slug)
+                    && request.resource.data.keys().hasOnly(["slug","link","title","count","updatedAt"])
+                    && request.resource.data.link == "/" + slug
+                    && request.resource.data.slug is string
+                    && request.resource.data.title is string && request.resource.data.title.size() >= 1 && request.resource.data.title.size() <= 120
+                    && request.resource.data.count == 1
+                    && request.resource.data.updatedAt == request.time;
+
+      allow update: if slug == resource.data.slug
+                    && isValidSlug(slug)
+                    && request.resource.data.keys().hasOnly(["slug","link","title","count","updatedAt"])
+                    && request.resource.data.slug == resource.data.slug
+                    && request.resource.data.link == resource.data.link
+                    && request.resource.data.title == resource.data.title
+                    && request.resource.data.count == resource.data.count + 1
+                    && request.resource.data.count <= 10000000
+                    && request.resource.data.updatedAt == request.time;
+
       allow delete: if false;
     }
   }
