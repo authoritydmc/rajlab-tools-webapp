@@ -1,9 +1,12 @@
 {
   "name": "rajlab-tools-webapp",
   "private": true,
-  "version": "2.5.2",
+  "version": "2.6.0",
+
   "type": "module",
   "scripts": {
+    "prebuild": "node scripts/copy-ffmpeg-wasm.js",
+    "predev": "node scripts/copy-ffmpeg-wasm.js",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
@@ -39,6 +42,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
+    "@ffmpeg/core": "^0.12.10",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",

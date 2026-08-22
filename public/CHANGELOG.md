@@ -4,7 +4,35 @@ All notable changes to **Rajlab Tools Webapp** are documented here, organized by
 
 ---
 
+## [2.6.0] — 2026-08-22
+
+### Added
+- **PDF Editor & Signer (`/pdf-editor`)**: True click-to-place signature mode — after creating or selecting a signature, a ghost preview follows your cursor so you can drop it exactly where you want instead of always landing at the top-left corner. Same click-to-place behavior for Text, Whiteout, and Highlight tools with live cursor-tracked ghost previews.
+- **PDF Editor & Signer**: Saved Signatures Library — every signature you create (drawn, typed, or uploaded) is automatically saved to an on-device library so you can reuse it on future documents. Supports up to 12 saved signs with delete management. Upload multiple images at once — all get saved to the library.
+- **PDF Editor & Signer**: Filename Export Popup — clicking Export now opens a clean dialog where you can preview and rename the output file before downloading. The default filename automatically appends `_signed` or `_edited` based on what was added.
+- **PDF Editor & Signer**: Locked PDF Detection — uploading a password-protected PDF now shows a clear notification with a direct link to the Unlock PDF tool instead of a generic error.
+- **PDF Editor & Signer**: Persistent Preferences — font size, text color, stroke color, stroke width, font family, and typed text are all saved to localStorage so your settings survive page reloads.
+
+### Changed
+- **PDF Editor & Signer**: Tool-specific cursors (crosshair for draw/whiteout, text cursor for text tool, copy cursor for signature placement) make it visually clear what will happen when you click.
+- **PDF Editor & Signer**: Placement hint bar appears above the canvas when a placement tool is active, showing contextual instructions with an Esc-to-cancel reminder.
+- **PDF Editor & Signer**: Signature modal now defaults to the Saved tab if you already have saved signatures, for faster reuse.
+- **PDF Editor & Signer**: Drawn and typed signatures are now automatically trimmed to remove transparent padding, resulting in cleaner placement and smaller export files.
+
+### Fixed
+- **PDF Editor & Signer**: "PDF exported successfully" toast no longer appears before the file is actually ready — replaced with "PDF ready for download" shown only after successful export.
+
+---
+
+## [2.5.3] — 2026-08-22
+
+### Changed
+- **Video & Audio Converter (`/video-converter`)**: FFmpeg WASM binaries are now self-hosted directly from the app server instead of fetched from third-party CDNs (jsDelivr/unpkg). Binaries are copied from `node_modules` into `public/vendor/ffmpeg-core/` automatically at build time via a `prebuild` script — no CDN dependency, no CORS issues, no random stuck-at-95% hangs during WebAssembly instantiation. The loading UI now shows a clean indeterminate progress bar with stage labels instead of a misleading percent counter that froze at 95%.
+
+---
+
 ## [2.5.2] — 2026-08-22
+
 
 ### Changed
 - **Firebase Hosting Deploy Cache**: Removed generated Firebase hosting cache files from source tracking so deployments stay cleaner and repository updates focus on app source changes.
