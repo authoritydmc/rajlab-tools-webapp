@@ -51,6 +51,20 @@ export default function DeveloperEmbedGuide({ currentPath, activeParams = {} }) 
   const [urlFormat, setUrlFormat] = useState(hasImageRaw ? 'rawImage' : hasJsonRaw ? 'rawJson' : 'page');
   const displayUrl = urlFormat === 'rawImage' ? rawImageUrl : urlFormat === 'rawJson' ? rawJsonUrl : urlFormat === 'embed' ? embedUrl : directToolUrl;
 
+  // Sync active tab / URL format when navigating via breadcrumbs to a different tool
+  useEffect(() => {
+    const validFormats = ['page', ...(hasImageRaw ? ['rawImage'] : []), ...(hasJsonRaw ? ['rawJson'] : []), 'embed'];
+    if (!validFormats.includes(urlFormat)) setUrlFormat(hasImageRaw ? 'rawImage' : hasJsonRaw ? 'rawJson' : 'page');
+    if (!hasImageRaw && activeTab === 'img') setActiveTab('ai');
+    // Reset preview size/margin and copy state on tool switch
+    setPreviewSize(null);
+    setPreviewMargin(null);
+    setCopiedKey(null);
+    // Force canvas preview to regenerate for new tool
+    previewQrRef.current = null;
+    if (previewRef.current) previewRef.current.innerHTML = '';
+  }, [currentPath]);
+
   const extractOptions = (typeStr) => {
     if (!typeStr) return [];
     const quoted = typeStr.match(/"([^"]+)"/g);
