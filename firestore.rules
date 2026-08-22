@@ -38,12 +38,13 @@ service cloud.firestore {
     //  • docId MUST == slug, link MUST == "/"+slug (prevents spoof)
     //  • create: count MUST be 1, updatedAt MUST be server time (prevents seeding huge numbers)
     //  • update: count MUST be previous+1 (prevents jump to 1M), other fields immutable, +10M cap
-    //  • 2s client throttle in toolUsageService.js + App Check (hardcoded key)
+    //  • 2s client throttle in toolUsageService.js
+    //  • App Check enforced at API layer (Firebase Console → App Check → Enforce), NOT via request.app
+    //    (request.app is Cloud Functions only; in Firestore rules it is always null — see firebase-js-sdk#9914)
     match /tool_usage/{slug} {
       allow read: if true;
 
-      allow create: if request.app != null
-                    && slug == request.resource.data.slug
+      allow create: if slug == request.resource.data.slug
                     && isValidSlug(slug)
                     && request.resource.data.keys().hasOnly(["slug","link","title","count","updatedAt"])
                     && request.resource.data.link == "/" + slug
@@ -52,8 +53,7 @@ service cloud.firestore {
                     && request.resource.data.count == 1
                     && request.resource.data.updatedAt == request.time;
 
-      allow update: if request.app != null
-                    && slug == resource.data.slug
+      allow update: if slug == resource.data.slug
                     && isValidSlug(slug)
                     && request.resource.data.keys().hasOnly(["slug","link","title","count","updatedAt"])
                     && request.resource.data.slug == resource.data.slug

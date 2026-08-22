@@ -4,6 +4,13 @@ All notable changes to **Rajlab Tools Webapp** are documented here, organized by
 
 ---
 
+## [3.1.1] — 2026-08-24
+
+### Fixed
+- **Firestore App Check Enforcement (`firestore.rules:42` `tool_usage`)**: Removed `request.app != null` from `tool_usage` create/update rules. `request.app` is a Cloud Functions concept and is always `null` in Firestore rules (`firebase-js-sdk#9914`/`#9915`) — valid tokens (`len=965` on `utils.rajlabs.in`) were still `permission-denied`. Enforcement is now correctly handled at the API layer via Firebase Console → App Check → Cloud Firestore → Enforced (65% verified, 13% outdated, 22% invalid as of Aug 24), while rules retain whitelist, `count==1`/`+1`, `link`/`title` validation, and 2s throttle. This aligns `tool_usage` with `feedback`/`_debug` which already allow without `request.app`.
+
+---
+
 ## [3.1.0] — 2026-08-23
 
 ### Changed
