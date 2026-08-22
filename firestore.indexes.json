@@ -1,11 +1,6 @@
 {
   "indexes": [
     {
-      "collectionGroup": "tool_usage",
-      "queryScope": "COLLECTION",
-      "fields": [{ "fieldPath": "count", "order": "DESCENDING" }]
-    },
-    {
       "collectionGroup": "feedback",
       "queryScope": "COLLECTION",
       "fields": [
