@@ -1,7 +1,7 @@
 {
   "name": "rajlab-tools-webapp",
   "private": true,
-  "version": "0.0.0",
+  "version": "2.5.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -25,6 +25,7 @@
     "marked": "^18.0.10",
     "papaparse": "^5.6.0",
     "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^3.11.174",
     "qr-code-styling": "^1.9.2",
     "qrcode.react": "^4.0.1",
     "react": "^18.3.1",

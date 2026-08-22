@@ -2,6 +2,7 @@ import { useTheme } from "./themeContext";
 import { Link, Outlet, useSearchParams } from 'react-router-dom';
 import { FaGithub, FaHeart } from 'react-icons/fa';
 import { HiHome, HiSun, HiMoon } from 'react-icons/hi2';
+import packageInfo from '../package.json';
 import SoundToggle from './components/common/SoundToggle';
 import FlipClock from './components/common/FlipClock';
 import FloatingChaiButton from './components/common/FloatingChaiButton';
@@ -107,11 +108,26 @@ function MainLayout() {
                 Rajlabs
               </a>
             </p>
-            <p className={`text-xs sm:text-sm ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-              Developer tools & utilities - all client-side, no data sent to servers.
-              {' '}&bull;{' '}
-              <Link to="/changelog" className="hover:underline transition-colors">
-                Changelog
+            <p className={`text-xs sm:text-sm flex flex-wrap items-center justify-center gap-2 ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+              <span>Developer tools & utilities - all client-side, no data sent to servers.</span>
+              <span>&bull;</span>
+              <Link
+                to="/changelog"
+                className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-mono font-medium border transition-all ${
+                  isDarkMode
+                    ? 'bg-white/5 border-white/10 text-slate-300 hover:text-indigo-300 hover:border-indigo-500/40 hover:bg-indigo-500/10'
+                    : 'bg-slate-100 border-slate-200 text-slate-600 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50'
+                }`}
+                title="View Changelog & Release Notes"
+              >
+                <span>Changelog</span>
+                <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
+                  isDarkMode
+                    ? 'bg-indigo-500/20 text-indigo-300'
+                    : 'bg-indigo-100 text-indigo-700'
+                }`}>
+                  v{packageInfo.version}
+                </span>
               </Link>
             </p>
           </div>

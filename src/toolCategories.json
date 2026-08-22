@@ -45,18 +45,53 @@
     "iconName": "FaFilePdf",
     "tools": [
       {
+        "name": "PDF Editor & Signer",
+        "link": "/pdf-editor",
+        "iconName": "FaFilePdf",
+        "isEnabled": true,
+        "description": "Comprehensive in-browser PDF editor. Add signatures, annotations, text, whiteout/eraser, and export signed PDFs 100% in-browser."
+      },
+      {
         "name": "Merge PDF",
         "link": "/merge-pdf",
         "iconName": "FaObjectGroup",
         "isEnabled": true,
-        "description": "Combine multiple PDFs into a single document. Select your files and merge them in seconds directly in your browser."
+        "description": "Combine multiple PDFs into a single document. Reorder files with thumbnail previews and merge in seconds."
       },
       {
         "name": "Split PDF",
         "link": "/split-pdf",
         "iconName": "FaCut",
         "isEnabled": true,
-        "description": "Extract specific pages or page ranges from a PDF file quickly and securely."
+        "description": "Extract specific pages or page ranges from a PDF with interactive visual thumbnail selection."
+      },
+      {
+        "name": "Organize & Rotate PDF",
+        "link": "/organize-pdf",
+        "iconName": "FaLayerGroup",
+        "isEnabled": true,
+        "description": "Visual page organizer. Reorder pages, rotate 90°/180°, and delete unwanted pages with ease."
+      },
+      {
+        "name": "PDF to Image",
+        "link": "/pdf-to-image",
+        "iconName": "FaImages",
+        "isEnabled": true,
+        "description": "Convert PDF pages into high-resolution PNG or JPG images with custom quality and batch ZIP download."
+      },
+      {
+        "name": "Images to PDF",
+        "link": "/image-to-pdf",
+        "iconName": "FaFileImage",
+        "isEnabled": true,
+        "description": "Convert JPG, PNG, and WebP images into a formatted PDF document with customizable paper size, orientation, and margins."
+      },
+      {
+        "name": "Protect PDF",
+        "link": "/protect-pdf",
+        "iconName": "FaShieldAlt",
+        "isEnabled": true,
+        "description": "Encrypt and password protect your PDF documents offline in your browser."
       },
       {
         "name": "Unlock PDF",

@@ -56,6 +56,11 @@ const Changelog = lazy(() => import('./components/Changelog'));
 const MergePdfTool = lazy(() => import('./components/pdf-tools/mergePdf'));
 const SplitPdfTool = lazy(() => import('./components/pdf-tools/splitPdf'));
 const UnlockPdfTool = lazy(() => import('./components/pdf-tools/unlockPdf'));
+const PdfEditor = lazy(() => import('./components/pdf-tools/PdfEditor'));
+const OrganizePdf = lazy(() => import('./components/pdf-tools/OrganizePdf'));
+const PdfToImage = lazy(() => import('./components/pdf-tools/PdfToImage'));
+const ImageToPdf = lazy(() => import('./components/pdf-tools/ImageToPdf'));
+const ProtectPdf = lazy(() => import('./components/pdf-tools/ProtectPdf'));
 const UnlockExcelTool = lazy(() => import('./components/excel-tools/unlockExcel'));
 const QRScanner = lazy(() => import('./components/qrCodes/QRScanner'));
 const DirectEmbedView = lazy(() => import('./components/embeds/DirectEmbedView'));
@@ -123,6 +128,11 @@ export const router = createBrowserRouter([
             { path: "merge-pdf", element: <S fallback={<Loading />}><MergePdfTool /></S> },
             { path: "split-pdf", element: <S fallback={<Loading />}><SplitPdfTool /></S> },
             { path: "unlock-pdf", element: <S fallback={<Loading />}><UnlockPdfTool /></S> },
+            { path: "pdf-editor", element: <S fallback={<Loading />}><PdfEditor /></S> },
+            { path: "organize-pdf", element: <S fallback={<Loading />}><OrganizePdf /></S> },
+            { path: "pdf-to-image", element: <S fallback={<Loading />}><PdfToImage /></S> },
+            { path: "image-to-pdf", element: <S fallback={<Loading />}><ImageToPdf /></S> },
+            { path: "protect-pdf", element: <S fallback={<Loading />}><ProtectPdf /></S> },
             { path: "passport-grid", element: <S fallback={<Loading/>}><PassportGrid /></S> },
             { path: "unlock-excel", element: <S fallback={<Loading />}><UnlockExcelTool /></S> },
           ]

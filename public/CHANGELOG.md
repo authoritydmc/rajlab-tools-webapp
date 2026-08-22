@@ -4,6 +4,36 @@ All notable changes to **Rajlab Tools Webapp** are documented here, organized by
 
 ---
 
+## [2.5.1] — 2026-08-22
+
+### Changed
+- **PDF Editor & Signer (`/pdf-editor`)**: Refined the tool’s naming and catalog description to use clear Rajlab Tools language throughout the PDF editing experience.
+
+---
+
+## [2.5.0] — 2026-08-22
+
+### Added
+- **Passport Photo Grid Studio (`/passport-grid`)**: Generate printable passport and ID photo sheets straight in your browser. Features live interactive face cropping, support for standard international dimensions (US, India, Schengen, UK, Japan, Australia, Canada, UAE), custom border styles, gap adjustments, and instant high-resolution image/PDF downloads.
+- **Code Formatter Studio (`/code-formatter`)**: Multi-language code beautifier powered by Monaco Editor. Supports instant formatting, syntax validation, indent configuration (2/4 spaces or tabs), and minification across JavaScript, JSON, HTML, CSS, Markdown, Python, and SQL.
+- **Text Diff Studio (`/text-diff`)**: Side-by-side and inline visual difference comparison tool with real-time character/word-level diff highlights, line numbering, change stats, and whitespace toggle.
+- **HTML Entity Studio (`/html-entity`)**: Bidirectional encoder and decoder for named HTML entities, decimal, and hexadecimal codes with quick symbol insertion palettes and instant preview.
+- **URL Lab & Query Analyzer (`/url-lab`)**: Complete URL inspector and visual query parameter table editor. Inspect protocols, hostnames, and paths, edit search parameters dynamically, and copy normalized clean URLs with a single click.
+- **Interactive "Buy Us a Chai" Support Hub**: Floating support trigger and modal with real-time UPI QR code generation, quick support tiers (₹20, ₹50, ₹100, ₹250), custom amounts, one-click payment app deep links (GPay, PhonePe, Paytm, BHIM), and animated steaming chai visual.
+- **Footer Version Badge**: Live app version display integrated directly into the footer linking seamlessly to this Changelog.
+
+### Changed
+- **Video & Audio Converter Overhaul**: Upgraded to FFmpeg WASM 0.12.10 with real-time conversion progress indicators, multi-mirror CDN fallbacks, client-side asset caching, audio extraction, resolution presets, and bitrate controls.
+- **Markdown Playground (`/markdown-playground`)**: Enhanced with a full Monaco Editor workspace, formatting toolbar, table of contents auto-generator, live GitHub Flavored Markdown preview, responsive fixed-height scrolling panes, and multi-format exports (MD, styled HTML, clean TXT, PDF print).
+- **Text Formatter Enhancements**: Expanded transformation options including case conversion (camelCase, PascalCase, kebab-case, snake_case, Title Case), line cleanup (trimming, deduplication, alphabetical sorting), and regex find/replace.
+- **Developer Tools Polish**: Enriched Bcrypt Hashing, Color Picker, CSS Unit Converter, Lorem Ipsum Generator, and UUID Generator with richer customization presets, batch generation modes, and collapsible Developer Embed guides.
+
+### Fixed
+- **Smart 404 URL Suggestions**: Page-not-found screen now intelligently suggests matching tools based on fuzzy path matching and Levenshtein similarity to prevent dead ends.
+- **Masonry Layout Overflow**: Fixed horizontal card clipping on right-side grid boundaries on medium and large desktop screens.
+
+---
+
 ## [2.4.0] — 2026-08-22
 
 ### Added

@@ -41,3 +41,9 @@ Follow these steps to add a new tool to the application:
     - Use Tailwind for styling.
     - Keep all logic client-side (no server endpoints).
     - Add descriptive names, good metadata, and avoid basic UI. Provide rich controls for the user.
+
+6.  **Update Changelog & Version (MANDATORY)**:
+    - Open `public/CHANGELOG.md` and add a new entry under the latest release section (or bump version).
+    - Write in a **public-facing, user-friendly tone** highlighting key capabilities and user benefits.
+    - Synchronize `"version"` in `package.json` if bumping the release version.
+
