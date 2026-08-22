@@ -18,9 +18,8 @@ service cloud.firestore {
 
     // ── User feedback & ratings — anonymous creates only ───────────
     // Reads blocked (view in Console). Whitelist + server timestamp + App Check (hardcoded site key 6LfUX5MtAAAAAKfkcwe...).
-    // Relaxed: request.app not enforced yet - v3 6LfUX...Kfk re-enforce failed for text-diff (token not attached). Re-test App Check console metrics before re-enforcing.
     match /feedback/{docId} {
-      allow create: if true
+      allow create: if request.app != null
                     && request.resource.data.keys().hasOnly(["rating","comment","tool","path","url","userAgent","createdAt","clientTimestamp"])
                     && request.resource.data.rating is int && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
                     && request.resource.data.comment is string && request.resource.data.comment.size() <= 500
@@ -43,7 +42,8 @@ service cloud.firestore {
     match /tool_usage/{slug} {
       allow read: if true;
 
-      allow create: if slug == request.resource.data.slug
+      allow create: if request.app != null
+                    && slug == request.resource.data.slug
                     && isValidSlug(slug)
                     && request.resource.data.keys().hasOnly(["slug","link","title","count","updatedAt"])
                     && request.resource.data.link == "/" + slug
@@ -52,12 +52,13 @@ service cloud.firestore {
                     && request.resource.data.count == 1
                     && request.resource.data.updatedAt == request.time;
 
-      allow update: if slug == resource.data.slug
+      allow update: if request.app != null
+                    && slug == resource.data.slug
                     && isValidSlug(slug)
                     && request.resource.data.keys().hasOnly(["slug","link","title","count","updatedAt"])
                     && request.resource.data.slug == resource.data.slug
                     && request.resource.data.link == resource.data.link
-                    && request.resource.data.title == resource.data.title
+                    && request.resource.data.title.lower() == resource.data.title.lower()
                     && request.resource.data.count == resource.data.count + 1
                     && request.resource.data.count <= 10000000
                     && request.resource.data.updatedAt == request.time;
