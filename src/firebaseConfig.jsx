@@ -21,7 +21,7 @@ const db = getFirestore(firebaseApp);
 // so open-source deploys work without env setup. Override via env if needed.
 // 400 on exchangeRecaptchaV3Token → domain not allowlisted or secret mismatch.
 let appCheck = null;
-const hardcodedSiteKey = "6LfUX5MtAAAAAKFkcweTqd2WFjR2t_x2jliJu9-p"; // v3 — rajlabs.in (2026-08-22) — domains: utils.rajlabs.in / utility.rajlabs.in / rajlabs.in
+const hardcodedSiteKey = "6LfUX5MtAAAAAKfkcweTqd2WFjR2t_x2jliJu9-p"; // v3 — rajlabs.in (2026-08-22) — domains: utils.rajlabs.in / utility.rajlabs.in / rajlabs.in — clipboard-verified
 const v3Key = import.meta.env.VITE_RECAPTCHA_V3_SITE_KEY?.trim();
 const enterpriseKey = import.meta.env.VITE_RECAPTCHA_ENTERPRISE_SITE_KEY?.trim();
 const recaptchaSiteKey = v3Key || enterpriseKey || hardcodedSiteKey;
