@@ -338,5 +338,18 @@
         "description": "Compress images client-side with adjustable quality, max dimensions, and size limits."
       }
     ]
+  },
+  {
+    "title": "Photo Tools",
+    "iconName": "FaCamera",
+    "tools": [
+      {
+        "name": "Passport Photo Grid Maker",
+        "link": "/passport-grid",
+        "iconName": "FaIdCard",
+        "isEnabled": true,
+        "description": "Create, crop, and generate printable multi-photo grids of passport-size photos for printing on A4/Letter size papers."
+      }
+    ]
   }
 ]

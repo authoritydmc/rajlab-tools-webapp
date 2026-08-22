@@ -16,6 +16,8 @@ const Loading = () => (
 
 // ... lazy imports ...
 const TextSanitize = lazy(() => import('./components/text-Sanitize/text-Sanitize'));
+const PassportGrid = lazy(() => import('./components/PassportGrid'));
+
 const TextFormatter = lazy(() => import('./components/text-formatter/text-formatter'));
 const Base64Tool = lazy(() => import('./components/base64EncoderDecoder/base64tools'));
 const BcryptTool = lazy(() => import('./components/bcryptEncrypter/bcryptTool'));
@@ -121,6 +123,7 @@ export const router = createBrowserRouter([
             { path: "merge-pdf", element: <S fallback={<Loading />}><MergePdfTool /></S> },
             { path: "split-pdf", element: <S fallback={<Loading />}><SplitPdfTool /></S> },
             { path: "unlock-pdf", element: <S fallback={<Loading />}><UnlockPdfTool /></S> },
+            { path: "passport-grid", element: <S fallback={<Loading/>}><PassportGrid /></S> },
             { path: "unlock-excel", element: <S fallback={<Loading />}><UnlockExcelTool /></S> },
           ]
         }

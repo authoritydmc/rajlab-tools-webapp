@@ -1,0 +1,33 @@
+.passport-grid-container {
+  padding: 1rem;
+  max-width: 800px;
+  margin: auto;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.controls label {
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+}
+
+.generate-btn {
+  padding: 0.5rem 1rem;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cropper-wrapper img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #ddd;
+}
