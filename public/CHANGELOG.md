@@ -4,6 +4,20 @@ All notable changes to **Rajlab Tools Webapp** are documented here, organized by
 
 ---
 
+## [2.7.0] — 2026-08-22
+
+### Added
+- **Community Popularity & Firestore Telemetry (`/` homepage)**: Live community-driven ranking powered by Cloud Firestore. Each tool open increments a `tool_usage` counter (`portfolio-site-ba08a/(default)`) via `increment(1)` — homepage shows a **Most Popular** top-3 section and a subtle `· 12` grey count next to every tool. Includes real-time `onSnapshot` sync, `Popular (Community)` sort mode that reorders categories and tools by community usage, and `firestore.rules`/`firestore.indexes.json` with validated anonymous writes.
+- **Firestore Feedback Backend (`SupportChaiModal`)**: Ratings and written feedback now persist to Firestore `feedback` collection (in addition to localStorage fallback) with server timestamps, tool context, and analytics events. Includes hardened `firestore.rules` validating `rating 1-5`, `comment ≤500`, and `tool ≤120`.
+- **Global Tool View Tracker**: `ToolRouteTracker` auto-increments usage for any direct navigation or bookmark, ensuring accurate community counts without double-counting (2s throttle).
+
+### Changed
+- **Most Popular UI Polish**: Removed duplicate rank badge — now single orange `FaFire` pill per top-3 card. General tool cards show only a minute grey suffix (`· 1k`) instead of a pill, keeping the grid subtle.
+- **Firebase Config (`firebase.json`)**: Added `firestore` section for `rules`/`indexes` and removed hardcoded hosting `site` for project-agnostic deploys.
+- **Support Modal Copy**: Updated feedback footer from “Client-side” to “Stored in Firestore · Anonymous · Zero PII”.
+
+---
+
 ## [2.6.0] — 2026-08-22
 
 ### Added
