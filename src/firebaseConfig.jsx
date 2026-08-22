@@ -14,9 +14,7 @@ try {
   // Analytics not supported in this environment (e.g. SSR / unsupported browser)
 }
 
-const db = getFirestore(firebaseApp);
-
-// ── App Check (reCAPTCHA v3) — public site key hardcoded ─────
+// ── App Check (reCAPTCHA v3) — MUST init BEFORE Firestore so Firestore channel includes X-Firebase-AppCheck ─────
 // Site key is public by design (domain-locked in reCAPTCHA Admin). Hardcoded
 // so open-source deploys work without env setup. Override via env if needed.
 // 400 on exchangeRecaptchaV3Token → domain not allowlisted or secret mismatch.
@@ -85,6 +83,9 @@ if (recaptchaSiteKey && typeof window !== "undefined") {
     );
   }
 }
+
+// Firestore MUST be created AFTER AppCheck so X-Firebase-AppCheck is attached to Write/Listen channels
+const db = getFirestore(firebaseApp);
 
 const logFirebaseEvent = (eventName, eventParams = {}) => {
   if (analytics) {
