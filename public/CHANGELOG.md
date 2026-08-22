@@ -4,6 +4,13 @@ All notable changes to **Rajlab Tools Webapp** are documented here, organized by
 
 ---
 
+## [3.1.6] — 2026-08-23
+
+### Added
+- **Image to PDF Select/Deselect Feature (`/image-to-pdf`)**: Added bulk image upload support with visual select/deselect functionality. Users can now upload multiple images at once, preview them in a grid, click to select or deselect specific images, and use "Select All"/"Deselect All"/"Clear All" buttons for batch operations. Selected images are highlighted with a visual indicator and border styling, while unselected images appear dimmed. Only selected images are converted to PDF, with the convert button showing the count of selected images.
+
+---
+
 ## [3.1.5] — 2026-08-23
 
 ### Fixed

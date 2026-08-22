@@ -3,7 +3,8 @@ import { PDFDocument, PageSizes } from 'pdf-lib';
 import { useTheme } from '../../themeContext';
 import { 
   FaFileImage, FaUpload, FaDownload, FaTrash, 
-  FaArrowUp, FaArrowDown, FaPlus, FaCheck, FaFilePdf, FaFile, FaEye 
+  FaArrowUp, FaArrowDown, FaPlus, FaCheck, FaFilePdf, FaFile, FaEye, 
+  FaCheckSquare, FaSquare, FaWindowClose 
 } from 'react-icons/fa';
 import { toast, Toaster } from 'react-hot-toast';
 import ToolPageLayout from '../common/ToolPageLayout';
@@ -12,7 +13,7 @@ import { triggerChaiModal } from '../../chaiModalContext';
 
 export default function ImageToPdf() {
   const { isDarkMode } = useTheme();
-  const [images, setImages] = useState([]); // [{ id, file, previewUrl, name, size }]
+  const [images, setImages] = useState([]); // [{ id, file, previewUrl, name, size, selected }]
   const [pageSize, setPageSize] = useState('A4'); // 'A4' | 'LETTER' | 'FIT'
   const [orientation, setOrientation] = useState('portrait'); // 'portrait' | 'landscape'
   const [margin, setMargin] = useState(20); // in pt
@@ -43,7 +44,8 @@ export default function ImageToPdf() {
       file: f,
       previewUrl: URL.createObjectURL(f),
       name: f.name,
-      size: (f.size / (1024 * 1024)).toFixed(2)
+      size: (f.size / (1024 * 1024)).toFixed(2),
+      selected: true // Auto-select newly added images
     }));
 
     setImages(prev => [...prev, ...newImageObjs]);
@@ -74,9 +76,36 @@ export default function ImageToPdf() {
     });
   };
 
+  const toggleImageSelection = (index) => {
+    setImages(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], selected: !updated[index].selected };
+      return updated;
+    });
+    if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+    setPdfUrl(null);
+    setPdfSize(null);
+  };
+
+  const selectAllImages = (select) => {
+    setImages(prev => prev.map(img => ({ ...img, selected: select })));
+    if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+    setPdfUrl(null);
+    setPdfSize(null);
+  };
+
+  const clearAllImages = () => {
+    images.forEach(img => URL.revokeObjectURL(img.previewUrl));
+    setImages([]);
+    if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+    setPdfUrl(null);
+    setPdfSize(null);
+  };
+
   const handleConvertToPdf = async () => {
-    if (images.length === 0) {
-      toast.error('Please upload at least one image.');
+    const selectedImages = images.filter(img => img.selected);
+    if (selectedImages.length === 0) {
+      toast.error('Please select at least one image to convert.');
       return;
     }
 
@@ -84,7 +113,7 @@ export default function ImageToPdf() {
     try {
       const pdfDoc = await PDFDocument.create();
 
-      for (const imgItem of images) {
+      for (const imgItem of selectedImages) {
         const arrayBuffer = await imgItem.file.arrayBuffer();
         let pdfImage;
 
@@ -185,9 +214,34 @@ export default function ImageToPdf() {
             </label>
 
             {images.length > 0 && (
-              <span className="text-xs font-semibold px-3 py-1.5 bg-slate-500/10 rounded-xl">
-                {images.length} Images Added
-              </span>
+              <>
+                <span className="text-xs font-semibold px-3 py-1.5 bg-slate-500/10 rounded-xl">
+                  {images.length} Images ({images.filter(img => img.selected).length} selected)
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => selectAllImages(true)}
+                    className="text-xs px-2 py-1 rounded-lg border border-slate-600 hover:bg-slate-500/10 transition-colors"
+                    title="Select All"
+                  >
+                    Select All
+                  </button>
+                  <button
+                    onClick={() => selectAllImages(false)}
+                    className="text-xs px-2 py-1 rounded-lg border border-slate-600 hover:bg-slate-500/10 transition-colors"
+                    title="Deselect All"
+                  >
+                    Deselect All
+                  </button>
+                  <button
+                    onClick={clearAllImages}
+                    className="text-xs px-2 py-1 rounded-lg border border-red-600 text-red-400 hover:bg-red-500/10 transition-colors"
+                    title="Clear All"
+                  >
+                    Clear All
+                  </button>
+                </div>
+              </>
             )}
           </div>
 
@@ -243,10 +297,10 @@ export default function ImageToPdf() {
 
             <button
               onClick={handleConvertToPdf}
-              disabled={images.length === 0 || isProcessing}
+              disabled={images.filter(img => img.selected).length === 0 || isProcessing}
               className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 transition-all disabled:opacity-50 flex items-center gap-2"
             >
-              <FaCheck /> {isProcessing ? 'Generating PDF...' : 'Convert to PDF'}
+              <FaCheck /> {isProcessing ? 'Generating PDF...' : `Convert ${images.filter(img => img.selected).length} Selected to PDF`}
             </button>
 
             {pdfUrl && (
@@ -270,7 +324,7 @@ export default function ImageToPdf() {
             <FaFileImage size={56} className="text-indigo-500 mb-4 animate-bounce" />
             <h3 className="text-lg font-bold text-slate-200 mb-1">Convert Images to Single Clean PDF</h3>
             <p className="text-sm text-slate-400 max-w-md text-center mb-6">
-              Combine multiple JPG, PNG, or WebP images into a formatted PDF. Reorder pages and customize paper size and margins.
+              Upload multiple images at once, preview them, select/deselect specific ones, reorder pages, and customize paper size and margins before converting to PDF.
             </p>
             <label className="cursor-pointer px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold flex items-center gap-2 shadow-xl shadow-indigo-600/25 transition-all">
               <FaUpload /> Choose Image Files
@@ -285,10 +339,24 @@ export default function ImageToPdf() {
             {images.map((img, index) => (
               <div
                 key={img.id}
-                className={`relative group flex flex-col items-center p-3 rounded-xl border transition-all ${
-                  isDarkMode ? 'bg-slate-900/80 border-slate-700/70 hover:border-indigo-500' : 'bg-white border-slate-200 hover:border-indigo-500 shadow-sm'
+                onClick={() => toggleImageSelection(index)}
+                className={`relative group flex flex-col items-center p-3 rounded-xl border transition-all cursor-pointer ${
+                  img.selected
+                    ? 'border-indigo-500 bg-indigo-500/10 ring-2 ring-indigo-500/30'
+                    : isDarkMode 
+                      ? 'bg-slate-900/80 border-slate-700/70 hover:border-slate-500 opacity-60 hover:opacity-100' 
+                      : 'bg-white border-slate-200 hover:border-slate-400 shadow-sm opacity-60 hover:opacity-100'
                 }`}
               >
+                {/* Selection checkbox badge */}
+                <div className="absolute top-2 right-2 z-10">
+                  {img.selected ? (
+                    <FaCheckSquare className="text-indigo-400 text-base" />
+                  ) : (
+                    <FaSquare className="text-slate-500 text-base opacity-60" />
+                  )}
+                </div>
+
                 {/* Order badge */}
                 <div className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-900/80 text-white backdrop-blur-md">
                   #{index + 1}
@@ -308,7 +376,7 @@ export default function ImageToPdf() {
                   <div className="flex items-center gap-1">
                     <button
                       disabled={index === 0}
-                      onClick={() => moveImage(index, index - 1)}
+                      onClick={(e) => { e.stopPropagation(); moveImage(index, index - 1); }}
                       className="p-1.5 rounded hover:bg-slate-500/20 disabled:opacity-20 text-slate-400 hover:text-white transition-colors"
                       title="Move Left"
                     >
@@ -316,7 +384,7 @@ export default function ImageToPdf() {
                     </button>
                     <button
                       disabled={index === images.length - 1}
-                      onClick={() => moveImage(index, index + 1)}
+                      onClick={(e) => { e.stopPropagation(); moveImage(index, index + 1); }}
                       className="p-1.5 rounded hover:bg-slate-500/20 disabled:opacity-20 text-slate-400 hover:text-white transition-colors"
                       title="Move Right"
                     >
@@ -325,7 +393,7 @@ export default function ImageToPdf() {
                   </div>
 
                   <button
-                    onClick={() => removeImage(index)}
+                    onClick={(e) => { e.stopPropagation(); removeImage(index); }}
                     className="p-1.5 rounded hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors"
                     title="Remove Image"
                   >
