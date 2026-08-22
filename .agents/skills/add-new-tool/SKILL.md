@@ -42,12 +42,11 @@ Follow these steps to add a new tool to the application:
     - Keep all logic client-side (no server endpoints).
     - Add descriptive names, good metadata, and avoid basic UI. Provide rich controls for the user.
 
-5a. **Register Telemetry & Firestore (MANDATORY for discoverability)**:
-    - **Whitelist the slug in `firestore.rules`** — add your new `"/my-new-tool"` slug (without leading slash, e.g. `"my-new-tool"`) to `isValidSlug()` array. This is required; otherwise `incrementToolUsage()` writes are rejected by security rules and community counts stay at 0.
-    - **Tool Registry** — if your tool has URL query params / embed modes, add an entry to `src/utils/toolRegistry.js` (`TOOL_REGISTRY["/my-new-tool"] = { title, sourceFile, category, queryParams }`) so `ToolRouteTracker` can auto-count it and embeds work.
-    - **No index change needed** for `tool_usage` (single-field `count` is auto-indexed). Only add to `firestore.indexes.json` if you introduce a new composite query (e.g. filtering `feedback` by new fields).
-    - **App Check:** No code change needed — `src/firebaseConfig.jsx` auto-attaches reCAPTCHA v3 token if `VITE_RECAPTCHA_V3_SITE_KEY` is set. Ensure `firestore.rules` keeps `request.app != null` for `feedback`/`tool_usage` writes.
-    - After editing rules, deploy: `npx firebase deploy --only firestore --project portfolio-site-ba08a` (or paste `firestore.rules` in Console → Firestore → Rules → Publish).
+5a. **Register Telemetry & Firestore (auto — no rules deploy needed)**:
+     - **No `firestore.rules` edit needed** — `tool_usage` now uses a pattern check `isValidSlug()` (`^[a-z0-9-]{2,60}$`, 2–60 chars) instead of a hardcoded whitelist, and App Check is enforced at the API layer (Firebase Console → App Check → Cloud Firestore → Enforced). Any `slug` matching the pattern auto-creates/updates `tool_usage/{slug}` via `incrementToolUsage()` with no manual publish. Keep your link slug lowercase-kebab-case.
+     - **Tool Registry** — if your tool has URL query params / embed modes, add an entry to `src/utils/toolRegistry.js` (`TOOL_REGISTRY["/my-new-tool"] = { title, sourceFile, category, queryParams }`) so `ToolRouteTracker` can auto-count it and embeds work.
+     - **No index change needed** for `tool_usage` (single-field `count` is auto-indexed). Only add to `firestore.indexes.json` if you introduce a new composite query (e.g. filtering `feedback` by new fields).
+     - **App Check:** No code change needed — `src/firebaseConfig.jsx` auto-attaches reCAPTCHA v3 token (`ReCaptchaV3Provider` `6LfUX5MtAAAAAKfkcweTqd2WFjR2t_x2jliJu9-p`). Enforcement is console-level; rules no longer use `request.app`.
 
 6.  **Update Changelog & Version (MANDATORY)**:
     - Open `public/CHANGELOG.md` and add a new entry under the latest release section (or bump version).

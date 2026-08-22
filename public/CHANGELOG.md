@@ -4,6 +4,11 @@ All notable changes to **Rajlab Tools Webapp** are documented here, organized by
 
 ---
 
+## [3.1.3] — 2026-08-24
+
+### Changed
+- **Zero-Deploy Tool Analytics (`firestore.rules`, `.agents/skills/add-new-tool/SKILL.md`)**: Replaced hardcoded `isValidSlug` whitelist with a pattern check `^[a-z0-9-]{2,60}$` (2–60 chars). New tools now auto-create `tool_usage/{slug}` on first open with no `firestore.rules` deploy needed — enforcement stays at the API layer via App Check → Enforced, so garbage slugs are still blocked but you no longer need to whitelist each tool manually.
+
 ## [3.1.2] — 2026-08-24
 
 ### Changed
