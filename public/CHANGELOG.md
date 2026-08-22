@@ -4,6 +4,18 @@ All notable changes to **Rajlab Tools Webapp** are documented here, organized by
 
 ---
 
+## [2.8.2] — 2026-08-22
+
+### Fixed
+- **App Check Diagnostics (`/merge-pdf`, `/lorem-ipsum` and all tools)**: Fixed the false `Invalid time value` error that made the console report `AppCheck getToken FAILED` even though reCAPTCHA v3 had passed and a valid token (`len=965`) was present. The diagnostic helper incorrectly expected `expireTimeMillis` from `getToken()` — which only returns `{ token }` — causing `new Date(undefined)` to throw and mask the real status. Now correctly logs token length and prefix, making `permission-denied` debugging actionable. The underlying `Missing or insufficient permissions` still indicates the Firebase Console reCAPTCHA secret does not match the site key `6LfUX5Mt...9-p` and must be corrected under Project Settings → App Check.
+- **PDF Preview & Build (`/merge-pdf`, `/split-pdf`, `/organize-pdf`, `/pdf-to-image`)**: Updated PDF.js import to `pdfjs-dist/build/pdf.mjs` and worker to `6.2.108` for Vite 6 compatibility, restoring the production build that previously failed with `Rollup failed to resolve import "pdfjs-dist"`.
+
+### Changed
+- **Hash Generator (`/hash-generator`) and Embed (`/raw/hash-generator`)**: Migrated MD5 hashing from `crypto-js` to lightweight `spark-md5` and SHA-1/256/384/512 plus HMAC to native `WebCrypto Subtle`, reducing bundle size and using modern browser cryptography. Includes a manual HMAC-MD5 implementation and asynchronous hash handling for embed previews.
+- **Dependencies & Tooling**: Upgraded `firebase` to `12.18.0`, `pdfjs-dist` to `6.2.108`, `react-router-dom` to `7.18.2`, `vite` to `6.4.3`, `tailwindcss` to `3.4.19`, and related lint/build tooling for improved performance, compatibility, and security.
+
+---
+
 ## [2.8.1] — 2026-08-22
 
 ### Changed

@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import QRCodeStyling from 'qr-code-styling';
-import CryptoJS from 'crypto-js';
+import SparkMD5 from 'spark-md5';
 import * as yaml from 'js-yaml';
 import Papa from 'papaparse';
 import { getPresetLogoUrl, detectBrandFromData } from '../../utils/qrLogoPresets';
@@ -68,6 +68,30 @@ export default function RawResultView() {
   // Common inputs fallback
   const inputDataFallback = searchParams.get('data') || searchParams.get('text') || searchParams.get('input') || searchParams.get('q') || searchParams.get('url') || searchParams.get('json') || searchParams.get('csv') || searchParams.get('xml') || searchParams.get('yaml') || '';
   const qrData = isQr ? getQrDataForSlug(slug, searchParams, inputDataFallback) : inputDataFallback;
+
+  // Async SHA hashes for embed hash-generator (WebCrypto + SparkMD5)
+  const [asyncHashes, setAsyncHashes] = useState(null);
+  useEffect(() => {
+    if (slug !== 'hash-generator') return;
+    const text = inputDataFallback || 'Hello World';
+    let cancelled = false;
+    async function shaHex(algo, msg) {
+      const data = new TextEncoder().encode(msg);
+      const buf = await crypto.subtle.digest(algo, data);
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+    (async () => {
+      try {
+        const [sha1, sha256, sha512] = await Promise.all([
+          shaHex('SHA-1', text),
+          shaHex('SHA-256', text),
+          shaHex('SHA-512', text),
+        ]);
+        if (!cancelled) setAsyncHashes({ md5: SparkMD5.hash(text), sha1, sha256, sha512 });
+      } catch {}
+    })();
+    return () => { cancelled = true; };
+  }, [slug, inputDataFallback]);
 
   // QR Parameters
   const size = parseInt(searchParams.get('size') || searchParams.get('s') || 256);
@@ -186,13 +210,14 @@ export default function RawResultView() {
       }
       case 'hash-generator': {
         const text = inputDataFallback || 'Hello World';
-        const hashes = {
-          md5: CryptoJS.MD5(text).toString(),
-          sha1: CryptoJS.SHA1(text).toString(),
-          sha256: CryptoJS.SHA256(text).toString(),
-          sha512: CryptoJS.SHA512(text).toString(),
+        const hashes = asyncHashes || {
+          md5: SparkMD5.hash(text),
+          sha1: 'computing...',
+          sha256: 'computing...',
+          sha512: 'computing...',
         };
-        return { text: hashes.sha256, json: { success: true, input: text, hashes } };
+        const outText = hashes.sha256 !== 'computing...' ? hashes.sha256 : hashes.md5;
+        return { text: outText, json: { success: true, input: text, hashes } };
       }
       case 'jwt-decoder': {
         const token = searchParams.get('token') || searchParams.get('jwt') || inputDataFallback;

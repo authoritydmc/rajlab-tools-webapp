@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { toast, Toaster } from 'react-hot-toast';
 import { useTheme } from '../../themeContext';
 import { FaClipboard, FaTrash, FaFingerprint, FaDownload, FaUpload, FaExchangeAlt, FaEye, FaFileAlt, FaKey, FaCheck, FaTimes } from 'react-icons/fa';
-import CryptoJS from 'crypto-js';
+import SparkMD5 from 'spark-md5';
 import ToolPageLayout from '../common/ToolPageLayout';
 import { useCategorySiblings } from '../../hooks/useCategorySiblings';
 
@@ -17,6 +17,51 @@ async function hashFile(file, algorithm) {
   const buf = await file.arrayBuffer();
   const hashBuffer = await crypto.subtle.digest(algorithm, buf);
   return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+function md5Hash(text) {
+  return SparkMD5.hash(text);
+}
+function md5ArrayBuffer(buf) {
+  return SparkMD5.ArrayBuffer.hash(buf);
+}
+// HMAC helpers — WebCrypto for SHA variants, manual for MD5
+async function hmacSha(message, key, hashAlg) {
+  const enc = new TextEncoder();
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(key),
+    { name: 'HMAC', hash: hashAlg },
+    false,
+    ['sign']
+  );
+  const sig = await crypto.subtle.sign('HMAC', cryptoKey, enc.encode(message));
+  return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+function hmacMd5(message, key) {
+  // Manual HMAC-MD5 using SparkMD5
+  const blockSize = 64;
+  const enc = new TextEncoder();
+  let keyBytes = enc.encode(key);
+  if (keyBytes.length > blockSize) {
+    // key = MD5(key) as raw bytes
+    const hex = SparkMD5.hashBinary(String.fromCharCode(...keyBytes));
+    const tmp = new Uint8Array(hex.match(/.{2}/g).map(h => parseInt(h, 16)));
+    keyBytes = tmp;
+  }
+  const padded = new Uint8Array(blockSize);
+  padded.set(keyBytes);
+  const ipad = padded.map(b => b ^ 0x36);
+  const opad = padded.map(b => b ^ 0x5c);
+  const msgBytes = enc.encode(message);
+  const inner = new Uint8Array(ipad.length + msgBytes.length);
+  inner.set(ipad);
+  inner.set(msgBytes, ipad.length);
+  const innerHex = SparkMD5.ArrayBuffer.hash(inner.buffer);
+  const innerBytes = new Uint8Array(innerHex.match(/.{2}/g).map(h => parseInt(h, 16)));
+  const outer = new Uint8Array(opad.length + innerBytes.length);
+  outer.set(opad);
+  outer.set(innerBytes, opad.length);
+  return SparkMD5.ArrayBuffer.hash(outer.buffer);
 }
 function downloadBlob(content, filename, mime='text/plain') {
   const blob = new Blob([content], { type: mime });
@@ -67,7 +112,7 @@ export default function HashGenerator() {
     for (const algo of ALGORITHMS) {
       try {
         if (algo.name === 'MD5') {
-          results[algo.name] = CryptoJS.MD5(text).toString();
+          results[algo.name] = md5Hash(text);
         } else {
           results[algo.name] = await hashMessage(text, algo.alg);
         }
@@ -78,11 +123,12 @@ export default function HashGenerator() {
     if (hmacKey) {
       const hmacRes = {};
       for (const algo of ALGORITHMS) {
-        const map = { 'MD5':'MD5', 'SHA-1':'SHA1', 'SHA-256':'SHA256', 'SHA-384':'SHA384', 'SHA-512':'SHA512' };
         try {
-          const fn = CryptoJS[`Hmac${map[algo.name]}`];
-          if (fn) hmacRes[algo.name] = fn(text, hmacKey).toString();
-          else hmacRes[algo.name] = 'N/A';
+          if (algo.name === 'MD5') {
+            hmacRes[algo.name] = hmacMd5(text, hmacKey);
+          } else {
+            hmacRes[algo.name] = await hmacSha(text, hmacKey, algo.alg);
+          }
         } catch { hmacRes[algo.name]='Error'; }
       }
       setHmacHashes(hmacRes);
@@ -107,8 +153,7 @@ export default function HashGenerator() {
       try {
         if (algo.name === 'MD5') {
           const buf = await file.arrayBuffer();
-          const wordArray = CryptoJS.lib.WordArray.create(new Uint8Array(buf));
-          results[algo.name] = CryptoJS.MD5(wordArray).toString();
+          results[algo.name] = md5ArrayBuffer(buf);
         } else {
           results[algo.name] = await hashFile(file, algo.alg);
         }
@@ -244,7 +289,7 @@ export default function HashGenerator() {
               </div>
             )}
 
-            <div className={`text-[11px] text-center ${isDarkMode?'text-slate-500':'text-slate-400'}`}>All hashing is 100% client-side • MD5 via CryptoJS, SHA via WebCrypto Subtle</div>
+            <div className={`text-[11px] text-center ${isDarkMode?'text-slate-500':'text-slate-400'}`}>All hashing is 100% client-side • MD5 via SparkMD5, SHA via WebCrypto Subtle</div>
           </div>
         </div>
       </div>

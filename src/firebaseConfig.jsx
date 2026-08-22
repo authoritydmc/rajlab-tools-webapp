@@ -52,7 +52,11 @@ if (recaptchaSiteKey && typeof window !== "undefined") {
         import('firebase/app-check').then(({ onTokenChanged }) => {
           if (typeof onTokenChanged === 'function') {
             onTokenChanged(appCheck, (tok) => {
-              if (tok?.token) console.log(`[AppCheck DEBUG] 🔄 onTokenChanged OK len=${tok.token.length} expires=${new Date(tok.expireTimeMillis).toISOString()}`);
+              if (tok?.token) {
+                const exp = tok.expireTimeMillis;
+                const expStr = typeof exp === 'number' ? (()=>{ try{ return new Date(exp).toISOString(); }catch{ return String(exp);} })() : 'n/a';
+                console.log(`[AppCheck DEBUG] 🔄 onTokenChanged OK len=${tok.token.length} expires=${expStr}`);
+              }
             }, (err) => console.warn(`[AppCheck DEBUG] 🔄 onTokenChanged FAIL`, err));
           }
         });

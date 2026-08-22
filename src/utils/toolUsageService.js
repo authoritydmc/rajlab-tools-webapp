@@ -86,13 +86,18 @@ export async function incrementToolUsage(linkOrSlug, meta = {}) {
     if (appCheck) {
       const { getToken } = await import('firebase/app-check');
       try {
-        const { token, expireTimeMillis, attemptsCount } = await getToken(appCheck, false);
+        const result = await getToken(appCheck, false);
+        const token = result?.token || '';
+        // AppCheckTokenResult only has {token}; expireTimeMillis is NOT returned by getToken()
+        // (was AppCheckToken internally). Guard Date conversion.
+        const exp = result?.expireTimeMillis;
         acInfo.tokenLen = token.length;
         acInfo.tokenPrefix = token.slice(0, 20);
-        acInfo.expireTime = new Date(expireTimeMillis).toISOString();
-        acInfo.attemptsCount = attemptsCount;
+        if (typeof exp === 'number' && Number.isFinite(exp)) {
+          try { acInfo.expireTime = new Date(exp).toISOString(); } catch {}
+        }
         acInfo.error = '';
-        console.log(`[toolUsage DEBUG] ${slug} AppCheck token OK len=${token.length} prefix=${token.slice(0,12)}... attempts=${attemptsCount}`);
+        console.log(`[toolUsage DEBUG] ${slug} AppCheck token OK len=${token.length} prefix=${token.slice(0,12)}...`);
       } catch (e) {
         acInfo.error = `${e?.code || 'unknown'}: ${e?.message || 'no message'}`;
         console.warn(`[toolUsage DEBUG] ${slug} AppCheck getToken FAILED`, e?.code, e?.message);
