@@ -19,7 +19,7 @@ This is a **markdown** preview tool — now supercharged.
 
 ## Features
 - **Bold**, *italic*, ~~strikethrough~~, \`inline code\`
-- [Links](https://example.com) and ![Images](https://via.placeholder.com/320x120)
+- [Links](https://example.com) and ![Images](https://images.unsplash.com/photo-1787238347889-be19be24c8f5?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)
 - > Blockquotes with citations
 - Ordered & unordered lists
 - Task lists:
@@ -197,7 +197,7 @@ export default function MarkdownPreview() {
     { icon: <FaQuoteLeft />, label: 'Quote', title: 'Blockquote', action: () => insertLinePrefix('> ') },
     { icon: <FaCode />, label: 'Code', title: 'Code block', action: () => insertAtCursor('\n```\n', '\n```\n', 'code here') },
     { icon: <FaLink />, label: 'Link', title: 'Link', action: () => insertAtCursor('[', '](https://example.com)', 'text') },
-    { icon: <FaImage />, label: 'Image', title: 'Image', action: () => insertAtCursor('![', '](https://via.placeholder.com/320x120)', 'alt') },
+    { icon: <FaImage />, label: 'Image', title: 'Image', action: () => insertAtCursor('![', '](https://images.unsplash.com/photo-1787238347889-be19be24c8f5?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)', 'alt') },
     { icon: <FaListUl />, label: 'UL', title: 'Bullet list', action: () => insertLinePrefix('- ') },
     { icon: <FaListOl />, label: 'OL', title: 'Ordered list', action: () => insertLinePrefix('1. ') },
     { icon: <FaCheckSquare />, label: 'Task', title: 'Task list', action: () => insertLinePrefix('- [ ] ') },
