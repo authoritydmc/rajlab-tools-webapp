@@ -42,6 +42,12 @@ Follow these steps to add a new tool to the application:
     - Keep all logic client-side (no server endpoints).
     - Add descriptive names, good metadata, and avoid basic UI. Provide rich controls for the user.
 
+5a. **Register Telemetry & Firestore (MANDATORY for discoverability)**:
+    - **Whitelist the slug in `firestore.rules`** — add your new `"/my-new-tool"` slug (without leading slash, e.g. `"my-new-tool"`) to `isValidSlug()` array. This is required; otherwise `incrementToolUsage()` writes are rejected by security rules and community counts stay at 0.
+    - **Tool Registry** — if your tool has URL query params / embed modes, add an entry to `src/utils/toolRegistry.js` (`TOOL_REGISTRY["/my-new-tool"] = { title, sourceFile, category, queryParams }`) so `ToolRouteTracker` can auto-count it and embeds work.
+    - **No index change needed** for `tool_usage` (single-field `count` is auto-indexed). Only add to `firestore.indexes.json` if you introduce a new composite query (e.g. filtering `feedback` by new fields).
+    - After editing rules, deploy: `npx firebase deploy --only firestore --project portfolio-site-ba08a` (or paste `firestore.rules` in Console → Firestore → Rules → Publish).
+
 6.  **Update Changelog & Version (MANDATORY)**:
     - Open `public/CHANGELOG.md` and add a new entry under the latest release section (or bump version).
     - Write in a **public-facing, user-friendly tone** highlighting key capabilities and user benefits.
