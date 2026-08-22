@@ -16,21 +16,16 @@ try {
 
 const db = getFirestore(firebaseApp);
 
-// ── App Check (reCAPTCHA Enterprise) — public site key hardcoded ─────
+// ── App Check (reCAPTCHA v3) — public site key hardcoded ─────
 // Site key is public by design (domain-locked in reCAPTCHA Admin). Hardcoded
 // so open-source deploys work without env setup. Override via env if needed.
-// 400 on exchangeRecaptchaV3Token → you used V3 provider with an Enterprise key (or vice versa)
-// or domain not allowlisted. This project uses Enterprise key 6LfrIJMt... by default.
+// 400 on exchangeRecaptchaV3Token → domain not allowlisted or secret mismatch.
 let appCheck = null;
-const hardcodedSiteKey = "6LfrIJMtAAAAAOcUqVTk_vsCTEGBF_bofvKJ7yhY";
-// This hardcoded key is reCAPTCHA **Enterprise** (see Google Cloud Console → reCAPTCHA → Key details shows grecaptcha.enterprise.execute).
-// Your 400 `exchangeRecaptchaV3Token` error proves the app incorrectly used ReCaptchaV3Provider with an Enterprise key.
-// Fix: treat hardcoded key as Enterprise by default. Override only if VITE_RECAPTCHA_V3_SITE_KEY is explicitly set.
+const hardcodedSiteKey = "6LfUX5MtAAAAAKFkcweTqd2WFjR2t_x2jliJu9-p"; // v3 — rajlabs.in (2026-08-22) — domains: utils.rajlabs.in / utility.rajlabs.in / rajlabs.in
 const v3Key = import.meta.env.VITE_RECAPTCHA_V3_SITE_KEY?.trim();
 const enterpriseKey = import.meta.env.VITE_RECAPTCHA_ENTERPRISE_SITE_KEY?.trim();
 const recaptchaSiteKey = v3Key || enterpriseKey || hardcodedSiteKey;
-// Enterprise if: explicit enterpriseKey set, OR we're falling back to the hardcoded Enterprise key and no v3Key provided.
-const isEnterprise = !!enterpriseKey || (!v3Key && recaptchaSiteKey === hardcodedSiteKey);
+const isEnterprise = !!enterpriseKey && !v3Key; // v3 by default; Enterprise only if explicitly set via env
 if (recaptchaSiteKey && typeof window !== "undefined") {
   try {
     if (import.meta.env.DEV) {
