@@ -4,6 +4,13 @@ All notable changes to **Rajlab Tools Webapp** are documented here, organized by
 
 ---
 
+## [3.1.7] — 2026-08-23
+
+### Performance
+- **Build Optimization (Code Splitting)**: Implemented manual chunk splitting in Vite config to separate large vendor libraries into dedicated bundles — PDF libraries (848 kB), Firebase (488 kB), React ecosystem (449 kB), and DOCX (359 kB) now load as separate chunks instead of monolithic bundles. This eliminates build warnings about chunks >500 kB and improves initial load performance by enabling better browser caching and parallel resource loading.
+
+---
+
 ## [3.1.6] — 2026-08-23
 
 ### Added
