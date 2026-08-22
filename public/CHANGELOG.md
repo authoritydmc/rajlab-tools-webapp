@@ -4,6 +4,16 @@ All notable changes to **Rajlab Tools Webapp** are documented here, organized by
 
 ---
 
+## [2.4.0] — 2026-08-22
+
+### Added
+- **Suite-Wide Developer Embed Guide & REST API**: Expanded interactive `DeveloperEmbedGuide` across all 35+ tools featuring real-time generated URLs, cURL CLI commands, HTML `<img>` & `<iframe>` tags, React JSX components, Markdown image links, and asynchronous JSON Fetch APIs.
+- **Universal URL Query Parameter Execution**: URL search parameters (`?length=...`, `?token=...`, `?json=...`, `?csv=...`, `?xml=...`, `?yaml=...`, `?pattern=...`, `?ts=...`, `?val=...`, `?hex=...`) are parsed and computed immediately across Password Generator, JWT Decoder, CSV/JSON/XML/YAML Converters, Regex Tester, Timestamp Converter, CSS Unit Converter, Color Picker, and Lorem Ipsum.
+- **Headless Programmatic Computation Engine (`RawResultView.jsx`)**: Added instant computation handlers returning raw calculated plaintext (`?raw=text`, `?raw=csv`, `?raw=xml`, `?raw=yaml`) and structured responses (`?raw=json`) for automated workflows, CLI queries, and third-party integrations.
+- **Side-by-Side Responsive Layout**: Responsive split view on large displays (`lg` / `xl`) placing input forms side-by-side with live output panels and customizers, gracefully collapsing to stacked views on mobile.
+
+---
+
 ## [2.3.0] — 2026-08-22
 
 ### Added
