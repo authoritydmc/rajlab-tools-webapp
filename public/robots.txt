@@ -2,4 +2,3 @@ User-agent: *
 Allow: /
 
 Sitemap: https://utility.rajlabs.in/sitemap.xml
-Sitemap: https://utils.rajlabs.in/sitemap1.xml

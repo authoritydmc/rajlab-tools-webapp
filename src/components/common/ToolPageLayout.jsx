@@ -5,7 +5,8 @@ import { HiHome, HiArrowLeft, HiChevronRight, HiChevronDown } from 'react-icons/
 import { FaGithub } from 'react-icons/fa';
 import getIconByName from '../../utils/getIconsUtil';
 import DeveloperEmbedGuide from './DeveloperEmbedGuide';
-import { getGitHubUrl } from '../../utils/toolRegistry';
+import { getGitHubUrl, getToolInfo } from '../../utils/toolRegistry';
+import { updatePageSEO } from '../../utils/seoUtils';
 
 export default function ToolPageLayout({ 
   title, 
@@ -26,6 +27,19 @@ export default function ToolPageLayout({
   const isEmbed = searchParams.get('embed') === 'true' || searchParams.get('direct') === '1' || searchParams.get('embed') === '1';
   const rawParam = searchParams.get('raw') || searchParams.get('format');
   const githubUrl = getGitHubUrl(currentPath);
+  const toolInfo = getToolInfo(currentPath);
+
+  // Dynamic SEO Injection on Page Mount & Route Change
+  useEffect(() => {
+    if (title && currentPath) {
+      updatePageSEO({
+        title,
+        description: toolInfo?.description,
+        path: currentPath,
+        keywords: `${title}, online ${title}, free ${title}, developer tool, rajlabs`
+      });
+    }
+  }, [title, currentPath, toolInfo]);
 
   const crumbs = [
     { label: 'Home', path: '/' },
