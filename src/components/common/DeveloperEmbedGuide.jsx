@@ -466,12 +466,12 @@ Source: ${githubUrl}
                 ].map(({sz, label, margin}) => {
                   const isSel = effectivePreviewSize===sz && effectivePreviewMargin===margin;
                   return (
-                    <button key={sz} onClick={() => { setPreviewSize(sz); setPreviewMargin(margin); copyToClipboard(getRawUrlWithSize(sz, margin), `size-${sz}`); }} className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border transition-all ${isSel ? 'bg-indigo-600 text-white border-indigo-500 shadow' : copiedKey===`size-${sz}` ? 'bg-emerald-600 text-white border-emerald-500' : isDarkMode ? 'bg-slate-800 text-slate-300 border-slate-700 hover:border-amber-500/40 hover:text-amber-300' : 'bg-white text-slate-600 border-slate-200 hover:border-amber-400'}`} title={`Preview + copy ${sz}px`}>
-                      {isSel ? '● ' : copiedKey===`size-${sz}` ? '✓ ' : ''}{label}
+                    <button key={sz} onClick={() => { setPreviewSize(sz); setPreviewMargin(margin); }} className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border transition-all ${isSel ? 'bg-indigo-600 text-white border-indigo-500 shadow' : isDarkMode ? 'bg-slate-800 text-slate-300 border-slate-700 hover:border-amber-500/40 hover:text-amber-300' : 'bg-white text-slate-600 border-slate-200 hover:border-amber-400'}`} title={`Preview ${sz}px`}>
+                      {isSel ? '● ' : ''}{label}
                     </button>
                   );
                 })}
-                <button onClick={() => { setPreviewSize(64); setPreviewMargin(0); copyToClipboard(getRawUrlWithSize(64,0), 'size-tight'); }} className={`px-2 py-1 rounded-full text-[11px] font-mono border ${previewMargin===0 && previewSize===64 ? 'bg-amber-500 text-slate-900 border-amber-400' : isDarkMode ? 'bg-amber-500/10 text-amber-300 border-amber-500/30' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>tight: &margin=0</button>
+                <button onClick={() => { setPreviewSize(64); setPreviewMargin(0); }} className={`px-2 py-1 rounded-full text-[11px] font-mono border transition-all ${previewMargin===0 && previewSize===64 ? 'bg-amber-500 text-slate-900 border-amber-400' : isDarkMode ? 'bg-amber-500/10 text-amber-300 border-amber-500/30 hover:border-amber-400/50' : 'bg-amber-50 text-amber-700 border-amber-200 hover:border-amber-400'}`}>tight: &margin=0</button>
               </div>
             </div>
           )}
